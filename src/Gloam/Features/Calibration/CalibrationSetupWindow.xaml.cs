@@ -1,3 +1,4 @@
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
@@ -74,7 +75,7 @@ namespace Gloam.Features.Calibration
             var browser = new CcssBrowserWindow(
                 _viewModel.SelectedMonitor?.Model.FriendlyName ?? "",
                 CalibrationSetupViewModel.CorrectionsFolder,
-                title: "Find or Create Meter Correction",
+                title: Loc.Get("calibration.find.or.create.meter.correction"),
                 introText: "Search the DisplayCAL community database for a correction matched to your panel, or " +
                            "generate your own: “From spectrometer…” measures this panel’s spectra into a " +
                            ".ccss, and “Correction matrix…” builds a .ccmx from a spectrometer + colorimeter " +
@@ -90,7 +91,7 @@ namespace Gloam.Features.Calibration
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Title = "Select meter correction file",
+                Title = Loc.Get("calibration.select.meter.correction.file"),
                 Filter = "Colorimeter corrections (*.ccss;*.ccmx)|*.ccss;*.ccmx|All files (*.*)|*.*",
             };
             if (dialog.ShowDialog() != true) return;

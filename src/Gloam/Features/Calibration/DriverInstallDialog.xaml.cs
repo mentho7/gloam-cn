@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -52,8 +53,8 @@ namespace Gloam.Features.Calibration
             // Check if driver installer is available
             if (!UsbDriverHelper.IsDriverInstallerAvailable())
             {
-                ShowResult(false, "Driver installer not found",
-                    "The ArgyllCMS USB driver installer could not be found. Please download ArgyllCMS first.");
+                ShowResult(false, Loc.Get("calibration.driver.installer.not.found"),
+                    Loc.Get("calibration.the.argyllcms.usb.driver.installer.could.not.be.found"));
                 return;
             }
 
@@ -70,13 +71,13 @@ namespace Gloam.Features.Calibration
                 // We consider it successful if the installer ran (user may have installed or cancelled)
                 // The real test is whether calibration works afterward
                 _driverInstalled = true;
-                ShowResult(true, "Driver installer completed",
+                ShowResult(true, Loc.Get("calibration.driver.installer.completed"),
                     "If you installed the driver for your colorimeter, click 'Retry Calibration' to continue.\n\n" +
-                    "If the installer was cancelled or failed, click 'Close' and try again.");
+                    Loc.Get("calibration.if.the.installer.was.cancelled.or.failed.click.close"));
             }
             catch (Exception ex)
             {
-                ShowResult(false, "Failed to launch installer", ex.Message);
+                ShowResult(false, Loc.Get("calibration.failed.to.launch.installer"), ex.Message);
             }
         }
 
@@ -94,7 +95,7 @@ namespace Gloam.Features.Calibration
             }
             else
             {
-                ResultIcon.Text = "FAILED";
+                ResultIcon.Text = Loc.Get("calibration.failed");
                 ResultIcon.Foreground = (Brush)FindResource("ErrorBrush");
                 RetryButton.Visibility = Visibility.Collapsed;
             }

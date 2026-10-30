@@ -1,3 +1,4 @@
+using Gloam.Localization.Wpf;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,7 +13,7 @@ namespace Gloam.Infrastructure.Dialogs
     /// </summary>
     public class CrashDialogViewModel : ObservableObject
     {
-        private string _title = "Something went wrong";
+        private string _title = Loc.Get("dialogs.something.went.wrong");
         private string _message = string.Empty;
         private string _details = string.Empty;
         private bool _areDetailsVisible;

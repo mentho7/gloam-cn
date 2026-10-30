@@ -30,6 +30,7 @@ namespace Gloam.Tests
     /// These are renders of the real windows, not screen captures: the window is laid out offscreen
     /// and rasterised with RenderTargetBitmap. Same fonts, same layout, same resources.
     /// </remarks>
+    [ResetsLocalization]
     public sealed class UiSnapshotTests
     {
         [Fact]
@@ -67,6 +68,11 @@ namespace Gloam.Tests
                     CaptureOne(output, "zh-Hans", "dashboard", app, BuildDashboard);
                     CaptureOne(output, "en-US", "settings", app, BuildSettings);
                     CaptureOne(output, "zh-Hans", "settings", app, BuildSettings);
+
+                    // Pseudo-language pass: ~40% longer strings, which is what the layout has to
+                    // survive before a second real language can be promised.
+                    CaptureOne(output, "qps-ploc", "dashboard", app, BuildDashboard, pseudo: true);
+                    CaptureOne(output, "qps-ploc", "settings", app, BuildSettings, pseudo: true);
                 }
                 finally
                 {
@@ -89,14 +95,17 @@ namespace Gloam.Tests
             };
         }
 
-        private static void CaptureOne(string folder, string culture, string name, Application app, Func<Window> factory)
+        private static void CaptureOne(string folder, string culture, string name, Application app,
+            Func<Window> factory, bool pseudo = false)
         {
             Localizer localizer = new(
                 StringCatalogSet.Load(new EmbeddedCatalogSource(
                     typeof(Gloam.Shell.App).Assembly, "Gloam.Resources.i18n.")),
                 new LocalizationOptions(),
-                CultureInfo.GetCultureInfo(culture));
-            LocalizedStrings.Default = new LocalizedStrings(localizer);
+                CultureInfo.GetCultureInfo(pseudo ? "en-US" : culture));
+
+            ILocalizer effective = pseudo ? new PseudoLocalizer(localizer) : localizer;
+            LocalizedStrings.Default = new LocalizedStrings(effective);
             CultureFontPolicy.Apply(localizer.Culture);
 
             Window window = factory();

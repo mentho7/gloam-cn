@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -125,10 +126,10 @@ namespace Gloam.Features.Dashboard
 
         public string SelectedNightModeAlgorithmDescription => SelectedNightModeAlgorithm switch
         {
-            NightModeAlgorithm.Perceptual => "Balanced color preservation",
-            NightModeAlgorithm.UltraNight => "Amber/red maximum protection",
-            NightModeAlgorithm.AccurateCIE1931 => "Full CIE white-point shift",
-            NightModeAlgorithm.Standard => "Classic warm tint",
+            NightModeAlgorithm.Perceptual => Loc.Get("dashboard.balanced.color.preservation"),
+            NightModeAlgorithm.UltraNight => Loc.Get("dashboard.amber.red.maximum.protection"),
+            NightModeAlgorithm.AccurateCIE1931 => Loc.Get("dashboard.full.cie.white.point.shift"),
+            NightModeAlgorithm.Standard => Loc.Get("dashboard.classic.warm.tint"),
             _ => string.Empty
         };
 
@@ -392,9 +393,9 @@ namespace Gloam.Features.Dashboard
             get
             {
                 var settings = SettingsManager.NightMode;
-                if (!settings.Enabled) return "Daylight is forced; schedule and manual warmth are disabled.";
+                if (!settings.Enabled) return Loc.Get("dashboard.daylight.is.forced.schedule.and.manual.warmth.are");
                 if (settings.ManualOverrideEnabled) return $"Forcing {settings.GetManualOverrideKelvin()}K until you switch back to Auto or Off.";
-                return "Schedule controls warmth automatically.";
+                return Loc.Get("dashboard.schedule.controls.warmth.automatically");
             }
         }
 
@@ -850,7 +851,7 @@ namespace Gloam.Features.Dashboard
         {
             if (GamerMode.IsScanningForGames) return;
             GamerMode.IsScanningForGames = true;
-            GamerMode.DiscoveryStatus = "Checking your launcher libraries…";
+            GamerMode.DiscoveryStatus = Loc.Get("dashboard.checking.your.launcher.libraries");
             try
             {
                 var progress = new Progress<GameDiscoveryProgress>(update =>
@@ -896,21 +897,21 @@ namespace Gloam.Features.Dashboard
                     : string.Empty;
                 GamerMode.DiscoveryStatus = newGames switch
                 {
-                    0 when games.Count > 0 => "Every game found by the scanner is already in your library." + hdrSuffix,
-                    0 => "No supported launcher games were found. You can still add the running game below.",
-                    1 => "Found 1 game. Review it before adding." + hdrSuffix,
+                    0 when games.Count > 0 => Loc.Get("dashboard.every.game.found.by.the.scanner.is.already.in.your") + hdrSuffix,
+                    0 => Loc.Get("dashboard.no.supported.launcher.games.were.found.you.can.still"),
+                    1 => Loc.Get("dashboard.found.1.game.review.it.before.adding") + hdrSuffix,
                     _ => $"Found {newGames} new games. Nothing is checked automatically; add only the profiles you want." + hdrSuffix
                 };
             }
             catch (OperationCanceledException)
             {
                 if (!_isDisposed)
-                    GamerMode.DiscoveryStatus = "Game scan stopped.";
+                    GamerMode.DiscoveryStatus = Loc.Get("dashboard.game.scan.stopped");
             }
             catch (Exception ex)
             {
                 Log.Error($"Game discovery failed: {ex.Message}");
-                GamerMode.DiscoveryStatus = "Game scan could not finish. You can still add a running game below.";
+                GamerMode.DiscoveryStatus = Loc.Get("dashboard.game.scan.could.not.finish.you.can.still.add.a.running");
             }
             finally
             {
@@ -926,7 +927,7 @@ namespace Gloam.Features.Dashboard
                 .ToList();
             if (selected.Count == 0)
             {
-                GamerMode.DiscoveryStatus = "Choose at least one new game to add.";
+                GamerMode.DiscoveryStatus = Loc.Get("dashboard.choose.at.least.one.new.game.to.add");
                 return;
             }
 
@@ -977,7 +978,7 @@ namespace Gloam.Features.Dashboard
             GamerMode.DiscoveryStatus = pausedLargeImport
                 ? $"Added {added} games. Game Mode is paused so you can review the library before anything activates."
                 : added == 1
-                    ? "Added 1 game with the Competitive look. You can change it below."
+                    ? Loc.Get("dashboard.added.1.game.with.the.competitive.look.you.can.change")
                     : $"Added {added} games with the Competitive look. You can tune each one below.";
         }
 
@@ -1062,7 +1063,7 @@ namespace Gloam.Features.Dashboard
             GamerLibraryPresetOption? selection = GamerMode.SelectedLibraryPreset;
             if (selection == null)
             {
-                GamerMode.ShowMessage("Choose a library default first.");
+                GamerMode.ShowMessage(Loc.Get("dashboard.choose.a.library.default.first"));
                 return;
             }
 
@@ -1072,7 +1073,7 @@ namespace Gloam.Features.Dashboard
             if (targets.Count == 0)
             {
                 GamerMode.ShowMessage(
-                    "No HDR-capable games are known yet. Scan your libraries or mark HDR support in Advanced.");
+                    Loc.Get("dashboard.no.hdr.capable.games.are.known.yet.scan.your.libraries"));
                 return;
             }
 
@@ -1090,7 +1091,7 @@ namespace Gloam.Features.Dashboard
 
             if (SaveGamerProfiles())
             {
-                string targetDescription = selection.HdrCapableOnly ? "HDR-capable games" : "games";
+                string targetDescription = selection.HdrCapableOnly ? Loc.Get("dashboard.hdr.capable.games") : "games";
                 GamerMode.ShowMessage(
                     $"Applied {selection.Label.Split('·')[0].Trim()} to {targets.Count} {targetDescription}.");
                 GamerMode.SelectedLibraryPreset = null;
@@ -1117,7 +1118,7 @@ namespace Gloam.Features.Dashboard
                 _suppressGamerProfileSave = false;
             }
             SaveGamerProfiles();
-            GamerMode.ShowMessage("Game library cleared.");
+            GamerMode.ShowMessage(Loc.Get("dashboard.game.library.cleared"));
         }
 
         private void SetSectionExpanded(string key, bool expanded, string propertyName)

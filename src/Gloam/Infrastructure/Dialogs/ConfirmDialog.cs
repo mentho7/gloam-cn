@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Gloam.Localization.Wpf;
 
 namespace Gloam.Infrastructure.Dialogs
 {
@@ -109,10 +110,20 @@ namespace Gloam.Infrastructure.Dialogs
             });
         }
 
-        /// <summary>Shows the dialog modally over the owner and returns true when confirmed.</summary>
+        /// <summary>
+        /// Shows the dialog modally over the owner and returns true when confirmed.
+        /// </summary>
+        /// <remarks>
+        /// The labels are taken as literal text. Prefer <see cref="ConfirmKeys"/>: a literal passed
+        /// from a call site is text that no catalog can change, so every caller ends up being its own
+        /// translation point.
+        /// </remarks>
         public static bool Confirm(Window owner, string title, string message,
-            string confirmLabel = "Yes", string cancelLabel = "No")
+            string? confirmLabel = null, string? cancelLabel = null)
         {
+            confirmLabel ??= Loc.Get("dialog.yes");
+            cancelLabel ??= Loc.Get("dialog.no");
+
             var dialog = new ConfirmDialog(title, message, confirmLabel, cancelLabel)
             {
                 Owner = owner,
@@ -125,12 +136,29 @@ namespace Gloam.Infrastructure.Dialogs
         }
 
         /// <summary>
+        /// Confirms using catalog keys instead of literal text, so the dialog follows the language
+        /// without each caller resolving the strings itself.
+        /// </summary>
+        /// <param name="messageKey">Catalog key, or a value from <paramref name="arguments"/>.</param>
+        public static bool ConfirmKeys(Window owner, string titleKey, string messageKey,
+            string? confirmKey = null, string? cancelKey = null,
+            params (string Name, object? Value)[] arguments)
+        {
+            return Confirm(
+                owner,
+                Loc.Get(titleKey),
+                arguments.Length == 0 ? Loc.Get(messageKey) : Loc.Format(messageKey, arguments),
+                Loc.Get(confirmKey ?? "dialog.yes"),
+                Loc.Get(cancelKey ?? "dialog.no"));
+        }
+
+        /// <summary>
         /// Shows an informational dialog (single OK button) modally over the owner.
         /// Replaces MessageBox for status reports, errors and multiline summaries.
         /// </summary>
         public static void Info(Window owner, string title, string message)
         {
-            var dialog = new ConfirmDialog(title, message, "OK", cancelLabel: null)
+            var dialog = new ConfirmDialog(title, message, Loc.Get("dialog.ok"), cancelLabel: null)
             {
                 Owner = owner,
                 Topmost = owner?.Topmost == true,

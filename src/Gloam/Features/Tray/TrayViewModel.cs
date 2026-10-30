@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -132,9 +133,9 @@ namespace Gloam.Features.Tray
 
             _dispwinRunner.DispwinUnavailable += () =>
                 OnUiThread(() =>
-                    NotificationRequested?.Invoke("ArgyllCMS Not Found",
+                    NotificationRequested?.Invoke(Loc.Get("tray.argyllcms.not.found"),
                         "Native gamma apply failed and dispwin.exe is unavailable.\n" +
-                        "Open Calibrate Display to download ArgyllCMS."));
+                        Loc.Get("tray.open.calibrate.display.to.download.argyllcms")));
 
             _nightModeService.BlendChanged += (blend) =>
             {
@@ -225,11 +226,11 @@ namespace Gloam.Features.Tray
                 if (!TrustCheckHistory.ShouldRemind(lastCheckUtc, DateTime.UtcNow, intervalDays)) return;
 
                 _toastService?.Show(
-                    "Time for a trust check",
+                    Loc.Get("tray.time.for.a.trust.check"),
                     lastCheckUtc is { } last
                         ? $"The last 20-second display check was {(DateTime.UtcNow - last).TotalDays:F0} days ago."
-                        : "Run a 20-second display check to start tracking calibration drift.",
-                    ToastKind.Info, "Run check", OpenTrustCheck);
+                        : Loc.Get("tray.run.a.20.second.display.check.to.start.tracking"),
+                    ToastKind.Info, Loc.Get("tray.run.check"), OpenTrustCheck);
             }
             catch (Exception ex)
             {
@@ -355,7 +356,7 @@ namespace Gloam.Features.Tray
                 ? $"Gloam is now running version {toVersion}."
                 : $"Updated from version {fromVersion} to {toVersion}.";
 
-            if (ShowNotification("Gloam updated", message, ToastKind.Success))
+            if (ShowNotification(Loc.Get("tray.gloam.updated"), message, ToastKind.Success))
                 _updateService.MarkUpdatedNotified(toVersion);
         }
 
@@ -366,7 +367,7 @@ namespace Gloam.Features.Tray
 
             // Warning kind: "you are on an outdated version" is an address-me notice in the
             // toast design language (amber stripe), not a neutral status blip.
-            if (ShowNotification("Update available", $"Version {version} is available. Downloading in the background.", ToastKind.Warning))
+            if (ShowNotification(Loc.Get("tray.update.available"), $"Version {version} is available. Downloading in the background.", ToastKind.Warning))
                 _updateService.MarkUpdateAvailableNotified(version);
         }
 
@@ -382,7 +383,7 @@ namespace Gloam.Features.Tray
             bool shown = false;
             if (info != null)
             {
-                shown = ShowNotification("Update ready", message, ToastKind.Success, "Restart now", () =>
+                shown = ShowNotification(Loc.Get("tray.update.ready"), message, ToastKind.Success, Loc.Get("tray.restart.now"), () =>
                 {
                     try
                     {
@@ -391,13 +392,13 @@ namespace Gloam.Features.Tray
                     catch (Exception ex)
                     {
                         Log.Error($"TrayViewModel: restart update apply failed: {ex.Message}");
-                        _toastService?.Show("Update will retry later", "Gloam could not restart into the update yet.", ToastKind.Warning);
+                        _toastService?.Show(Loc.Get("tray.update.will.retry.later"), Loc.Get("tray.gloam.could.not.restart.into.the.update.yet"), ToastKind.Warning);
                     }
                 });
             }
             else
             {
-                shown = ShowNotification("Update ready", message, ToastKind.Success, "Exit now", () =>
+                shown = ShowNotification(Loc.Get("tray.update.ready"), message, ToastKind.Success, Loc.Get("tray.exit.now"), () =>
                 {
                     try { Application.Current.Shutdown(); }
                     catch (Exception ex) { Log.Error($"TrayViewModel: update exit action failed: {ex.Message}"); }
@@ -413,8 +414,8 @@ namespace Gloam.Features.Tray
             if (!_updateService.ShouldNotifyPersistentFailure())
                 return;
 
-            _toastService?.Show("Update will retry later",
-                "Gloam could not check for updates. It will keep trying in the background.",
+            _toastService?.Show(Loc.Get("tray.update.will.retry.later"),
+                Loc.Get("tray.gloam.could.not.check.for.updates.it.will.keep.trying"),
                 ToastKind.Info);
             _updateService.MarkFailureNotified();
         }
@@ -754,9 +755,9 @@ namespace Gloam.Features.Tray
                 if (!_nightLightToastShown)
                 {
                     _nightLightToastShown = true;
-                    _toastService?.Show("Windows Night Light disabled",
+                    _toastService?.Show(Loc.Get("tray.windows.night.light.disabled"),
                         "Night Light layers a second colour shift on top of Gloam's calibrated output, " +
-                        "so Gloam has turned it off and manages display colour instead.",
+                        Loc.Get("tray.so.gloam.has.turned.it.off.and.manages.display.colour"),
                         ToastKind.Info);
                 }
             }
@@ -792,8 +793,8 @@ namespace Gloam.Features.Tray
             // which could appear behind other windows / on the wrong monitor) with a themed,
             // non-modal toast. It confirms the recovery without stealing focus.
             _toastService?.Show(
-                "Gloam safe mode",
-                "Gamma cleared. Game Mode and night warmth are paused.",
+                Loc.Get("tray.gloam.safe.mode"),
+                Loc.Get("tray.gamma.cleared.game.mode.and.night.warmth.are.paused"),
                 ToastKind.Warning);
         }
 
@@ -900,28 +901,28 @@ namespace Gloam.Features.Tray
                 if (owner != null)
                 {
                     includeReports = ConfirmDialog.Confirm(owner,
-                        "Diagnostics Export",
+                        Loc.Get("tray.diagnostics.export"),
                         "Include saved calibration report snapshots and detailed verification CSVs in the support bundle?\n\n" +
-                        "Choose Summary Only for the smallest bundle.",
-                        confirmLabel: "Include Reports",
-                        cancelLabel: "Summary Only");
+                        Loc.Get("tray.choose.summary.only.for.the.smallest.bundle"),
+                        confirmLabel: Loc.Get("tray.include.reports"),
+                        cancelLabel: Loc.Get("tray.summary.only"));
                 }
 
-                string outputDir = Path.Combine(AppPaths.DataDir, "Diagnostics");
+                string outputDir = Path.Combine(AppPaths.DataDir, Loc.Get("tray.diagnostics"));
                 string path = new DiagnosticsBundle().Create(outputDir, activeMonitors, _settingsManager, includeReports);
                 Log.Info($"TrayViewModel: diagnostics bundle exported to {path}");
 
                 string message = $"Saved to {path}";
                 if (_toastService != null)
-                    _toastService.Show("Diagnostics exported", message, ToastKind.Success);
+                    _toastService.Show(Loc.Get("tray.diagnostics.exported"), message, ToastKind.Success);
                 else
-                    NotificationRequested?.Invoke("Diagnostics exported", message);
+                    NotificationRequested?.Invoke(Loc.Get("tray.diagnostics.exported"), message);
             }
             catch (Exception ex)
             {
                 Log.Error($"TrayViewModel.ExportDiagnostics: {ex}");
-                _toastService?.Show("Diagnostics failed", ex.Message, ToastKind.Error);
-                NotificationRequested?.Invoke("Diagnostics failed", ex.Message);
+                _toastService?.Show(Loc.Get("tray.diagnostics.failed"), ex.Message, ToastKind.Error);
+                NotificationRequested?.Invoke(Loc.Get("tray.diagnostics.failed"), ex.Message);
             }
         }
 

@@ -52,8 +52,8 @@
                                 <!-- Calibrating: amber outline -->
                                 <Border BorderBrush="{DynamicResource ThemeAmber}" BorderThickness="1" Padding="6,2" Margin="0,0,6,0"
                                         Visibility="{Binding IsCalibrating, Converter={StaticResource BoolToVis}}"
-                                        ToolTip="A calibration is measuring this display; its gamma, brightness and temperature settings are bypassed until it finishes">
-                                    <TextBlock Text="Calibrating" FontFamily="{StaticResource DisplayFont}"
+                                        ToolTip="{loc:Tr dashboard.a.calibration.is.measuring.this.display.its.gamma}">
+                                    <TextBlock Text="{loc:Tr dashboard.calibrating}" FontFamily="{StaticResource DisplayFont}"
                                                FontSize="9" FontWeight="Bold" Foreground="{DynamicResource ThemeAmber}"/>
                                 </Border>
                                 <!-- HDR = filled accent, SDR = outline.
@@ -221,7 +221,7 @@
                                                        FontFamily="{StaticResource MonoFont}" FontSize="12"
                                                        Foreground="{DynamicResource ThemeText}"/>
 
-                                            <CheckBox Grid.Column="1" Content="All screens" IsChecked="{Binding FullDisable}"
+                                            <CheckBox Grid.Column="1" Content="{loc:Tr dashboard.all.screens}" IsChecked="{Binding FullDisable}"
                                                       VerticalAlignment="Center" Margin="0,0,12,0"
                                                       Foreground="{DynamicResource ThemeTextDim}" FontSize="10"
                                                       FontFamily="{StaticResource DisplayFont}" FontWeight="Bold"
@@ -433,8 +433,8 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBox Text="{Binding GamerMode.DiscoverySearchText, UpdateSourceTrigger=PropertyChanged}"
-                                                         ToolTip="Filter found games"/>
-                                                <TextBlock Text="Search found games" IsHitTestVisible="False" Margin="9,0"
+                                                         ToolTip="{loc:Tr dashboard.filter.found.games}"/>
+                                                <TextBlock Text="{loc:Tr dashboard.search.found.games}" IsHitTestVisible="False" Margin="9,0"
                                                            VerticalAlignment="Center" Foreground="{DynamicResource ThemeTextDim}">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -450,7 +450,7 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBlock Grid.Column="1" Text="Nothing is selected automatically"
+                                                <TextBlock Grid.Column="1" Text="{loc:Tr dashboard.nothing.is.selected.automatically}"
                                                            VerticalAlignment="Center" Margin="12,0,2,0" FontSize="10"
                                                            Foreground="{DynamicResource ThemeTextDim}"/>
                                             </Grid>
@@ -498,7 +498,7 @@
                                                                                 Padding="5,2" Margin="0,0,8,0"
                                                                                 Visibility="{Binding HasDetectedHdr, Converter={StaticResource BoolToVis}}"
                                                                                 ToolTip="{Binding HdrEvidence}">
-                                                                            <TextBlock Text="HDR FOUND" Style="{StaticResource FieldLabel}"
+                                                                            <TextBlock Text="{loc:Tr dashboard.hdr.found}" Style="{StaticResource FieldLabel}"
                                                                                        Foreground="{DynamicResource ThemeAccent}"/>
                                                                         </Border>
                                                                         <TextBlock Text="{Binding Library}" Style="{StaticResource FieldLabel}"
@@ -584,7 +584,7 @@
                                             <ComboBox x:Name="LibraryPresetPicker" Margin="0" Height="30"
                                                       ItemsSource="{Binding GamerMode.AvailableLibraryPresets}"
                                                       SelectedItem="{Binding GamerMode.SelectedLibraryPreset, Mode=TwoWay}"
-                                                      ToolTip="Apply one look to the whole library, or only to games with detected or confirmed HDR"/>
+                                                      ToolTip="{loc:Tr dashboard.apply.one.look.to.the.whole.library.or.only.to.games}"/>
                                             <TextBlock Text="{loc:Tr dashboard.gameLab.chooseLook}" Margin="9,0,28,0"
                                                        VerticalAlignment="Center" IsHitTestVisible="False"
                                                        Foreground="{DynamicResource ThemeTextDim}" FontSize="10">
@@ -642,8 +642,8 @@
                                             <StackPanel>
                                                 <StackPanel Margin="0,0,0,8">
                                                     <TextBox Text="{Binding GamerMode.ProfileSearchText, UpdateSourceTrigger=PropertyChanged}"
-                                                             ToolTip="Search your game library"/>
-                                                    <TextBlock Text="Search games or executables" IsHitTestVisible="False"
+                                                             ToolTip="{loc:Tr dashboard.search.your.game.library}"/>
+                                                    <TextBlock Text="{loc:Tr dashboard.search.games.or.executables}" IsHitTestVisible="False"
                                                                Margin="9,-27,9,9" Height="18" VerticalAlignment="Center"
                                                                Foreground="{DynamicResource ThemeTextDim}">
                                                         <TextBlock.Style>
@@ -771,14 +771,14 @@
                                                                     </TextBlock>
                                                                 </StackPanel>
                                                             </StackPanel>
-                                                            <CheckBox Grid.Column="1" Content="Use this profile" IsChecked="{Binding Enabled, Mode=TwoWay}"
+                                                            <CheckBox Grid.Column="1" Content="{loc:Tr dashboard.use.this.profile}" IsChecked="{Binding Enabled, Mode=TwoWay}"
                                                                       VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                                            <Button Grid.Column="2" Content="Remove" Style="{StaticResource BrutIconButton}"
+                                                            <Button Grid.Column="2" Content="{loc:Tr dashboard.remove}" Style="{StaticResource BrutIconButton}"
                                                                     Command="{Binding DataContext.RemoveGamerProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                     CommandParameter="{Binding}"/>
                                                         </Grid>
 
-                                                        <TextBlock Text="Choose a look" Style="{StaticResource FieldLabel}" Margin="0,0,0,7"/>
+                                                        <TextBlock Text="{loc:Tr dashboard.choose.a.look}" Style="{StaticResource FieldLabel}" Margin="0,0,0,7"/>
                                                         <ListBox ItemsSource="{Binding AvailableQuickLooks}"
                                                                  SelectedValuePath="Value"
                                                                  SelectedValue="{Binding PictureIntent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -839,7 +839,7 @@
                                                             </Grid.ColumnDefinitions>
                                                             <StackPanel Grid.Column="0" Margin="0,0,14,0">
                                                                 <Grid>
-                                                                    <TextBlock Text="Dark-area visibility" Style="{StaticResource FieldLabel}"/>
+                                                                    <TextBlock Text="{loc:Tr dashboard.dark.area.visibility}" Style="{StaticResource FieldLabel}"/>
                                                                     <TextBlock Text="{Binding ShadowDetailPlainLabel}" HorizontalAlignment="Right"
                                                                                FontSize="10" Foreground="{DynamicResource ThemeTextDim}"/>
                                                                 </Grid>
@@ -847,10 +847,10 @@
                                                                         TickFrequency="5" IsSnapToTickEnabled="False"/>
                                                             </StackPanel>
                                                             <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                                                <CheckBox Content="Keep the picture steady while I play"
+                                                                <CheckBox Content="{loc:Tr dashboard.keep.the.picture.steady.while.i.play}"
                                                                           IsChecked="{Binding GameplayLock, Mode=TwoWay}"
-                                                                          ToolTip="Prevents scheduled color changes until you leave the game"/>
-                                                                <TextBlock Text="Stops scheduled fades and profile changes from interrupting a session."
+                                                                          ToolTip="{loc:Tr dashboard.prevents.scheduled.color.changes.until.you.leave.the}"/>
+                                                                <TextBlock Text="{loc:Tr dashboard.stops.scheduled.fades.and.profile.changes.from}"
                                                                            Margin="24,3,0,0" FontSize="9"
                                                                            Foreground="{DynamicResource ThemeTextDim}" TextWrapping="Wrap"/>
                                                             </StackPanel>
@@ -863,14 +863,14 @@
                                                                 <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
                                                             <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                                                <TextBlock Text="Night warmth" Style="{StaticResource FieldLabel}"/>
+                                                                <TextBlock Text="{loc:Tr dashboard.night.warmth}" Style="{StaticResource FieldLabel}"/>
                                                                 <Slider Minimum="1900" Maximum="5000" Value="{Binding NightOpsKelvin}"
                                                                         TickFrequency="100"/>
                                                                 <TextBlock Text="{Binding NightOpsKelvin, StringFormat={}{0} K}" FontSize="9"
                                                                            Foreground="{DynamicResource ThemeTextDim}"/>
                                                             </StackPanel>
                                                             <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                                                <TextBlock Text="Keep game colors distinct" Style="{StaticResource FieldLabel}"/>
+                                                                <TextBlock Text="{loc:Tr dashboard.keep.game.colors.distinct}" Style="{StaticResource FieldLabel}"/>
                                                                 <Slider Minimum="0" Maximum="100" Value="{Binding NightOpsStrengthPercent}"
                                                                         TickFrequency="5"/>
                                                                 <TextBlock Text="{Binding NightOpsStrengthPercent, StringFormat={}{0:F0}% color preservation}" FontSize="9"
@@ -878,7 +878,7 @@
                                                             </StackPanel>
                                                         </Grid>
 
-                                                        <Expander Header="Advanced" Margin="0,14,0,0" Foreground="{DynamicResource ThemeText}"
+                                                        <Expander Header="{loc:Tr dashboard.advanced}" Margin="0,14,0,0" Foreground="{DynamicResource ThemeText}"
                                                                   IsExpanded="{Binding DataContext.IsGameProfileAdvancedExpanded, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
                                                             <StackPanel Margin="0,8,0,0">
                                                                 <Grid>
@@ -889,22 +889,22 @@
                                                                         <ColumnDefinition Width="*"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                                                        <TextBlock Text="Profile name" Style="{StaticResource FieldLabel}"/>
+                                                                        <TextBlock Text="{loc:Tr dashboard.profile.name}" Style="{StaticResource FieldLabel}"/>
                                                                         <TextBox Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                                     </StackPanel>
                                                                     <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                                                                        <TextBlock Text="HDR support" Style="{StaticResource FieldLabel}"/>
+                                                                        <TextBlock Text="{loc:Tr dashboard.hdr.support}" Style="{StaticResource FieldLabel}"/>
                                                                         <ComboBox ItemsSource="{Binding AvailableHdrCapabilities}" DisplayMemberPath="Label"
                                                                                   SelectedValuePath="Value" SelectedValue="{Binding HdrCapability, Mode=TwoWay}"
-                                                                                  ToolTip="Detected from local game configuration; you can correct it here"/>
+                                                                                  ToolTip="{loc:Tr dashboard.detected.from.local.game.configuration.you.can.correct}"/>
                                                                     </StackPanel>
                                                                     <StackPanel Grid.Column="2" Margin="0,0,10,0">
-                                                                        <TextBlock Text="Signal check" Style="{StaticResource FieldLabel}"/>
+                                                                        <TextBlock Text="{loc:Tr dashboard.signal.check}" Style="{StaticResource FieldLabel}"/>
                                                                         <ComboBox ItemsSource="{Binding AvailableHdrExpectations}" DisplayMemberPath="Label"
                                                                                   SelectedValuePath="Value" SelectedValue="{Binding HdrExpectation, Mode=TwoWay}"/>
                                                                     </StackPanel>
                                                                     <StackPanel Grid.Column="3">
-                                                                        <TextBlock Text="Target displays" Style="{StaticResource FieldLabel}"/>
+                                                                        <TextBlock Text="{loc:Tr dashboard.target.displays}" Style="{StaticResource FieldLabel}"/>
                                                                         <ComboBox ItemsSource="{Binding AvailableDisplayScopes}" DisplayMemberPath="Label"
                                                                                   SelectedValuePath="Value" SelectedValue="{Binding DisplayScope, Mode=TwoWay}"/>
                                                                     </StackPanel>
@@ -914,9 +914,9 @@
                                                                           ItemsSource="{Binding DataContext.GamerMode.AvailableDisplays, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                           DisplayMemberPath="Label" SelectedValuePath="DevicePath"
                                                                           SelectedValue="{Binding MonitorDevicePath, Mode=TwoWay}"/>
-                                                                <CheckBox x:Name="ApplyWhileRunningBox" Content="Apply while the app is running, even without focus"
+                                                                <CheckBox x:Name="ApplyWhileRunningBox" Content="{loc:Tr dashboard.apply.while.the.app.is.running.even.without.focus}"
                                                                           IsChecked="{Binding ApplyWhileRunning, Mode=TwoWay}" Margin="0,10,0,0"
-                                                                          ToolTip="Use One specific display to keep the profile active on a chosen monitor, including when the app is minimized. A focused profile takes priority; otherwise the first matching running profile is used."/>
+                                                                          ToolTip="{loc:Tr dashboard.use.one.specific.display.to.keep.the.profile.active.on}"/>
                                                                 <Grid Margin="0,10,0,0">
                                                                     <Grid.ColumnDefinitions>
                                                                         <ColumnDefinition Width="*"/>
@@ -924,18 +924,18 @@
                                                                         <ColumnDefinition Width="*"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                                                        <TextBlock Text="Night behavior" Style="{StaticResource FieldLabel}"/>
+                                                                        <TextBlock Text="{loc:Tr dashboard.night.behavior}" Style="{StaticResource FieldLabel}"/>
                                                                         <ComboBox ItemsSource="{Binding AvailableNightPolicies}" DisplayMemberPath="Label"
                                                                                   SelectedValuePath="Value" SelectedValue="{Binding NightPolicy, Mode=TwoWay}"/>
                                                                     </StackPanel>
                                                                     <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                                                                        <CheckBox Content="Override display gamma" IsChecked="{Binding OverrideGamma, Mode=TwoWay}"/>
+                                                                        <CheckBox Content="{loc:Tr dashboard.override.display.gamma}" IsChecked="{Binding OverrideGamma, Mode=TwoWay}"/>
                                                                         <ComboBox Margin="0,6,0,0" IsEnabled="{Binding OverrideGamma}"
                                                                                   ItemsSource="{Binding AvailableGammaModes}" DisplayMemberPath="Label"
                                                                                   SelectedValuePath="Value" SelectedValue="{Binding GammaMode, Mode=TwoWay}"/>
                                                                     </StackPanel>
                                                                     <StackPanel Grid.Column="2">
-                                                                        <TextBlock Text="Current rendering" Style="{StaticResource FieldLabel}"/>
+                                                                        <TextBlock Text="{loc:Tr dashboard.current.rendering}" Style="{StaticResource FieldLabel}"/>
                                                                         <TextBlock Text="{Binding EffectSummary}" FontFamily="{StaticResource MonoFont}"
                                                                                    FontSize="9" TextWrapping="Wrap" Margin="0,5,0,0"/>
                                                                     </StackPanel>
@@ -947,16 +947,16 @@
                                                                         <ColumnDefinition Width="*"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                                                        <TextBlock Text="HDR paper white (nits)" Style="{StaticResource FieldLabel}"/>
+                                                                        <TextBlock Text="{loc:Tr dashboard.hdr.paper.white.nits}" Style="{StaticResource FieldLabel}"/>
                                                                         <TextBox Text="{Binding PaperWhiteNits, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"/>
                                                                     </StackPanel>
                                                                     <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                                                                        <TextBlock Text="HDR peak (nits)" Style="{StaticResource FieldLabel}"/>
+                                                                        <TextBlock Text="{loc:Tr dashboard.hdr.peak.nits}" Style="{StaticResource FieldLabel}"/>
                                                                         <TextBox Text="{Binding PeakNits, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"/>
                                                                     </StackPanel>
                                                                     <StackPanel Grid.Column="2" Visibility="{Binding IsNightOps, Converter={StaticResource BoolToVis}}">
-                                                                        <CheckBox Content="Limit melanopic light" IsChecked="{Binding IsNightOpsMelanopicCeilingEnabled, Mode=TwoWay}"
-                                                                                  ToolTip="Optional hard limit. This can alter the selected look."/>
+                                                                        <CheckBox Content="{loc:Tr dashboard.limit.melanopic.light}" IsChecked="{Binding IsNightOpsMelanopicCeilingEnabled, Mode=TwoWay}"
+                                                                                  ToolTip="{loc:Tr dashboard.optional.hard.limit.this.can.alter.the.selected.look}"/>
                                                                         <TextBox Margin="0,6,0,0" IsEnabled="{Binding IsNightOpsMelanopicCeilingEnabled}"
                                                                                  Text="{Binding NightOpsMelanopicCeiling, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"/>
                                                                     </StackPanel>
@@ -993,7 +993,7 @@
                             </Expander.Header>
                             <Border BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Margin="0,10,0,0" Padding="16">
                                 <StackPanel>
-                                    <TextBlock Text="Configure night mode timing, rendering, and exclusions."
+                                    <TextBlock Text="{loc:Tr dashboard.configure.night.mode.timing.rendering.and.exclusions}"
                                                Foreground="{DynamicResource ThemeTextDim}" FontFamily="{StaticResource BodyFont}"
                                                Margin="0,0,0,12"/>
                                     <local:NightModeScheduleControl x:Name="ScheduleEditor"/>
@@ -1007,7 +1007,7 @@
                                   Foreground="{DynamicResource ThemeText}"
                                   Expanded="MelanopicAdvancedExpander_Expanded">
                             <Expander.Header>
-                                <TextBlock Text="Circadian light (melanopic)"
+                                <TextBlock Text="{loc:Tr dashboard.circadian.light.melanopic}"
                                            FontFamily="{StaticResource DisplayFont}" FontWeight="Bold" FontSize="14"
                                            Foreground="{DynamicResource ThemeText}"/>
                             </Expander.Header>
@@ -1021,7 +1021,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="MELANOPIC LIGHT NOW" Style="{StaticResource Kicker}"/>
+                                            <TextBlock Text="{loc:Tr dashboard.melanopic.light.now}" Style="{StaticResource Kicker}"/>
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
                                                 <TextBlock x:Name="ExposureBig" Text="-"
                                                            FontFamily="{StaticResource DisplayFont}" FontWeight="ExtraBold"
@@ -1035,7 +1035,7 @@
                                                        Foreground="{DynamicResource ThemeTextDim}" TextWrapping="Wrap"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                            <TextBlock Text="THIS EVENING'S DOSE" Style="{StaticResource Kicker}" HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{loc:Tr dashboard.this.evening.s.dose}" Style="{StaticResource Kicker}" HorizontalAlignment="Right"/>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                                                 <TextBlock x:Name="DoseBig" Text="-"
                                                            FontFamily="{StaticResource DisplayFont}" FontWeight="ExtraBold"
@@ -1058,7 +1058,7 @@
                                               Foreground="{DynamicResource ThemeTextDim}"
                                               Expanded="MelanopicAdvancedExpander_Expanded">
                                         <Expander.Header>
-                                            <TextBlock Text="Advanced information"
+                                            <TextBlock Text="{loc:Tr dashboard.advanced.information}"
                                                        FontFamily="{StaticResource BodyFont}" FontSize="12"
                                                        Foreground="{DynamicResource ThemeTextDim}"/>
                                         </Expander.Header>
@@ -1066,7 +1066,7 @@
                                             <TextBlock x:Name="MelanopicSummary" TextWrapping="Wrap"
                                                        FontFamily="{StaticResource MonoFont}" FontSize="13"
                                                        Foreground="{DynamicResource ThemeText}"
-                                                       Text="Waiting for the first applied state."/>
+                                                       Text="{loc:Tr dashboard.waiting.for.the.first.applied.state}"/>
                                             <TextBlock x:Name="MelanopicProvenance" TextWrapping="Wrap" FontSize="11"
                                                        FontFamily="{StaticResource BodyFont}"
                                                        Foreground="{DynamicResource ThemeTextDim}" Margin="0,8,0,0"/>

@@ -72,7 +72,12 @@ namespace Gloam.Tests
 
                     picker.IsDropDownOpen = true;
                     viewModel.Refresh(reEnumerate: false); // same path as a night-mode blend tick
-                    Pump(TimeSpan.FromMilliseconds(1100));
+
+                    // The refresh path debounces before it rebuilds. Waiting a fixed 1100ms passed
+                    // locally and failed under CI load, so wait for the failure condition instead:
+                    // a closed dropdown ends the wait immediately, everything else runs out the
+                    // debounce window and then has to still be open.
+                    PumpUntil(() => !picker.IsDropDownOpen, TimeSpan.FromMilliseconds(2000));
 
                     Assert.True(picker.IsDropDownOpen);
                     Assert.Same(presenter,
@@ -312,6 +317,18 @@ namespace Gloam.Tests
                     try { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); } catch { }
                 }
             });
+        }
+
+        /// <summary>Pumps the dispatcher until <paramref name="until"/> is true or the budget runs out.</summary>
+        private static void PumpUntil(Func<bool> until, TimeSpan budget)
+        {
+            DateTime deadline = DateTime.UtcNow + budget;
+            while (DateTime.UtcNow < deadline)
+            {
+                Pump(TimeSpan.FromMilliseconds(50));
+                if (until())
+                    return;
+            }
         }
 
         private static void Pump(TimeSpan duration)

@@ -1,6 +1,7 @@
 <Window x:Class="Gloam.Features.Calibration.TrustCheckWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Gloam.Localization.Wpf;assembly=Gloam.Localization.Wpf"
         Title="Trust Check" Width="860" Height="620"
         MinWidth="720" MinHeight="520"
         WindowStartupLocation="CenterOwner"
@@ -27,7 +28,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Display" VerticalAlignment="Center" Margin="0,0,10,0"
+            <TextBlock Text="{loc:Tr dashboard.display}" VerticalAlignment="Center" Margin="0,0,10,0"
                        Foreground="{DynamicResource ThemeTextDim}"/>
             <ComboBox x:Name="_monitorPicker" MinWidth="320" VerticalAlignment="Center"
                       SelectionChanged="Monitor_SelectionChanged"/>

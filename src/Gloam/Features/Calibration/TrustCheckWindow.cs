@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -87,7 +88,7 @@ namespace Gloam.Features.Calibration
             _monitorPicker.ItemsSource = rows;
             if (rows.Count > 0) _monitorPicker.SelectedIndex = 0;
             if (rows.Count == 0)
-                _status.Text = "No displays found.";
+                _status.Text = Loc.Get("calibration.no.displays.found");
         }
 
         private string? SelectedDevicePath => (_monitorPicker.SelectedItem as MonitorRow)?.DevicePath;
@@ -104,7 +105,7 @@ namespace Gloam.Features.Calibration
                 .FirstOrDefault(m => string.Equals(m.MonitorDevicePath, devicePath, StringComparison.OrdinalIgnoreCase));
             if (monitor == null)
             {
-                _status.Text = "The selected display is no longer connected.";
+                _status.Text = Loc.Get("calibration.the.selected.display.is.no.longer.connected");
                 return;
             }
 
@@ -112,7 +113,7 @@ namespace Gloam.Features.Calibration
             if (string.IsNullOrEmpty(profile?.Mhc2ProfileName))
             {
                 // A trust check without a reference is noise — refuse honestly.
-                _status.Text = "This display has no active Gloam calibration to check against. Calibrate it first.";
+                _status.Text = Loc.Get("calibration.this.display.has.no.active.gloam.calibration.to.check");
                 return;
             }
 
@@ -132,7 +133,7 @@ namespace Gloam.Features.Calibration
                 : ArgyllPathFinder.FindArgyllBinPath();
             if (argyllBin == null)
             {
-                _status.Text = "ArgyllCMS is not available yet — run a calibration once so Gloam can set it up.";
+                _status.Text = Loc.Get("calibration.argyllcms.is.not.available.yet.run.a.calibration.once");
                 return;
             }
 
@@ -145,10 +146,10 @@ namespace Gloam.Features.Calibration
             ProbeOperationScope? probe = null;
             try
             {
-                _status.Text = "Detecting instrument…";
+                _status.Text = Loc.Get("calibration.detecting.instrument");
                 if (!await colorimeter.InitializeAsync(cts.Token) || !colorimeter.IsReady)
                 {
-                    _status.Text = "No colorimeter detected. Connect the instrument and try again.";
+                    _status.Text = Loc.Get("calibration.no.colorimeter.detected.connect.the.instrument.and.try");
                     return;
                 }
                 if (Enum.TryParse<DisplayType>(profile.CalibDisplayType, out var displayType))
@@ -158,11 +159,11 @@ namespace Gloam.Features.Calibration
                 // Same ramp quiescence as the verify sweep: gamma preference / night mode
                 // must not ride the GPU ramp while we measure through the installed profile
                 // — a check made through the night ramp would poison the trend.
-                _status.Text = "Position the probe on the marked target…";
+                _status.Text = Loc.Get("calibration.position.the.probe.on.the.marked.target");
                 probe = await ProbeOperationScope.StartAsync(new ProbeOperationScope.Options(
                     monitor,
                     colorimeter,
-                    "Calibration trust check",
+                    Loc.Get("calibration.calibration.trust.check"),
                     HdrMode: hdrMode,
                     StateManager: new CalibrationStateManager(_dispwinRunner, _nightModeService),
                     PreviousGammaMode: profile.GammaMode,
@@ -178,7 +179,7 @@ namespace Gloam.Features.Calibration
                 {
                     var patch = patches[i];
                     var next = i + 1 < patches.Count ? patches[i + 1].Name : null;
-                    patchWindow.SetProgress(i + 1, patches.Count, patch.Name, next, "Trust check");
+                    patchWindow.SetProgress(i + 1, patches.Count, patch.Name, next, Loc.Get("calibration.trust.check"));
                     patchWindow.SetColor(patch.DisplayRgb.R, patch.DisplayRgb.G, patch.DisplayRgb.B);
                     await Task.Delay(i == 0 ? 1200 : 500, probe.Token);
 
@@ -237,12 +238,12 @@ namespace Gloam.Features.Calibration
                 var verdict = TrustCheckHistory.AnalyzeDrift(TrustCheckHistory.Load(devicePath));
                 if (verdict is { Alert: true })
                 {
-                    _toastService?.Show("Display drift detected", verdict.Summary, ToastKind.Warning);
+                    _toastService?.Show(Loc.Get("calibration.display.drift.detected"), verdict.Summary, ToastKind.Warning);
                 }
             }
             catch (OperationCanceledException)
             {
-                _status.Text = "Trust check cancelled.";
+                _status.Text = Loc.Get("calibration.trust.check.cancelled");
             }
             catch (Exception ex)
             {
@@ -275,7 +276,7 @@ namespace Gloam.Features.Calibration
             var history = TrustCheckHistory.Load(devicePath);
             if (history.Count == 0)
             {
-                _latest.Text = "No trust checks recorded for this display yet. Run one to start the trend.";
+                _latest.Text = Loc.Get("calibration.no.trust.checks.recorded.for.this.display.yet.run.one");
                 return;
             }
 
@@ -302,7 +303,7 @@ namespace Gloam.Features.Calibration
             var deltaEPoints = history.Select(e => (Days(e), e.AvgDeltaE2000)).ToList();
             var deltaESeries = new List<CalibrationCharts.Series>
             {
-                new("Avg ΔE2000", palette.Cyan, deltaEPoints),
+                new(Loc.Get("calibration.avg.e2000"), palette.Cyan, deltaEPoints),
             };
             // Honest banding: dashed ±U95 envelope around each run's own value.
             if (history.Any(e => e.U95DeltaE is not null))
@@ -314,15 +315,15 @@ namespace Gloam.Features.Calibration
             }
             double yMax = Math.Max(deltaESeries.SelectMany(s => s.Points).Max(p => p.Y) * 1.15, 1.0);
             CalibrationCharts.DrawLineChart(_deltaECanvas, deltaESeries,
-                0, xMax, 0, yMax, "Days since first check", "ΔE2000", palette: palette);
+                0, xMax, 0, yMax, Loc.Get("calibration.days.since.first.check"), Loc.Get("calibration.e2000"), palette: palette);
 
             var duvSeries = new List<CalibrationCharts.Series>
             {
-                new("White Duv", palette.Orange, history.Select(e => (Days(e), e.WhiteDuv)).ToList()),
+                new(Loc.Get("calibration.white.duv"), palette.Orange, history.Select(e => (Days(e), e.WhiteDuv)).ToList()),
             };
             double duvSpan = Math.Max(history.Max(e => Math.Abs(e.WhiteDuv)) * 1.3, 0.005);
             CalibrationCharts.DrawLineChart(_duvCanvas, duvSeries,
-                0, xMax, -duvSpan, duvSpan, "Days since first check", "Duv", palette: palette);
+                0, xMax, -duvSpan, duvSpan, Loc.Get("calibration.days.since.first.check"), "Duv", palette: palette);
         }
 
         private void ExportCsv()
@@ -332,7 +333,7 @@ namespace Gloam.Features.Calibration
             var history = TrustCheckHistory.Load(devicePath);
             if (history.Count == 0)
             {
-                _status.Text = "Nothing to export yet.";
+                _status.Text = Loc.Get("calibration.nothing.to.export.yet");
                 return;
             }
 

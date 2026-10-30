@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -67,13 +68,13 @@ namespace Gloam.Features.Calibration
                         ProgressDetailText.Text = $"{percent}%";
 
                         if (percent < 70)
-                            ProgressStatusText.Text = "Downloading...";
+                            ProgressStatusText.Text = Loc.Get("calibration.downloading");
                         else if (percent < 80)
-                            ProgressStatusText.Text = "Verifying...";
+                            ProgressStatusText.Text = Loc.Get("calibration.verifying");
                         else if (percent < 100)
-                            ProgressStatusText.Text = "Extracting...";
+                            ProgressStatusText.Text = Loc.Get("calibration.extracting");
                         else
-                            ProgressStatusText.Text = "Complete!";
+                            ProgressStatusText.Text = Loc.Get("calibration.complete");
                     });
                 });
 
@@ -81,7 +82,7 @@ namespace Gloam.Features.Calibration
                 _downloadSucceeded = true;
 
                 // Show success
-                ShowResult(true, "Download complete!", "ArgyllCMS has been installed and is ready to use.");
+                ShowResult(true, Loc.Get("calibration.download.complete"), Loc.Get("calibration.argyllcms.has.been.installed.and.is.ready.to.use"));
             }
             catch (OperationCanceledException)
             {
@@ -89,7 +90,7 @@ namespace Gloam.Features.Calibration
                 // (OnClosed cancels the CTS). In the latter case the dialog is gone -
                 // there is nothing to show.
                 if (IsVisible)
-                    ShowResult(false, "Download cancelled", "You can try again later from the calibration setup.");
+                    ShowResult(false, Loc.Get("calibration.download.cancelled"), Loc.Get("calibration.you.can.try.again.later.from.the.calibration.setup"));
             }
             catch (ObjectDisposedException)
             {
@@ -100,7 +101,7 @@ namespace Gloam.Features.Calibration
             {
                 // Download failed
                 if (IsVisible)
-                    ShowResult(false, "Download failed", ex.Message + "\n\nYou can install ArgyllCMS manually from argyllcms.com");
+                    ShowResult(false, Loc.Get("calibration.download.failed"), ex.Message + "\n\nYou can install ArgyllCMS manually from argyllcms.com");
             }
         }
 
@@ -119,7 +120,7 @@ namespace Gloam.Features.Calibration
             }
             else
             {
-                ResultIcon.Text = "FAILED";
+                ResultIcon.Text = Loc.Get("calibration.failed");
                 ResultIcon.Foreground = (Brush)FindResource("ErrorBrush");
             }
 

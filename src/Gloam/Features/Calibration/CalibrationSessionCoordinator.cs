@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -83,9 +84,9 @@ namespace Gloam.Features.Calibration
                 return new Result(calibration, null, null, null);
 
             artifactProgress?.Report(new ArtifactProgress(
-                _config.HdrMode ? "Building HDR profile model..." : "Generating LUT...",
+                _config.HdrMode ? Loc.Get("calibration.building.hdr.profile.model") : Loc.Get("calibration.generating.lut"),
                 99,
-                _config.HdrMode ? "Building model..." : "Generating..."));
+                _config.HdrMode ? Loc.Get("calibration.building.model") : Loc.Get("calibration.generating")));
 
             var generator = new Lut3DGenerator(
                 _config.Target,
@@ -99,12 +100,12 @@ namespace Gloam.Features.Calibration
                 lut = null;
                 characterization = generator.BuildCharacterizationOnly(hdrMode: true);
                 artifactProgress?.Report(new ArtifactProgress(
-                    "Building HDR profile model...", 100, "Model built"));
+                    Loc.Get("calibration.building.hdr.profile.model"), 100, Loc.Get("calibration.model.built")));
             }
             else
             {
                 lut = generator.Generate(_ => artifactProgress?.Report(new ArtifactProgress(
-                    "Generating LUT...", 100, "Generating...")));
+                    Loc.Get("calibration.generating.lut"), 100, Loc.Get("calibration.generating"))));
                 characterization = generator.Characterization;
             }
 

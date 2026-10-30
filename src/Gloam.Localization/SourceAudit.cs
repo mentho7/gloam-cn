@@ -128,6 +128,19 @@ public static partial class LocalizationSourceAudit
             return false;
         }
 
+        // Values that are data rather than prose. Each of these was found inflating the baseline
+        // by a few dozen entries apiece: a hex colour, a WPF resource key (ThemeAccent), an
+        // automation id (display-identify-close), a file name (srgb_to_gamma2p2_sdr.icm) or a
+        // registry value (AppsUseLightTheme). None of them can ever be translated, so counting
+        // them made the ratchet's number meaningless and its per-file numbers wrong.
+        if (ColorLiteral().IsMatch(value) ||
+            ResourceKey().IsMatch(value) ||
+            AutomationId().IsMatch(value) ||
+            FileName().IsMatch(value))
+        {
+            return false;
+        }
+
         // A bare lowercase word is an identifier, not a label: the first element of a
         // ("language", value) template argument, a JSON property, a setting name. UI labels in
         // this codebase are capitalised ("Refresh"), so requiring a capital or a space keeps the
@@ -177,6 +190,25 @@ public static partial class LocalizationSourceAudit
     /// <summary>Matches a text-bearing XAML attribute with a non-binding literal value.</summary>
     [GeneratedRegex(@"(?<attr>Text|Content|Header|Title|ToolTip|Watermark)\s*=\s*""(?<value>[^""{}]*)""", RegexOptions.CultureInvariant)]
     private static partial Regex XamlTextAttribute();
+
+    /// <summary>Matches a #RGB / #RRGGBB colour literal.</summary>
+    [GeneratedRegex(@"^#[0-9A-Fa-f]{3,8}$", RegexOptions.CultureInvariant)]
+    private static partial Regex ColorLiteral();
+
+    /// <summary>
+    /// Matches a WPF resource key: <c>ThemeAccent</c>, <c>DarkCardBorder</c>, <c>SuccessBrush</c>.
+    /// These name a brush or a style, so they appear in string form but are never shown as text.
+    /// </summary>
+    [GeneratedRegex(@"^(Theme|Dark|Light|Menu|Card|Input|Dropdown|Accent|Text|Success|Error|Warning)[A-Za-z]*(Brush|Background|Border|Foreground|Color|Key|Meter|Track|Hover|Surface|Dim|Text|Accent)?$", RegexOptions.CultureInvariant)]
+    private static partial Regex ResourceKey();
+
+    /// <summary>Matches an automation id: lower-case words joined by hyphens.</summary>
+    [GeneratedRegex(@"^[a-z][a-z0-9]*(-[a-z0-9]+)+$", RegexOptions.CultureInvariant)]
+    private static partial Regex AutomationId();
+
+    /// <summary>Matches a file name whose extension marks it as data, not text.</summary>
+    [GeneratedRegex(@"^[^\s]+\.(icm|json|csv|ccss|ccmx|log|exe|txt|xaml|png|ico)$", RegexOptions.CultureInvariant)]
+    private static partial Regex FileName();
 
     /// <summary>Matches a single lowercase word: an identifier or argument name, never a label.</summary>
     [GeneratedRegex(@"^[a-z][a-zA-Z0-9]*$", RegexOptions.CultureInvariant)]

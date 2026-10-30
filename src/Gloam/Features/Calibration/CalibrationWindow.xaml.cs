@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -333,8 +334,8 @@ namespace Gloam.Features.Calibration
         {
             if (_isCalibrationRunning && !_isCancelled)
             {
-                if (!ConfirmDialog.Confirm(this, "Cancel Calibration",
-                        "Calibration is in progress. Are you sure you want to cancel?"))
+                if (!ConfirmDialog.Confirm(this, Loc.Get("calibration.cancel.calibration"),
+                        Loc.Get("calibration.calibration.is.in.progress.are.you.sure.you.want.to")))
                 {
                     e.Cancel = true;
                     return;
@@ -836,19 +837,19 @@ namespace Gloam.Features.Calibration
         {
             if (_colorimeterService == null)
             {
-                Vm.SetColorimeterStatus(CalibrationViewModel.ErrorBrush, "Colorimeter service not available", "", canStart: false);
+                Vm.SetColorimeterStatus(CalibrationViewModel.ErrorBrush, Loc.Get("calibration.colorimeter.service.not.available"), "", canStart: false);
                 return;
             }
 
             if (_colorimeterService.IsReady)
             {
-                Vm.SetColorimeterStatus(CalibrationViewModel.SuccessBrush, "Connected and ready",
+                Vm.SetColorimeterStatus(CalibrationViewModel.SuccessBrush, Loc.Get("calibration.connected.and.ready"),
                     _colorimeterService.ConnectedColorimeter?.Model ?? "", canStart: true);
             }
             else
             {
-                Vm.SetColorimeterStatus(CalibrationViewModel.WarningBrush, "No colorimeter detected",
-                    "Connect your i1 Display Plus and click Refresh", canStart: false);
+                Vm.SetColorimeterStatus(CalibrationViewModel.WarningBrush, Loc.Get("calibration.no.colorimeter.detected"),
+                    Loc.Get("calibration.connect.your.i1.display.plus.and.click.refresh"), canStart: false);
             }
         }
 
@@ -860,12 +861,12 @@ namespace Gloam.Features.Calibration
                 {
                     case ColorimeterStatus.Ready:
                         Vm.ColorimeterBrush = CalibrationViewModel.SuccessBrush;
-                        Vm.ColorimeterStatusText = "Connected and ready";
+                        Vm.ColorimeterStatusText = Loc.Get("calibration.connected.and.ready");
                         Vm.CanStart = true;
                         break;
                     case ColorimeterStatus.Searching:
                         Vm.ColorimeterBrush = CalibrationViewModel.WarningBrush;
-                        Vm.ColorimeterStatusText = "Searching...";
+                        Vm.ColorimeterStatusText = Loc.Get("calibration.searching");
                         Vm.CanStart = false;
                         break;
                     case ColorimeterStatus.NotConnected:
@@ -886,13 +887,13 @@ namespace Gloam.Features.Calibration
         private void RefreshColorimeter_Click(object sender, RoutedEventArgs e)
             => SafeAsync.FireAndForget(() => RefreshColorimeter_ClickAsync(sender, e), nameof(RefreshColorimeter_Click),
                 ex => Vm.SetColorimeterStatus(CalibrationViewModel.ErrorBrush,
-                    "Colorimeter check failed", ex.Message, canStart: false));
+                    Loc.Get("calibration.colorimeter.check.failed"), ex.Message, canStart: false));
 
         private async Task RefreshColorimeter_ClickAsync(object sender, RoutedEventArgs e)
         {
             if (_colorimeterService == null) return;
 
-            Vm.SetColorimeterStatus(CalibrationViewModel.WarningBrush, "Searching for colorimeter...", "", canStart: false);
+            Vm.SetColorimeterStatus(CalibrationViewModel.WarningBrush, Loc.Get("calibration.searching.for.colorimeter"), "", canStart: false);
 
             // Surface failures here instead of leaving them to SafeAsync's backstop,
             // which logs but shows the user nothing.
@@ -903,7 +904,7 @@ namespace Gloam.Features.Calibration
             catch (Exception ex)
             {
                 Log.Error($"CalibrationWindow.RefreshColorimeter: {ex.Message}");
-                Vm.ColorimeterStatusText = "Colorimeter search failed";
+                Vm.ColorimeterStatusText = Loc.Get("calibration.colorimeter.search.failed");
             }
             UpdateColorimeterStatus();
         }
@@ -916,7 +917,7 @@ namespace Gloam.Features.Calibration
         {
             if (_colorimeterService == null || _calibrationTarget == null)
             {
-                ConfirmDialog.Info(this, "Error", "Colorimeter or calibration target not configured.");
+                ConfirmDialog.Info(this, "Error", Loc.Get("calibration.colorimeter.or.calibration.target.not.configured"));
                 return;
             }
 
@@ -938,7 +939,7 @@ namespace Gloam.Features.Calibration
                 _patchSize,
                 _patchOffsetX,
                 _patchOffsetY,
-                operationLabel: "Calibration",
+                operationLabel: Loc.Get("calibration.calibration"),
                 secondaryLabel: "Back",
                 showWindowedBanner: Vm.IsWindowedMode);
         }
@@ -961,8 +962,8 @@ namespace Gloam.Features.Calibration
             if (_colorimeterService is null || _calibrationTarget is null)
             {
                 Log.Error("CalibrationWindow: measurement requested without a colorimeter or calibration target");
-                ConfirmDialog.Info(this, "Calibration unavailable",
-                    "The calibration setup is incomplete. Go back and select a meter and target before measuring.");
+                ConfirmDialog.Info(this, Loc.Get("calibration.calibration.unavailable"),
+                    Loc.Get("calibration.the.calibration.setup.is.incomplete.go.back.and.select"));
                 return;
             }
 
@@ -978,10 +979,10 @@ namespace Gloam.Features.Calibration
             if (CalibrationInstallPreflight.DetectNightLightActive() == true)
             {
                 Log.Info("CalibrationWindow: Night Light detected active at measurement start.");
-                if (!ConfirmDialog.Confirm(this, "Night Light Is Active",
+                if (!ConfirmDialog.Confirm(this, Loc.Get("calibration.night.light.is.active"),
                         CalibrationInstallPreflight.NightLightWarning +
                         "\n\nSettings > System > Display > Night light.\n\nMeasure anyway?",
-                        confirmLabel: "Measure Anyway", cancelLabel: "Cancel"))
+                        confirmLabel: Loc.Get("calibration.measure.anyway"), cancelLabel: Loc.Get("calibration.cancel")))
                 {
                     return;
                 }
@@ -1029,14 +1030,14 @@ namespace Gloam.Features.Calibration
                         string names = string.Join("\n", mhc2Foreign.Select(f =>
                             $"  • {f.ProfileName} ({(f.IsAdvancedColor ? "Advanced Color" : "SDR")} default)"));
                         Log.Info($"CalibrationWindow: foreign MHC2 default profile(s) detected before measurement:\n{names}");
-                        bool disable = ConfirmDialog.Confirm(this, "Another Correction Is Active",
+                        bool disable = ConfirmDialog.Confirm(this, Loc.Get("calibration.another.correction.is.active"),
                             "Windows is applying a color correction from another tool on this display:\n\n" +
                             names + "\n\n" +
                             "Measuring through it would characterize an already-corrected panel and " +
                             "bake a DOUBLE correction into this calibration.\n\n" +
-                            "Temporarily disable it during measurement and restore it afterwards?",
-                            confirmLabel: "Disable During Measurement",
-                            cancelLabel: "Keep It Active");
+                            Loc.Get("calibration.temporarily.disable.it.during.measurement.and.restore"),
+                            confirmLabel: Loc.Get("calibration.disable.during.measurement"),
+                            cancelLabel: Loc.Get("calibration.keep.it.active"));
                         if (disable)
                         {
                             // Persist the restore intent FIRST so a crash mid-run can
@@ -1077,7 +1078,7 @@ namespace Gloam.Features.Calibration
                 }
                 catch (Exception ex)
                 {
-                    ConfirmDialog.Info(this, "Warning", $"Failed to disable color corrections: {ex.Message}\n\nCalibration may be inaccurate.");
+                    ConfirmDialog.Info(this, Loc.Get("calibration.warning"), $"Failed to disable color corrections: {ex.Message}\n\nCalibration may be inaccurate.");
                 }
             }
 
@@ -1286,7 +1287,7 @@ namespace Gloam.Features.Calibration
                 if (_foregroundGuard is { Recoveries: > 0 } guard)
                 {
                     Log.Info($"CalibrationWindow: the patch was covered and recovered {guard.Recoveries} time(s) " +
-                             "during this run; readings taken at those moments may be contaminated.");
+                             Loc.Get("calibration.during.this.run.readings.taken.at.those.moments.may.be"));
                 }
                 UnwireOrchestratorEvents();
 
@@ -1328,7 +1329,7 @@ namespace Gloam.Features.Calibration
 
                 Vm.NextPatchText = e.NextPatch != null
                     ? e.NextPatch.Name ?? GetPatchDescription(e.NextPatch)
-                    : "(last patch)";
+                    : Loc.Get("calibration.last.patch");
 
                 Vm.TimeInfoText = $"Elapsed: {FormatElapsedTime(e.Elapsed)} • Remaining: ~{FormatElapsedTime(e.EstimatedRemaining)}";
             });
@@ -1344,7 +1345,7 @@ namespace Gloam.Features.Calibration
                 {
                     case CalibrationState.Paused:
                         Vm.IsPauseOverlayVisible = true;
-                        Vm.PauseButtonText = "Paused";
+                        Vm.PauseButtonText = Loc.Get("calibration.paused");
                         Vm.IsPauseEnabled = false;
                         // Nothing is being read while paused, so give the desktop back:
                         // holding Alt+Tab hostage through a pause would be indefensible.
@@ -1430,14 +1431,14 @@ namespace Gloam.Features.Calibration
         }
 
         private void UpdateMuteButton() =>
-            Vm.MuteButtonText = CalibrationSounds.Muted ? "Sound: Muted" : "Sound: On";
+            Vm.MuteButtonText = CalibrationSounds.Muted ? Loc.Get("calibration.sound.muted") : Loc.Get("calibration.sound.on");
 
         private void Pause_Click(object sender, RoutedEventArgs e)
         {
             _isPaused = true;
             _sessionCoordinator?.Pause();
             Vm.IsPauseOverlayVisible = true;
-            Vm.PauseButtonText = "Paused";
+            Vm.PauseButtonText = Loc.Get("calibration.paused");
             Vm.IsPauseEnabled = false;
         }
 
@@ -1470,7 +1471,7 @@ namespace Gloam.Features.Calibration
                     await Task.Delay(1000);
                     if (_isCancelled || !_isPaused || !_isCalibrationRunning)
                     {
-                        Vm.ResumeCountdownText = "Click Resume to continue";
+                        Vm.ResumeCountdownText = Loc.Get("calibration.click.resume.to.continue");
                         return;
                     }
                 }
@@ -1480,7 +1481,7 @@ namespace Gloam.Features.Calibration
                 Vm.IsPauseOverlayVisible = false;
                 Vm.PauseButtonText = "Pause";
                 Vm.IsPauseEnabled = true;
-                Vm.ResumeCountdownText = "Click Resume to continue";
+                Vm.ResumeCountdownText = Loc.Get("calibration.click.resume.to.continue");
             }
             finally
             {
@@ -1497,7 +1498,7 @@ namespace Gloam.Features.Calibration
 
         private void CancelMeasurement_Click(object sender, RoutedEventArgs e)
         {
-            if (ConfirmDialog.Confirm(this, "Cancel Calibration",
+            if (ConfirmDialog.Confirm(this, Loc.Get("calibration.cancel.calibration"),
                     "Are you sure you want to cancel the calibration?\nAll progress will be lost."))
             {
                 // Shutdown takes several seconds with no other visible change: the
@@ -1506,7 +1507,7 @@ namespace Gloam.Features.Calibration
                 // Keep an animated wait dialog up until RunCalibrationAsync finishes.
                 Vm.IsPauseEnabled = false;
                 Vm.IsCancelEnabled = false;
-                _shutdownDialog ??= BusyDialog.Open(this, "Shutting down calibration...");
+                _shutdownDialog ??= BusyDialog.Open(this, Loc.Get("calibration.shutting.down.calibration"));
 
                 _isCancelled = true;
                 _sessionCoordinator?.Cancel();
@@ -1549,7 +1550,7 @@ namespace Gloam.Features.Calibration
             Vm.IsCancelEnabled = true;
             Vm.IsPauseEnabled = true;
             Vm.PauseButtonText = "Pause";
-            Vm.ResumeCountdownText = "Click Resume to continue";
+            Vm.ResumeCountdownText = Loc.Get("calibration.click.resume.to.continue");
 
             // Same window restore as PositioningBack_Click: original setup chrome,
             // centered on the TARGET monitor (a cancelled secondary-display calibration
@@ -1653,7 +1654,7 @@ namespace Gloam.Features.Calibration
         {
             if (_calibrationResult?.Success != true || _calibrationTarget == null)
             {
-                ConfirmDialog.Info(this, "Error", "No calibration data available.");
+                ConfirmDialog.Info(this, "Error", Loc.Get("calibration.no.calibration.data.available"));
                 return;
             }
 
@@ -1668,7 +1669,7 @@ namespace Gloam.Features.Calibration
             {
                 MonitorDevicePath = _targetMonitor?.MonitorDevicePath ?? "calibration_session",
                 MonitorName = !string.IsNullOrWhiteSpace(_targetMonitor?.FriendlyName)
-                    ? _targetMonitor!.FriendlyName : "Calibrated Display",
+                    ? _targetMonitor!.FriendlyName : Loc.Get("calibration.calibrated.display"),
                 Target = _calibrationTarget,
                 LutSize = _generatedLut?.Size ?? 33,
                 PatchCount = _calibrationResult.Measurements?.Count ?? 0,
@@ -1896,7 +1897,7 @@ namespace Gloam.Features.Calibration
                 }
                 else
                 {
-                    Vm.NextPatchText = "(last patch)";
+                    Vm.NextPatchText = Loc.Get("calibration.last.patch");
                 }
             }
         }
@@ -1910,7 +1911,7 @@ namespace Gloam.Features.Calibration
             {
                 Vm.CompletionIcon = "OK";
                 Vm.CompletionIconBrush = FindResource("SuccessBrush") as SolidColorBrush ?? CalibrationViewModel.SuccessBrush;
-                Vm.CompletionTitle = "Calibration Complete";
+                Vm.CompletionTitle = Loc.Get("calibration.calibration.complete");
                 Vm.IsViewReportVisible = true;
 
                 // Show display mode options if bypass was applied
@@ -1927,9 +1928,9 @@ namespace Gloam.Features.Calibration
                 // guarantees the reason survives past the dialog the user dismisses.
                 Log.Error($"CalibrationWindow: calibration failed: {message}");
 
-                Vm.CompletionIcon = "FAILED";
+                Vm.CompletionIcon = Loc.Get("calibration.failed");
                 Vm.CompletionIconBrush = FindResource("ErrorBrush") as SolidColorBrush ?? CalibrationViewModel.ErrorBrush;
-                Vm.CompletionTitle = "Calibration Failed";
+                Vm.CompletionTitle = Loc.Get("calibration.calibration.failed");
                 Vm.IsViewReportVisible = false;
                 Vm.ShowDisplayModeOptions = false;
 
@@ -2007,7 +2008,7 @@ namespace Gloam.Features.Calibration
             if (Math.Abs(rgb.R - rgb.G) < 0.01 && Math.Abs(rgb.G - rgb.B) < 0.01)
             {
                 var level = (int)(rgb.R * 100);
-                return level == 100 ? "White 100%" : level == 0 ? "Black 0%" : $"Gray {level}%";
+                return level == 100 ? Loc.Get("calibration.white.100") : level == 0 ? Loc.Get("calibration.black.0") : $"Gray {level}%";
             }
 
             if (rgb.R > rgb.G && rgb.R > rgb.B)
@@ -2090,7 +2091,7 @@ namespace Gloam.Features.Calibration
                 if (Vm.SoundOnCompletion)
                     CalibrationSounds.PlayFailure();
 
-                CalibrationCompleted?.Invoke(this, new CalibrationCompleteEventArgs(false, "USB driver error"));
+                CalibrationCompleted?.Invoke(this, new CalibrationCompleteEventArgs(false, Loc.Get("calibration.usb.driver.error")));
             }
         }
 

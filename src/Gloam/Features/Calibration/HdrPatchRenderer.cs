@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Runtime.InteropServices;
 using Gloam.Interop;
 
@@ -181,7 +182,7 @@ namespace Gloam.Features.Calibration
             }
 
             _hwnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
-                "HdrPatchRendererWindow", "HDR Patch", WS_POPUP, x, y, width, height,
+                "HdrPatchRendererWindow", Loc.Get("calibration.hdr.patch"), WS_POPUP, x, y, width, height,
                 IntPtr.Zero, IntPtr.Zero, instance, IntPtr.Zero);
             if (_hwnd == IntPtr.Zero)
                 throw new InvalidOperationException($"CreateWindowEx failed ({Marshal.GetLastWin32Error()}).");
@@ -207,7 +208,7 @@ namespace Gloam.Features.Calibration
             try
             {
                 hr = Marshal.QueryInterface(factory1, in IID_IDXGIFactory2, out IntPtr factory2);
-                if (hr < 0) throw new InvalidOperationException("IDXGIFactory2 unavailable (needs Windows 8+).");
+                if (hr < 0) throw new InvalidOperationException(Loc.Get("calibration.idxgifactory2.unavailable.needs.windows.8"));
                 try
                 {
                     var desc = new DXGI_SWAP_CHAIN_DESC1
@@ -226,7 +227,7 @@ namespace Gloam.Features.Calibration
 
                     hr = Marshal.QueryInterface(swapChain1, in IID_IDXGISwapChain3, out _swapChain);
                     Marshal.Release(swapChain1);
-                    if (hr < 0) throw new InvalidOperationException("IDXGISwapChain3 unavailable (needs Windows 10+).");
+                    if (hr < 0) throw new InvalidOperationException(Loc.Get("calibration.idxgiswapchain3.unavailable.needs.windows.10"));
 
                     var check = VtblCall<CheckColorSpaceSupportD>(_swapChain, Slot_SwapChain3_CheckColorSpaceSupport);
                     check(_swapChain, DXGI_COLOR_SPACE_RGB_FULL_G10_NONE_P709, out uint support);

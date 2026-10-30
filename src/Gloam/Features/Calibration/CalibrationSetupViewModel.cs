@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -152,10 +153,10 @@ namespace Gloam.Features.Calibration
             Targets = new ObservableCollection<TargetOption>
             {
                 new("Rec.709 Gamma 2.2 (sRGB)", StandardTargets.SrgbGamma22, requiresHdr: false) { IsSelected = true },
-                new("Rec.709 Gamma 2.4 (BT.1886)", StandardTargets.Rec709Gamma24, requiresHdr: false),
-                new("DCI-P3 D65", StandardTargets.P3D65Gamma22, requiresHdr: false),
-                new("BT.2020 SDR (Gamma 2.4)", StandardTargets.Rec2020Gamma24, requiresHdr: false),
-                new("HDR Desktop PQ (sRGB gamut) - recommended for HDR", StandardTargets.Rec709Pq, requiresHdr: true),
+                new(Loc.Get("calibration.rec.709.gamma.2.4.bt.1886"), StandardTargets.Rec709Gamma24, requiresHdr: false),
+                new(Loc.Get("calibration.dci.p3.d65"), StandardTargets.P3D65Gamma22, requiresHdr: false),
+                new(Loc.Get("calibration.bt.2020.sdr.gamma.2.4"), StandardTargets.Rec2020Gamma24, requiresHdr: false),
+                new(Loc.Get("calibration.hdr.desktop.pq.srgb.gamut.recommended.for.hdr"), StandardTargets.Rec709Pq, requiresHdr: true),
             };
             foreach (var target in Targets)
             {
@@ -324,11 +325,11 @@ namespace Gloam.Features.Calibration
         public string AdaptivePresetDetail =>
             $"up to {FormatEstimatedTime(PatchSetGenerator.GetApproximatePatchCount(CalibrationPreset.Adaptive))}, usually finishes early - Excellent accuracy";
         public string QuickPresetLabel => PresetLabel("Quick", CalibrationPreset.Quick);
-        public string QuickPresetDetail => PresetDetail(CalibrationPreset.Quick, "Good accuracy");
-        public string StandardPresetLabel => PresetLabel("Standard", CalibrationPreset.Standard);
-        public string StandardPresetDetail => PresetDetail(CalibrationPreset.Standard, "Very good accuracy");
-        public string ThoroughPresetLabel => PresetLabel("Thorough", CalibrationPreset.Thorough);
-        public string ThoroughPresetDetail => PresetDetail(CalibrationPreset.Thorough, "Excellent accuracy");
+        public string QuickPresetDetail => PresetDetail(CalibrationPreset.Quick, Loc.Get("calibration.good.accuracy"));
+        public string StandardPresetLabel => PresetLabel(Loc.Get("calibration.standard"), CalibrationPreset.Standard);
+        public string StandardPresetDetail => PresetDetail(CalibrationPreset.Standard, Loc.Get("calibration.very.good.accuracy"));
+        public string ThoroughPresetLabel => PresetLabel(Loc.Get("calibration.thorough"), CalibrationPreset.Thorough);
+        public string ThoroughPresetDetail => PresetDetail(CalibrationPreset.Thorough, Loc.Get("calibration.excellent.accuracy"));
 
         private void SetPreset(CalibrationPreset preset)
         {
@@ -443,7 +444,7 @@ namespace Gloam.Features.Calibration
             string correctionPath = SelectedCorrection?.Path ?? "";
             string correctionFile = correctionPath.Length > 0 ? System.IO.Path.GetFileName(correctionPath) : "";
             bool isMatrix = correctionPath.EndsWith(".ccmx", StringComparison.OrdinalIgnoreCase);
-            string row = choice.Entry?.DisplayDescription ?? "base calibration";
+            string row = choice.Entry?.DisplayDescription ?? Loc.Get("calibration.base.calibration");
 
             if (!tableKnown)
             {
@@ -475,7 +476,7 @@ namespace Gloam.Features.Calibration
 
         #region Colorimeter status
 
-        private string _statusText = "Checking...";
+        private string _statusText = Loc.Get("calibration.checking");
         public string StatusText
         {
             get => _statusText;
@@ -503,7 +504,7 @@ namespace Gloam.Features.Calibration
             set => SetProperty(ref _canStart, value);
         }
 
-        private string _startBlockReason = "Waiting for colorimeter.";
+        private string _startBlockReason = Loc.Get("calibration.waiting.for.colorimeter");
         public string StartBlockReason
         {
             get => _startBlockReason;
@@ -522,12 +523,12 @@ namespace Gloam.Features.Calibration
         private void PopulateCorrectionFiles()
         {
             Corrections.Clear();
-            Corrections.Add(new CorrectionChoice("(Built-in for display type)", null));
+            Corrections.Add(new CorrectionChoice(Loc.Get("calibration.built.in.for.display.type"), null));
 
             var dirs = new[]
             {
                 CorrectionsFolder,
-                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ArgyllCMS"),
+                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Loc.Get("calibration.argyllcms")),
                 AppContext.BaseDirectory,
             };
             try
@@ -662,11 +663,11 @@ namespace Gloam.Features.Calibration
             {
                 string? reason = null;
                 if (option.RequiresHdr && !hdr)
-                    reason = "Requires the display to be in HDR mode.";
+                    reason = Loc.Get("calibration.requires.the.display.to.be.in.hdr.mode");
                 else if (!option.RequiresHdr && hdr)
-                    reason = "This is an SDR target; switch the display to SDR to use it.";
+                    reason = Loc.Get("calibration.this.is.an.sdr.target.switch.the.display.to.sdr.to.use");
                 else if (gamut != null && !GamutReachability.TargetFitsEdidGamut(option.Target, gamut))
-                    reason = "Exceeds this display's gamut - it can't reproduce these primaries.";
+                    reason = Loc.Get("calibration.exceeds.this.display.s.gamut.it.can.t.reproduce.these");
 
                 option.IsEnabled = reason == null;
                 option.DisabledReason = reason;
@@ -718,7 +719,7 @@ namespace Gloam.Features.Calibration
 
             if (monitor == null)
             {
-                items.Add(("ERROR", "Select a display before starting calibration."));
+                items.Add(("ERROR", Loc.Get("calibration.select.a.display.before.starting.calibration")));
                 return items;
             }
 
@@ -738,7 +739,7 @@ namespace Gloam.Features.Calibration
                     "correction — disable ACM in Windows display settings to calibrate the native panel."));
 
             if (selectedOption != null && !selectedOption.IsEnabled)
-                items.Add(("ERROR", selectedOption.DisabledReason ?? "The selected target is not available for this display state."));
+                items.Add(("ERROR", selectedOption.DisabledReason ?? Loc.Get("calibration.the.selected.target.is.not.available.for.this.display")));
 
             if (monitor.IsHdrActive)
             {
@@ -752,7 +753,7 @@ namespace Gloam.Features.Calibration
             else
             {
                 if (target != null && target.TransferFunction == TransferFunctionType.Pq)
-                    items.Add(("ERROR", "The selected HDR target requires Windows HDR to be active on this display."));
+                    items.Add(("ERROR", Loc.Get("calibration.the.selected.hdr.target.requires.windows.hdr.to.be")));
                 else if (monitor.IsHdrCapable)
                     items.Add(("WARN", "This HDR-capable display is currently in SDR mode; HDR targets are unavailable until Windows HDR is enabled."));
             }
@@ -765,7 +766,7 @@ namespace Gloam.Features.Calibration
             if (meterUsesGenericCalibration && string.IsNullOrEmpty(correction?.Path))
                 items.Add(("WARN", $"The meter has no {DisplayTypeLabel(displayType)} correction installed and will use its generic base calibration. Use a panel-matched CCSS/CCMX meter correction."));
             else if (correctionRecommended && string.IsNullOrEmpty(correction?.Path))
-                items.Add(("WARN", "Use a panel-matched CCSS/CCMX meter correction for OLED and wide-gamut displays."));
+                items.Add(("WARN", Loc.Get("calibration.use.a.panel.matched.ccss.ccmx.meter.correction.for.oled")));
 
             if (!string.IsNullOrEmpty(correction?.Path) &&
                 ValidateCorrectionChoice(correction.Path) is { } correctionError)
@@ -777,7 +778,7 @@ namespace Gloam.Features.Calibration
                 items.Add(("WARN", "OLED HDR measurements usually behave better with white-point-only correction unless you have verified full gamut correction on this panel."));
 
             if (displayType == DisplayType.Oled || monitor.IsHdrActive)
-                items.Add(("INFO", "Warm the display for at least 30 minutes and avoid panel compensation cycles during measurement."));
+                items.Add(("INFO", Loc.Get("calibration.warm.the.display.for.at.least.30.minutes.and.avoid")));
 
             if (!string.IsNullOrEmpty(monitorProfile?.Mhc2ProfileName))
                 items.Add(("INFO", $"Existing Gloam profile '{monitorProfile.Mhc2ProfileName}' will be bypassed while measuring native response."));
@@ -792,7 +793,7 @@ namespace Gloam.Features.Calibration
 
             string ext = System.IO.Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
             if (ext is not ("ccss" or "ccmx"))
-                return "Meter correction files must be .ccss spectral samples or .ccmx correction matrices.";
+                return Loc.Get("calibration.meter.correction.files.must.be.ccss.spectral.samples.or");
 
             try
             {
@@ -880,18 +881,18 @@ namespace Gloam.Features.Calibration
             StartBlockReason = criticalError != null
                 ? criticalError.Message
                 : !_colorimeterReady
-                    ? "Connect your colorimeter, then refresh."
-                    : "Ready to start calibration.";
+                    ? Loc.Get("calibration.connect.your.colorimeter.then.refresh")
+                    : Loc.Get("calibration.ready.to.start.calibration");
         }
 
         private CalibrationPreflightItem? CriticalStartError()
         {
             return PreflightItems.FirstOrDefault(i =>
                 i.Severity == "ERROR" &&
-                (i.Message.StartsWith("Select a display", StringComparison.OrdinalIgnoreCase) ||
-                 i.Message.StartsWith("The selected target", StringComparison.OrdinalIgnoreCase) ||
-                 i.Message.Contains("requires Windows HDR", StringComparison.OrdinalIgnoreCase) ||
-                 i.Message.Contains("selected target is SDR", StringComparison.OrdinalIgnoreCase) ||
+                (i.Message.StartsWith(Loc.Get("calibration.select.a.display"), StringComparison.OrdinalIgnoreCase) ||
+                 i.Message.StartsWith(Loc.Get("calibration.the.selected.target"), StringComparison.OrdinalIgnoreCase) ||
+                 i.Message.Contains(Loc.Get("calibration.requires.windows.hdr"), StringComparison.OrdinalIgnoreCase) ||
+                 i.Message.Contains(Loc.Get("calibration.selected.target.is.sdr"), StringComparison.OrdinalIgnoreCase) ||
                  i.Message.Contains("correction", StringComparison.OrdinalIgnoreCase)));
         }
 
@@ -904,10 +905,10 @@ namespace Gloam.Features.Calibration
 
         private static string DisplayTypeLabel(DisplayType type) => type switch
         {
-            DisplayType.LcdLed => "LCD LED",
+            DisplayType.LcdLed => Loc.Get("calibration.lcd.led"),
             DisplayType.Oled => "OLED",
-            DisplayType.LcdWideGamut => "wide-gamut LCD",
-            DisplayType.LcdCcfl => "CCFL LCD",
+            DisplayType.LcdWideGamut => Loc.Get("calibration.wide.gamut.lcd"),
+            DisplayType.LcdCcfl => Loc.Get("calibration.ccfl.lcd"),
             _ => type.ToDisplayName()
         };
 
@@ -916,7 +917,7 @@ namespace Gloam.Features.Calibration
         private async Task InitializeColorimeterAsync(CancellationTokenSource cancellation)
         {
             CancellationToken cancellationToken = cancellation.Token;
-            StatusText = "Finding ArgyllCMS...";
+            StatusText = Loc.Get("calibration.finding.argyllcms");
             StatusBrush = WarningBrush;
             StatusDetailText = "";
 
@@ -938,7 +939,7 @@ namespace Gloam.Features.Calibration
                     if (string.IsNullOrEmpty(argyllBinPath))
                     {
                         // No ArgyllCMS found at all - offer to download
-                        OfferDownload("ArgyllCMS (required for colorimeter calibration) was not found.");
+                        OfferDownload(Loc.Get("calibration.argyllcms.required.for.colorimeter.calibration.was.not"));
                     }
                     else
                     {
@@ -959,9 +960,9 @@ namespace Gloam.Features.Calibration
 
                     if (string.IsNullOrEmpty(argyllBinPath))
                     {
-                        StatusText = "ArgyllCMS not installed";
+                        StatusText = Loc.Get("calibration.argyllcms.not.installed");
                         StatusBrush = ErrorBrush;
-                        StatusDetailText = "Click Refresh to try downloading again";
+                        StatusDetailText = Loc.Get("calibration.click.refresh.to.try.downloading.again");
                         _colorimeterReady = false;
                         RefreshCanStart();
                         return;
@@ -969,7 +970,7 @@ namespace Gloam.Features.Calibration
                 }
 
                 // Show that we found ArgyllCMS and log the version info
-                StatusText = "Searching for colorimeter...";
+                StatusText = Loc.Get("calibration.searching.for.colorimeter");
                 string binDirName = System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(argyllBinPath) ?? argyllBinPath);
                 StatusDetailText = $"Using: {binDirName}";
                 Log.Info($"CalibrationSetupViewModel: Using ArgyllCMS from {argyllBinPath}");
@@ -990,7 +991,7 @@ namespace Gloam.Features.Calibration
                 if (_closed) return;
                 StatusText = $"Error: {ex.Message}";
                 StatusBrush = ErrorBrush;
-                StatusDetailText = "Check console for details";
+                StatusDetailText = Loc.Get("calibration.check.console.for.details");
                 Log.Info($"Colorimeter initialization error: {ex}");
                 _colorimeterReady = false;
                 RefreshCanStart();
@@ -1005,9 +1006,9 @@ namespace Gloam.Features.Calibration
 
             if (OfferArgyllDownload(reason))
             {
-                StatusText = "Download complete";
+                StatusText = Loc.Get("calibration.download.complete");
                 StatusBrush = SuccessBrush;
-                StatusDetailText = "ArgyllCMS installed successfully";
+                StatusDetailText = Loc.Get("calibration.argyllcms.installed.successfully");
             }
             else
             {
@@ -1020,7 +1021,7 @@ namespace Gloam.Features.Calibration
             if (_closed || _detectionRunning) return;
             _detectionRunning = true;
             ((AsyncRelayCommand)RefreshColorimeterCommand).NotifyCanExecuteChanged();
-            StatusText = "Searching...";
+            StatusText = Loc.Get("calibration.searching");
             StatusBrush = WarningBrush;
             StatusDetailText = "";
             _colorimeterReady = false;
@@ -1044,9 +1045,9 @@ namespace Gloam.Features.Calibration
             {
                 if (!_closed)
                 {
-                    StatusText = "Detection timed out";
+                    StatusText = Loc.Get("calibration.detection.timed.out");
                     StatusBrush = ErrorBrush;
-                    StatusDetailText = "Check colorimeter connection and USB drivers, then click Refresh.";
+                    StatusDetailText = Loc.Get("calibration.check.colorimeter.connection.and.usb.drivers.then.click");
                 }
             }
             catch (Exception ex)
@@ -1055,7 +1056,7 @@ namespace Gloam.Features.Calibration
                 {
                     StatusText = $"Error: {ex.Message}";
                     StatusBrush = ErrorBrush;
-                    StatusDetailText = "Check colorimeter connection and USB drivers, then click Refresh.";
+                    StatusDetailText = Loc.Get("calibration.check.colorimeter.connection.and.usb.drivers.then.click");
                     Log.Info($"Colorimeter detection failed: {ex}");
                 }
             }
@@ -1083,7 +1084,7 @@ namespace Gloam.Features.Calibration
             if (_closed) return;
             if (ColorimeterService == null)
             {
-                StatusText = "Colorimeter service unavailable";
+                StatusText = Loc.Get("calibration.colorimeter.service.unavailable");
                 StatusBrush = ErrorBrush;
                 StatusDetailText = "";
                 _colorimeterReady = false;
@@ -1093,16 +1094,16 @@ namespace Gloam.Features.Calibration
 
             if (ColorimeterService.IsReady)
             {
-                StatusText = "Connected and ready";
+                StatusText = Loc.Get("calibration.connected.and.ready");
                 StatusBrush = SuccessBrush;
-                StatusDetailText = ColorimeterService.ConnectedColorimeter?.Model ?? "Unknown model";
+                StatusDetailText = ColorimeterService.ConnectedColorimeter?.Model ?? Loc.Get("calibration.unknown.model");
                 _colorimeterReady = true;
             }
             else
             {
-                StatusText = "No colorimeter detected";
+                StatusText = Loc.Get("calibration.no.colorimeter.detected");
                 StatusBrush = WarningBrush;
-                StatusDetailText = "Connect your colorimeter and click Refresh";
+                StatusDetailText = Loc.Get("calibration.connect.your.colorimeter.and.click.refresh");
                 _colorimeterReady = false;
             }
             RefreshMeterCalibrationText();
@@ -1145,10 +1146,10 @@ namespace Gloam.Features.Calibration
             var criticalError = CriticalStartError();
             if (!_colorimeterReady || criticalError != null)
             {
-                StatusText = !_colorimeterReady ? "Colorimeter not ready" : "Calibration setup needs attention";
+                StatusText = !_colorimeterReady ? Loc.Get("calibration.colorimeter.not.ready") : Loc.Get("calibration.calibration.setup.needs.attention");
                 StatusBrush = ErrorBrush;
                 StatusDetailText = !_colorimeterReady
-                    ? "Connect your colorimeter and click Refresh"
+                    ? Loc.Get("calibration.connect.your.colorimeter.and.click.refresh")
                     : criticalError!.Message;
                 return;
             }

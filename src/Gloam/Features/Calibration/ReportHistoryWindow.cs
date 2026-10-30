@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -24,7 +25,7 @@ namespace Gloam.Features.Calibration
 
         public ReportHistoryWindow()
         {
-            Title = "Past Calibration Reports";
+            Title = Loc.Get("calibration.past.calibration.reports");
             Width = 780;
             Height = 460;
             MinWidth = 780;
@@ -84,7 +85,7 @@ namespace Gloam.Features.Calibration
             buttons.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             for (int i = 0; i < 3; i++) buttons.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             var open = Make("Open", (_, _) => Open(), accent: true);
-            var delete = Make("Delete…", (_, _) => Delete());
+            var delete = Make(Loc.Get("calibration.delete"), (_, _) => Delete());
             var close = Make("Close", (_, _) => Close());
             open.IsEnabled = delete.IsEnabled = false;
             _list.SelectionChanged += (_, _) =>
@@ -104,7 +105,7 @@ namespace Gloam.Features.Calibration
             Grid.SetRow(buttons, 1);
             root.Children.Add(_list);
             root.Children.Add(buttons);
-            BrutalistChrome.Apply(this, "Past Calibration Reports", root);
+            BrutalistChrome.Apply(this, Loc.Get("calibration.past.calibration.reports"), root);
 
             Refresh();
         }
@@ -128,7 +129,7 @@ namespace Gloam.Features.Calibration
                     .ToList();
                 _list.ItemsSource = rows;
                 _status.Text = rows.Count == 0
-                    ? "No saved reports yet. Each calibration saves its report here automatically."
+                    ? Loc.Get("calibration.no.saved.reports.yet.each.calibration.saves.its.report")
                     : $"{rows.Count} saved report(s).";
             }
             catch (Exception ex)
@@ -195,10 +196,10 @@ namespace Gloam.Features.Calibration
         private void Delete()
         {
             if (Selected is not { } row) return;
-            if (!ConfirmDialog.Confirm(this, "Delete Report",
+            if (!ConfirmDialog.Confirm(this, Loc.Get("calibration.delete.report"),
                     $"Permanently delete the saved report for '{row.Monitor}' from {row.Date}?\n\n" +
-                    "This cannot be undone. The installed calibration profile is not affected.",
-                    confirmLabel: "Delete"))
+                    Loc.Get("calibration.this.cannot.be.undone.the.installed.calibration.profile"),
+                    confirmLabel: Loc.Get("nightmode.delete")))
                 return;
             try
             {

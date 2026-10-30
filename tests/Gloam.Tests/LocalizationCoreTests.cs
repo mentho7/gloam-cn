@@ -421,6 +421,26 @@ public class LocalizationCoreTests
     }
 
     [Fact]
+    public void The_audit_ignores_values_that_cannot_be_translated()
+    {
+        // These inflated the baseline by roughly a hundred entries: colours, WPF resource keys,
+        // automation ids and data file names all look like quoted strings but none of them is text
+        // a user reads. Counting them made the ratchet's number and its per-file breakdown wrong.
+        const string code = """
+            var a = "#0E1116";
+            var b = "ThemeAccent";
+            var c = "display-identify-close";
+            var d = "srgb_to_gamma2p2_sdr.icm";
+            var e = "Refresh";
+            """;
+
+        SourceAuditResult result = LocalizationSourceAudit.AuditCSharp(code, "Theme.cs");
+
+        var found = Assert.Single(result.Hardcoded);
+        Assert.Equal("Refresh", found.Text);
+    }
+
+    [Fact]
     public void The_audit_ignores_template_argument_names()
     {
         // ("language", value) is plumbing. Counting it flagged every localized Format call.

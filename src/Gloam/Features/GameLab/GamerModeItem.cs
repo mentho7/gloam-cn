@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -82,27 +83,27 @@ namespace Gloam.Features.GameLab
                 ? $"ALL · {Profiles.Count}"
                 : $"RECENT · {FilteredProfiles.Count}";
         public string ShowAllProfilesLabel => _showAllProfiles
-            ? "Recent only"
-            : "View all";
+            ? Loc.Get("gamelab.recent.only")
+            : Loc.Get("gamelab.view.all");
         public IReadOnlyList<GamerLibraryPresetOption> AvailableLibraryPresets { get; } =
         [
-            new("Accurate · all games", GamerPictureIntent.Reference, false),
-            new("Competitive · all games", GamerPictureIntent.CompetitiveClarity, false),
-            new("Night Play · all games", GamerPictureIntent.NightOps, false),
-            new("HDR Cinema · detected HDR games", GamerPictureIntent.CinematicHdr, true)
+            new(Loc.Get("gamelab.accurate.all.games"), GamerPictureIntent.Reference, false),
+            new(Loc.Get("gamelab.competitive.all.games"), GamerPictureIntent.CompetitiveClarity, false),
+            new(Loc.Get("gamelab.night.play.all.games"), GamerPictureIntent.NightOps, false),
+            new(Loc.Get("gamelab.hdr.cinema.detected.hdr.games"), GamerPictureIntent.CinematicHdr, true)
         ];
         public int SelectedDiscoveryCount => DiscoveredGames.Count(item => item.IsSelected && !item.AlreadyAdded);
         public string AddDiscoveredButtonLabel => _largeAddArmed
             ? $"Confirm adding {SelectedDiscoveryCount} games"
             : SelectedDiscoveryCount switch
             {
-                0 => "Add selected games",
-                1 => "Add 1 selected game",
+                0 => Loc.Get("gamelab.add.selected.games"),
+                1 => Loc.Get("gamelab.add.1.selected.game"),
                 _ => $"Add {SelectedDiscoveryCount} selected games"
             };
         public string ClearProfilesLabel => _clearProfilesArmed
             ? $"Confirm remove all {Profiles.Count}"
-            : "Clear game library";
+            : Loc.Get("gamelab.clear.game.library");
 
         public GamerLibraryPresetOption? SelectedLibraryPreset
         {
@@ -228,7 +229,7 @@ namespace Gloam.Features.GameLab
             private set => SetProperty(ref _editorStatus, value);
         }
 
-        public void ShowSaving() => EditorStatus = "Applying changes…";
+        public void ShowSaving() => EditorStatus = Loc.Get("gamelab.applying.changes");
 
         public void ShowMessage(string message) => EditorStatus = message;
 
@@ -236,7 +237,7 @@ namespace Gloam.Features.GameLab
             EditorStatus = $"Applied · {DateTime.Now:h:mm:ss tt}";
 
         public void ShowSaveFailed() =>
-            EditorStatus = "Not saved · check that Gloam can write its settings file";
+            EditorStatus = Loc.Get("gamelab.not.saved.check.that.gloam.can.write.its.settings.file");
 
         public void SetSessions(IReadOnlyList<GamerSessionSnapshot>? sessions)
         {
@@ -262,12 +263,12 @@ namespace Gloam.Features.GameLab
                 string monitor = string.IsNullOrWhiteSpace(session.MonitorName)
                     ? session.MonitorDevicePath : session.MonitorName;
                 string shadow = session.ShadowDetailStrength <= 0.0001
-                    ? "shadows reference"
+                    ? Loc.Get("gamelab.shadows.reference")
                     : $"shadows +{session.ShadowDetailStrength * 100:F0}% below {session.ShadowDetailPivot * 100:F0}% linear";
                 string rendering =
                     $"{IntentLabel(session.PictureIntent)} · {GammaLabel(session.EffectiveGamma)} · {shadow} · {NightPolicyLabel(session.NightPolicy)}";
                 string findings = session.Diagnostics.Count == 0
-                    ? "signal chain verified from available Windows output facts"
+                    ? Loc.Get("gamelab.signal.chain.verified.from.available.windows.output")
                     : string.Join("  ", session.Diagnostics.Select(d =>
                         $"[{SeverityLabel(d.Severity)}] {d.Message}"));
                 lines.Add($"{monitor}: {rendering}. {findings}");
@@ -448,9 +449,9 @@ namespace Gloam.Features.GameLab
 
         private static string IntentLabel(GamerPictureIntent intent) => intent switch
         {
-            GamerPictureIntent.CompetitiveClarity => "Competitive Clarity",
-            GamerPictureIntent.CinematicHdr => "Cinematic HDR",
-            GamerPictureIntent.NightOps => "Night Ops",
+            GamerPictureIntent.CompetitiveClarity => Loc.Get("gamelab.competitive.clarity"),
+            GamerPictureIntent.CinematicHdr => Loc.Get("gamelab.cinematic.hdr"),
+            GamerPictureIntent.NightOps => Loc.Get("gamelab.night.ops"),
             _ => intent.ToString()
         };
 
@@ -463,16 +464,16 @@ namespace Gloam.Features.GameLab
 
         private static string GammaLabel(GammaMode gamma) => gamma switch
         {
-            GammaMode.Gamma22 => "Gamma 2.2",
-            GammaMode.Gamma24 => "Gamma 2.4",
-            _ => "Windows Default"
+            GammaMode.Gamma22 => Loc.Get("settings.gamma.v22"),
+            GammaMode.Gamma24 => Loc.Get("settings.gamma.v24"),
+            _ => Loc.Get("settings.gamma.windowsDefault")
         };
 
         private static string NightPolicyLabel(GamerNightPolicy policy) => policy switch
         {
-            GamerNightPolicy.ForceDaylight => "Daylight 6500K",
-            GamerNightPolicy.NightOps => "Spectral Night Ops",
-            _ => "Schedule"
+            GamerNightPolicy.ForceDaylight => Loc.Get("gamelab.daylight.6500k"),
+            GamerNightPolicy.NightOps => Loc.Get("gamelab.spectral.night.ops"),
+            _ => Loc.Get("gamelab.schedule")
         };
     }
 
@@ -539,57 +540,57 @@ namespace Gloam.Features.GameLab
 
         public IReadOnlyList<GamerChoice<GamerPictureIntent>> AvailablePictureIntents { get; } =
         [
-            new(GamerPictureIntent.Reference, "Accurate", "Keeps the game faithful and uses your measured display correction."),
-            new(GamerPictureIntent.CompetitiveClarity, "Competitive", "Reveals dark movement while bright areas stay unchanged."),
-            new(GamerPictureIntent.CinematicHdr, "HDR Cinema", "Protects the HDR signal and warns when Windows is set up incorrectly."),
-            new(GamerPictureIntent.NightOps, "Night Play", "Warms late sessions while preserving useful color separation."),
-            new(GamerPictureIntent.Custom, "Custom")
+            new(GamerPictureIntent.Reference, Loc.Get("gamelab.accurate"), Loc.Get("gamelab.keeps.the.game.faithful.and.uses.your.measured.display")),
+            new(GamerPictureIntent.CompetitiveClarity, Loc.Get("gamelab.competitive"), Loc.Get("gamelab.reveals.dark.movement.while.bright.areas.stay.unchanged")),
+            new(GamerPictureIntent.CinematicHdr, Loc.Get("gamelab.hdr.cinema"), Loc.Get("gamelab.protects.the.hdr.signal.and.warns.when.windows.is.set")),
+            new(GamerPictureIntent.NightOps, Loc.Get("gamelab.night.play"), Loc.Get("gamelab.warms.late.sessions.while.preserving.useful.color")),
+            new(GamerPictureIntent.Custom, Loc.Get("gamelab.custom"))
         ];
         public IReadOnlyList<GamerChoice<GamerPictureIntent>> AvailableQuickLooks { get; } =
         [
-            new(GamerPictureIntent.Reference, "Accurate", "Faithful color"),
-            new(GamerPictureIntent.CompetitiveClarity, "Competitive", "See into shadows"),
-            new(GamerPictureIntent.CinematicHdr, "HDR Cinema", "Preserve HDR"),
-            new(GamerPictureIntent.NightOps, "Night Play", "Easy on your eyes")
+            new(GamerPictureIntent.Reference, Loc.Get("gamelab.accurate"), Loc.Get("gamelab.faithful.color")),
+            new(GamerPictureIntent.CompetitiveClarity, Loc.Get("gamelab.competitive"), Loc.Get("gamelab.see.into.shadows")),
+            new(GamerPictureIntent.CinematicHdr, Loc.Get("gamelab.hdr.cinema"), Loc.Get("gamelab.preserve.hdr")),
+            new(GamerPictureIntent.NightOps, Loc.Get("gamelab.night.play"), Loc.Get("gamelab.easy.on.your.eyes"))
         ];
         public IReadOnlyList<GamerChoice<GamerNightPolicy>> AvailableNightPolicies { get; } =
         [
-            new(GamerNightPolicy.FollowSchedule, "Follow schedule"),
-            new(GamerNightPolicy.ForceDaylight, "Force daylight (6500K)"),
-            new(GamerNightPolicy.NightOps, "Spectral Night Ops")
+            new(GamerNightPolicy.FollowSchedule, Loc.Get("gamelab.follow.schedule")),
+            new(GamerNightPolicy.ForceDaylight, Loc.Get("gamelab.force.daylight.6500k")),
+            new(GamerNightPolicy.NightOps, Loc.Get("gamelab.spectral.night.ops"))
         ];
         public IReadOnlyList<GamerChoice<GamerHdrExpectation>> AvailableHdrExpectations { get; } =
         [
-            new(GamerHdrExpectation.Automatic, "Automatic"),
-            new(GamerHdrExpectation.RequireSdr, "Require SDR"),
-            new(GamerHdrExpectation.RequireHdr, "Require HDR")
+            new(GamerHdrExpectation.Automatic, Loc.Get("gamelab.automatic")),
+            new(GamerHdrExpectation.RequireSdr, Loc.Get("gamelab.require.sdr")),
+            new(GamerHdrExpectation.RequireHdr, Loc.Get("gamelab.require.hdr"))
         ];
         public IReadOnlyList<GamerChoice<GamerHdrCapability>> AvailableHdrCapabilities { get; } =
         [
-            new(GamerHdrCapability.Unknown, "Not detected", "Excluded from automatic HDR bulk changes."),
-            new(GamerHdrCapability.Detected, "Detected automatically", "A local game configuration advertises HDR output."),
-            new(GamerHdrCapability.UserConfirmed, "Yes, supports HDR", "Include this game in HDR bulk changes."),
-            new(GamerHdrCapability.SdrOnly, "No, SDR only", "Never include this game in HDR bulk changes.")
+            new(GamerHdrCapability.Unknown, Loc.Get("gamelab.not.detected"), Loc.Get("gamelab.excluded.from.automatic.hdr.bulk.changes")),
+            new(GamerHdrCapability.Detected, Loc.Get("gamelab.detected.automatically"), Loc.Get("gamelab.a.local.game.configuration.advertises.hdr.output")),
+            new(GamerHdrCapability.UserConfirmed, Loc.Get("gamelab.yes.supports.hdr"), Loc.Get("gamelab.include.this.game.in.hdr.bulk.changes")),
+            new(GamerHdrCapability.SdrOnly, Loc.Get("gamelab.no.sdr.only"), Loc.Get("gamelab.never.include.this.game.in.hdr.bulk.changes"))
         ];
         public IReadOnlyList<GamerChoice<GamerDisplayScope>> AvailableDisplayScopes { get; } =
         [
-            new(GamerDisplayScope.WindowDisplays, "Game window display(s)"),
-            new(GamerDisplayScope.AllDisplays, "All displays"),
-            new(GamerDisplayScope.SpecificDisplay, "One specific display")
+            new(GamerDisplayScope.WindowDisplays, Loc.Get("gamelab.game.window.display.s")),
+            new(GamerDisplayScope.AllDisplays, Loc.Get("gamelab.all.displays")),
+            new(GamerDisplayScope.SpecificDisplay, Loc.Get("gamelab.one.specific.display"))
         ];
         public IReadOnlyList<GamerChoice<GammaMode>> AvailableGammaModes { get; } =
         [
-            new(GammaMode.Gamma22, "Gamma 2.2"),
-            new(GammaMode.Gamma24, "Gamma 2.4"),
-            new(GammaMode.WindowsDefault, "Windows Default")
+            new(GammaMode.Gamma22, Loc.Get("settings.gamma.v22")),
+            new(GammaMode.Gamma24, Loc.Get("settings.gamma.v24")),
+            new(GammaMode.WindowsDefault, Loc.Get("settings.gamma.windowsDefault"))
         ];
 
         public string AppName => _profile.AppName;
         public string? ExecutablePath => _profile.ExecutablePath;
         public bool HasExecutablePath => !string.IsNullOrWhiteSpace(_profile.ExecutablePath);
         public string ExecutableIdentityLabel => HasExecutablePath
-            ? "Verified executable"
-            : "Unverified path · profile disabled";
+            ? Loc.Get("gamelab.verified.executable")
+            : Loc.Get("gamelab.unverified.path.profile.disabled");
         public DateTime? LastUsedUtc => _profile.LastUsedUtc;
 
         public bool SetExecutablePath(string? executablePath)
@@ -629,29 +630,29 @@ namespace Gloam.Features.GameLab
         public string IntentDescription => PictureIntent switch
         {
             GamerPictureIntent.Reference =>
-                "Faithful output with your measured display correction. Night warmth stays out of the game.",
+                Loc.Get("gamelab.faithful.output.with.your.measured.display.correction"),
             GamerPictureIntent.CompetitiveClarity =>
-                "Makes dark movement easier to spot without washing out the rest of the image.",
+                Loc.Get("gamelab.makes.dark.movement.easier.to.spot.without.washing.out"),
             GamerPictureIntent.CinematicHdr =>
-                "Leaves the HDR curve intact and checks that Windows is sending a real HDR signal.",
+                Loc.Get("gamelab.leaves.the.hdr.curve.intact.and.checks.that.windows.is"),
             GamerPictureIntent.NightOps =>
-                "Warms the screen for late sessions while keeping teams, HUD colors, and effects distinct.",
-            _ => "Uses the detailed settings under Advanced."
+                Loc.Get("gamelab.warms.the.screen.for.late.sessions.while.keeping.teams"),
+            _ => Loc.Get("gamelab.uses.the.detailed.settings.under.advanced")
         };
 
         public string EffectSummary
         {
             get
             {
-                string gamma = OverrideGamma ? GammaLabel(GammaMode) : "monitor gamma";
+                string gamma = OverrideGamma ? GammaLabel(GammaMode) : Loc.Get("gamelab.monitor.gamma");
                 string shadows = ShadowDetailPercent <= 0.01
-                    ? "reference shadows"
+                    ? Loc.Get("gamelab.reference.shadows")
                     : $"shadow visibility {ShadowDetailPercent:F0}%";
                 string night = NightPolicy switch
                 {
-                    GamerNightPolicy.ForceDaylight => "6500K while active",
+                    GamerNightPolicy.ForceDaylight => Loc.Get("gamelab.6500k.while.active"),
                     GamerNightPolicy.NightOps => $"Night Ops {NightOpsKelvin}K",
-                    _ => "follows night schedule"
+                    _ => Loc.Get("gamelab.follows.night.schedule")
                 };
                 return $"{gamma} · {shadows} · {night}";
             }
@@ -757,11 +758,11 @@ namespace Gloam.Features.GameLab
 
         public string HdrSupportLabel => _profile.HdrCapability switch
         {
-            GamerHdrCapability.Detected => "HDR detected",
-            GamerHdrCapability.UserConfirmed => "HDR confirmed",
-            GamerHdrCapability.SdrOnly => "SDR only",
-            _ when _profile.HdrExpectation == GamerHdrExpectation.RequireHdr => "HDR profile",
-            _ => "HDR unknown"
+            GamerHdrCapability.Detected => Loc.Get("gamelab.hdr.detected"),
+            GamerHdrCapability.UserConfirmed => Loc.Get("gamelab.hdr.confirmed"),
+            GamerHdrCapability.SdrOnly => Loc.Get("gamelab.sdr.only"),
+            _ when _profile.HdrExpectation == GamerHdrExpectation.RequireHdr => Loc.Get("gamelab.hdr.profile"),
+            _ => Loc.Get("gamelab.hdr.unknown")
         };
 
         public bool OverrideGamma
@@ -807,10 +808,10 @@ namespace Gloam.Features.GameLab
 
         public string ShadowDetailPlainLabel => ShadowDetailPercent switch
         {
-            < 5 => "Original shadows",
-            < 35 => "A little more detail",
-            < 70 => "Clearer dark areas",
-            _ => "Maximum visibility"
+            < 5 => Loc.Get("gamelab.original.shadows"),
+            < 35 => Loc.Get("gamelab.a.little.more.detail"),
+            < 70 => Loc.Get("gamelab.clearer.dark.areas"),
+            _ => Loc.Get("gamelab.maximum.visibility")
         };
 
         public GamerNightPolicy NightPolicy
@@ -935,9 +936,9 @@ namespace Gloam.Features.GameLab
 
         private static string GammaLabel(GammaMode mode) => mode switch
         {
-            GammaMode.Gamma22 => "Gamma 2.2",
-            GammaMode.Gamma24 => "Gamma 2.4",
-            _ => "Windows Default"
+            GammaMode.Gamma22 => Loc.Get("settings.gamma.v22"),
+            GammaMode.Gamma24 => Loc.Get("settings.gamma.v24"),
+            _ => Loc.Get("settings.gamma.windowsDefault")
         };
     }
 }

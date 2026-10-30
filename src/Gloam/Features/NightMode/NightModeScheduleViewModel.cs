@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -173,13 +174,13 @@ namespace Gloam.Features.NightMode
         public string AlgorithmDescription => _algorithm switch
         {
             NightModeAlgorithm.Perceptual =>
-                "Warm white point eased toward neutral (partial chromatic adaptation) — cuts blue while keeping colours far closer to normal than a full shift.",
+                Loc.Get("nightmode.warm.white.point.eased.toward.neutral.partial.chromatic"),
             NightModeAlgorithm.AccurateCIE1931 =>
-                "True black-body white point at full strength. Colorimetrically exact, but strongly warms and desaturates the whole image.",
+                Loc.Get("nightmode.true.black.body.white.point.at.full.strength"),
             NightModeAlgorithm.Standard =>
-                "Classic photo-style warm tint (Tanner Helland). Pair with Ultra Warm for a stronger effect below 2800K.",
+                Loc.Get("nightmode.classic.photo.style.warm.tint.tanner.helland.pair.with"),
             NightModeAlgorithm.UltraNight =>
-                "Amber/red for maximum circadian protection — cuts ~90% of blue and deeply cuts green. Not colour-accurate; for the darkest part of the evening.",
+                Loc.Get("nightmode.amber.red.for.maximum.circadian.protection.cuts.90.of"),
             _ => string.Empty
         };
 

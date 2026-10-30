@@ -1,3 +1,4 @@
+using Gloam.Localization.Wpf;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -77,10 +78,10 @@ namespace Gloam.Features.Calibration
 
         #region Header
 
-        private string _monitorNameText = "Monitor Name";
+        private string _monitorNameText = Loc.Get("calibration.monitor.name");
         public string MonitorNameText { get => _monitorNameText; set => SetProperty(ref _monitorNameText, value); }
 
-        private string _calibrationDateText = "Calibrated: Today";
+        private string _calibrationDateText = Loc.Get("calibration.calibrated.today");
         public string CalibrationDateText { get => _calibrationDateText; set => SetProperty(ref _calibrationDateText, value); }
 
         private string _gradeText = "";
@@ -92,7 +93,7 @@ namespace Gloam.Features.Calibration
         private Brush _gradeBackground = InitialGradeBackgroundBrush;
         public Brush GradeBackground { get => _gradeBackground; set => SetProperty(ref _gradeBackground, value); }
 
-        private string _gradeScopeText = "uncorrected panel";
+        private string _gradeScopeText = Loc.Get("calibration.uncorrected.panel");
         public string GradeScopeText { get => _gradeScopeText; set => SetProperty(ref _gradeScopeText, value); }
 
         #endregion
@@ -231,7 +232,7 @@ namespace Gloam.Features.Calibration
         private bool _isBeforeAfterNoteVisible;
         public bool IsBeforeAfterNoteVisible { get => _isBeforeAfterNoteVisible; set => SetProperty(ref _isBeforeAfterNoteVisible, value); }
 
-        private string _summaryText = "Calibration completed successfully.";
+        private string _summaryText = Loc.Get("calibration.calibration.completed.successfully");
         public string SummaryText { get => _summaryText; set => SetProperty(ref _summaryText, value); }
 
         private bool _isPerceptualNoteVisible;
@@ -275,10 +276,10 @@ namespace Gloam.Features.Calibration
 
         #region Display characteristics
 
-        private string _peakLuminanceText = "-- cd/m2";
+        private string _peakLuminanceText = Loc.Get("calibration.cd.m2");
         public string PeakLuminanceText { get => _peakLuminanceText; set => SetProperty(ref _peakLuminanceText, value); }
 
-        private string _blackLevelText = "-- cd/m2";
+        private string _blackLevelText = Loc.Get("calibration.cd.m2");
         public string BlackLevelText { get => _blackLevelText; set => SetProperty(ref _blackLevelText, value); }
 
         private string _contrastRatioText = "--:1";
@@ -287,7 +288,7 @@ namespace Gloam.Features.Calibration
         private string _measuredGammaText = "--";
         public string MeasuredGammaText { get => _measuredGammaText; set => SetProperty(ref _measuredGammaText, value); }
 
-        private string _whitePointCctText = "-- K";
+        private string _whitePointCctText = Loc.Get("calibration.k");
         public string WhitePointCctText { get => _whitePointCctText; set => SetProperty(ref _whitePointCctText, value); }
 
         private string _whitePointDuvText = "--";
@@ -377,19 +378,19 @@ namespace Gloam.Features.Calibration
 
         #region Status and buttons
 
-        private string _statusText = "Profile is active and applied.";
+        private string _statusText = Loc.Get("calibration.profile.is.active.and.applied");
         public string StatusText { get => _statusText; set => SetProperty(ref _statusText, value); }
 
         private Brush _statusBrush = GreenBrush;
         public Brush StatusBrush { get => _statusBrush; set => SetProperty(ref _statusBrush, value); }
 
-        private string _applyButtonContent = "Apply Profile";
+        private string _applyButtonContent = Loc.Get("calibration.apply.profile");
         public string ApplyButtonContent { get => _applyButtonContent; set => SetProperty(ref _applyButtonContent, value); }
 
         private bool _isApplyEnabled = true;
         public bool IsApplyEnabled { get => _isApplyEnabled; set => SetProperty(ref _isApplyEnabled, value); }
 
-        private string _verifyButtonContent = "Re-verify";
+        private string _verifyButtonContent = Loc.Get("calibration.re.verify");
         public string VerifyButtonContent { get => _verifyButtonContent; set => SetProperty(ref _verifyButtonContent, value); }
 
         private bool _isVerifyEnabled = true;

@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -296,7 +297,7 @@ namespace Gloam.Features.Settings
         public string CurrentMonitorFriendlyName => _currentMonitor.FriendlyName ?? "";
 
         public string NightSpectrumLabel => string.IsNullOrWhiteSpace(_profile.NightModeCcssPath)
-            ? "Generic RGB estimate"
+            ? Loc.Get("settings.generic.rgb.estimate")
             : System.IO.Path.GetFileName(_profile.NightModeCcssPath);
 
         public bool HasNightSpectrum => !string.IsNullOrWhiteSpace(_profile.NightModeCcssPath);

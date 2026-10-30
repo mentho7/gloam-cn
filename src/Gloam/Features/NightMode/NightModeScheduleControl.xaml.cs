@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -548,7 +549,7 @@ namespace Gloam.Features.NightMode
             {
                 if (_settings.Schedule.Count >= 12)
                 {
-                    ConfirmDialog.Info(Window.GetWindow(this), "Limit Reached", "Maximum of 12 schedule points allowed.");
+                    ConfirmDialog.Info(Window.GetWindow(this), Loc.Get("nightmode.limit.reached"), Loc.Get("nightmode.maximum.of.12.schedule.points.allowed"));
                     return;
                 }
 
@@ -584,7 +585,7 @@ namespace Gloam.Features.NightMode
         {
             if (_settings.Schedule.Count >= 12)
             {
-                MessageBox.Show("Maximum of 12 schedule points allowed.", "Limit Reached", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(Loc.Get("nightmode.maximum.of.12.schedule.points.allowed"), Loc.Get("nightmode.limit.reached"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -627,7 +628,7 @@ namespace Gloam.Features.NightMode
         {
             var dialog = new Window
             {
-                Title = "Confirm Delete",
+                Title = Loc.Get("nightmode.confirm.delete"),
                 Width = 340,
                 Height = 160,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -659,7 +660,7 @@ namespace Gloam.Features.NightMode
             };
             var titleText = new TextBlock
             {
-                Text = "DELETE SCHEDULE POINT",
+                Text = Loc.Get("nightmode.delete.schedule.point"),
                 Foreground = ThemeBrush("ThemeText"),
                 FontFamily = (FontFamily)Application.Current.Resources["DisplayFont"],
                 FontWeight = FontWeights.Bold,
@@ -698,7 +699,7 @@ namespace Gloam.Features.NightMode
 
             var cancelBtn = new Button
             {
-                Content = "CANCEL",
+                Content = Loc.Get("nightmode.cancel"),
                 Width = 84,
                 Padding = new Thickness(0, 6, 0, 6),
                 Margin = new Thickness(0, 0, 8, 0),
@@ -713,7 +714,7 @@ namespace Gloam.Features.NightMode
 
             var deleteBtn = new Button
             {
-                Content = "DELETE",
+                Content = Loc.Get("nightmode.delete"),
                 Width = 84,
                 Padding = new Thickness(0, 6, 0, 6),
                 Background = ThemeBrush("ThemeAccent"),

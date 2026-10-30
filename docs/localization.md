@@ -137,24 +137,27 @@ as are bindings, pack URIs, geometry data and short symbol runs.
 
 ## Migrating the remaining strings
 
-Status: **the tray menu is done** (all menu items, labels and the common toasts). Everything else
-is still English. The ratchet baseline records 1631 remaining strings across 64 files; check the
-per-file numbers in `tests/Gloam.Tests/Fixtures/localization/hardcoded-baseline.json`.
+Status: **the interface is translated.** 619 keys in both catalogs cover the tray menu, the
+dashboard (first screen and its collapsible panels), Settings, the Game Lab window, the generic
+dialogs, and the calibration flow up to and including the report window's chrome.
 
-Note that the baseline counts *candidates*, not confirmed user-visible text: it skips log lines and
-dotted identifiers, but a file with 40 entries may hold a handful of developer-facing strings. Treat
-it as a trend line, not a to-do list.
+What is deliberately still English:
 
-Intended order, by visibility rather than by file:
+| Area | Why |
+| --- | --- |
+| `CalibrationReportWindow` body and `ReportPrintBuilder` | A printed artefact meant for a support engineer. Decide the audience before translating it. |
+| Strings built by concatenation at runtime | They need a `Loc.Format` template with named arguments, not a lookup. Listed per file in the baseline. |
+| Developer-facing text | Log lines, analyzer pragmas, resource keys, colours, automation ids. Excluded from the audit, since none of them can be translated. |
 
-1. ~~Tray menu~~ — done.
-2. **Dashboard** — largest surface and where a new user lands (~80 candidates).
-3. **Dialogs** (`Infrastructure/Dialogs`) — small, mostly one-liners passed in as parameters.
-4. **Calibration** — largest C#, but rarely the first thing opened.
-5. **Game Lab, Settings, Night mode** — as they are touched for other reasons.
+The ratchet now reads 708 candidate strings, down from 1540 before this pass. That number is a
+trend line, not a to-do list: it counts literals the audit cannot classify, and roughly half of what
+remains is inside the two report files above.
 
-Per string: add the key to `en-US.json` and `zh-Hans.json`, replace the literal, then tighten the
-baseline for that file.
+### Adding a language
+
+1. Copy `en-US.json`, translate the values, save as `<tag>.json` next to it.
+2. `dotnet test --filter Localization` — the validator checks placeholder sets, plural categories and empty values.
+3. Ship. No code change, no rebuild of the UI: the picker lists whatever catalogs are embedded.
 
 ### Making a switch take effect
 

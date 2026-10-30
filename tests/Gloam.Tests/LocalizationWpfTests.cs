@@ -16,6 +16,7 @@ namespace Gloam.Tests;
 /// "does text already on screen change when the language changes", because that is the difference
 /// between a switch and a restart, and it is entirely a property of the WPF layer.
 /// </remarks>
+[ResetsLocalization]
 public class LocalizationWpfTests
 {
     private const string LatinXaml = """

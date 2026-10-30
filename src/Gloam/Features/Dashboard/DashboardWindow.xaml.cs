@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Windows;
 using System.Windows.Input;
 using Gloam.Core;
@@ -31,7 +32,7 @@ namespace Gloam.Features.Dashboard
             GamerModeCoordinator? gamerModeCoordinator = null)
         {
             InitializeComponent();
-            WindowBoundsPersistence.Attach(this, settingsManager, "Dashboard");
+            WindowBoundsPersistence.Attach(this, settingsManager, Loc.Get("chrome.section.dashboard"));
 
             _viewModel = new DashboardViewModel(
                 monitorManager, settingsManager, nightModeService, updateService, applyCallback,
@@ -58,7 +59,7 @@ namespace Gloam.Features.Dashboard
             }
             else
             {
-                MelanopicSummary.Text = "Melanopic monitoring is not running.";
+                MelanopicSummary.Text = Loc.Get("dashboard.melanopic.monitoring.is.not.running");
             }
 
             // Init Schedule Editor (Global Settings)
@@ -198,7 +199,7 @@ namespace Gloam.Features.Dashboard
                 var states = _melanopicService.CurrentStates;
                 if (states.Count == 0)
                 {
-                    MelanopicSummary.Text = "Waiting for the first applied state.";
+                    MelanopicSummary.Text = Loc.Get("dashboard.waiting.for.the.first.applied.state");
                     return;
                 }
 
@@ -236,7 +237,7 @@ namespace Gloam.Features.Dashboard
                 MelanopicProvenance.Text =
                     $"Spectra: {sources}. Absolute mel-lx assumes the screen fills " +
                     $"{_melanopicService.ViewingSolidAngleSr:F2} sr at the eye (≈ 27″ at 60 cm); " +
-                    "the % reduction is independent of that assumption." +
+                    Loc.Get("dashboard.the.reduction.is.independent.of.that.assumption") +
                     (anyGeneric
                         ? " Load a CCSS for your panel (Settings → Ultra Night spectrum) to tighten these numbers."
                         : string.Empty);
@@ -259,7 +260,7 @@ namespace Gloam.Features.Dashboard
             double combinedEdi = states.Sum(s => Math.Max(0, s.Reading.MelanopicEdiLux));
             ExposureBig.Text = combinedEdi >= 100 ? combinedEdi.ToString("F0") : combinedEdi.ToString("F1");
 
-            string screenPhrase = states.Count > 1 ? "your screens add" : "your screen adds";
+            string screenPhrase = states.Count > 1 ? Loc.Get("dashboard.your.screens.add") : Loc.Get("dashboard.your.screen.adds");
             string ediText = combinedEdi >= 10 ? combinedEdi.ToString("F0") : combinedEdi.ToString("F1");
 
             bool over;
@@ -301,7 +302,7 @@ namespace Gloam.Features.Dashboard
             {
                 DoseBig.Text = "0";
                 DoseBig.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "ThemeText");
-                DoseGoal.Text = "accrues from 6pm vs the 10 mel-lx target";
+                DoseGoal.Text = Loc.Get("dashboard.accrues.from.6pm.vs.the.10.mel.lx.target");
             }
         }
 
@@ -342,7 +343,7 @@ namespace Gloam.Features.Dashboard
 
             if (samples.Count < 2)
             {
-                DoseSummary.Text = "Dose curve appears once melanopic samples accumulate (a sample a minute while the screen is on).";
+                DoseSummary.Text = Loc.Get("dashboard.dose.curve.appears.once.melanopic.samples.accumulate.a");
                 return;
             }
 
@@ -393,13 +394,13 @@ namespace Gloam.Features.Dashboard
                     double yMax = Math.Max(points.Max(p => p.Y) * 1.15, 1.0);
                     CalibrationCharts.DrawLineChart(canvas,
                         new[] { new CalibrationCharts.Series(name, color, points) },
-                        0, 12, 0, yMax, "Hours (last 12 h)", "mel-lx", palette: palette);
+                        0, 12, 0, yMax, Loc.Get("dashboard.hours.last.12.h"), "mel-lx", palette: palette);
                 }
             });
 
             string doseLine = _cachedEveningActive
                 ? $"This evening's screen dose so far: {_cachedEveningDose:F1} mel-lx·h, against a {_cachedEveningBudget:F0} budget if the screen sat right at the 10 mel-lx evening target since 6pm."
-                : "The evening dose begins accruing at 6pm, measured against the 10 mel-lx evening target.";
+                : Loc.Get("dashboard.the.evening.dose.begins.accruing.at.6pm.measured");
             DoseSummary.Text = monitorCount > 1
                 ? doseLine + " Charts below cover the last 12 hours, one per display (summed dose is an upper bound)."
                 : doseLine + " The chart below covers the last 12 hours.";

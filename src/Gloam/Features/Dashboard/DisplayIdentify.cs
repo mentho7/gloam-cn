@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -94,7 +95,7 @@ namespace Gloam.Features.Dashboard
             var labels = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
             labels.Children.Add(new TextBlock
             {
-                Text = "Calibration target",
+                Text = Loc.Get("dashboard.calibration.target"),
                 FontFamily = display,
                 FontSize = 12,
                 FontWeight = FontWeights.Bold,
@@ -102,7 +103,7 @@ namespace Gloam.Features.Dashboard
             });
             labels.Children.Add(new TextBlock
             {
-                Text = string.IsNullOrWhiteSpace(monitor.FriendlyName) ? "Display" : monitor.FriendlyName,
+                Text = string.IsNullOrWhiteSpace(monitor.FriendlyName) ? Loc.Get("dashboard.display") : monitor.FriendlyName,
                 FontFamily = body,
                 FontSize = 20,
                 FontWeight = FontWeights.SemiBold,
@@ -113,7 +114,7 @@ namespace Gloam.Features.Dashboard
             });
             labels.Children.Add(new TextBlock
             {
-                Text = "This display will be measured",
+                Text = Loc.Get("dashboard.this.display.will.be.measured"),
                 FontFamily = body,
                 FontSize = 12,
                 Foreground = dim,
@@ -123,7 +124,7 @@ namespace Gloam.Features.Dashboard
             stack.Children.Add(row);
             stack.Children.Add(new TextBlock
             {
-                Text = "If this is the wrong display, choose another monitor",
+                Text = Loc.Get("dashboard.if.this.is.the.wrong.display.choose.another.monitor"),
                 FontFamily = body,
                 FontSize = 11,
                 Foreground = dim,

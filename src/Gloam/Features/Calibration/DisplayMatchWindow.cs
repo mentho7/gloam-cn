@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -32,7 +33,7 @@ namespace Gloam.Features.Calibration
             _settingsManager = settingsManager;
             _applyAll = applyAll;
 
-            Title = "Match Displays";
+            Title = Loc.Get("calibration.match.displays");
             Width = 720;
             Height = 460;
             MinWidth = 620;
@@ -73,9 +74,9 @@ namespace Gloam.Features.Calibration
                 return b;
             }
 
-            _applyButton = Make("Apply Match", (_, _) => ApplyMatch(), accent: true);
+            _applyButton = Make(Loc.Get("calibration.apply.match"), (_, _) => ApplyMatch(), accent: true);
             _applyButton.IsEnabled = false;
-            var reset = Make("Reset Trims", (_, _) => ResetTrims());
+            var reset = Make(Loc.Get("calibration.reset.trims"), (_, _) => ResetTrims());
             var close = Make("Close", (_, _) => Close());
 
             var buttons = new StackPanel
@@ -103,7 +104,7 @@ namespace Gloam.Features.Calibration
             root.Children.Add(_summary);
             root.Children.Add(scroll);
             root.Children.Add(buttons);
-            BrutalistChrome.Apply(this, "Match Displays", root);
+            BrutalistChrome.Apply(this, Loc.Get("calibration.match.displays"), root);
 
             SolveNow();
         }
@@ -152,7 +153,7 @@ namespace Gloam.Features.Calibration
                 {
                     _summary.Text = inputs.Count == 0
                         ? "No calibrated displays found. Calibrate at least two displays first — matching runs on their stored calibration reports."
-                        : "Only one calibrated display found. Calibrate a second display to match them.";
+                        : Loc.Get("calibration.only.one.calibrated.display.found.calibrate.a.second");
                     return;
                 }
 
@@ -175,9 +176,9 @@ namespace Gloam.Features.Calibration
                                      $"appearance change ΔE′ {a.DeltaEPrimeFromCurrent:F1}");
                 }
                 lines.AppendLine();
-                lines.AppendLine("Apply writes these as the per-monitor channel gains and brightness on top of");
-                lines.AppendLine("the existing calibrations (overwriting current manual gain/brightness trims).");
-                lines.AppendLine("Reset Trims restores gains 1.0 / brightness 100% on the matched displays.");
+                lines.AppendLine(Loc.Get("calibration.apply.writes.these.as.the.per.monitor.channel.gains.and"));
+                lines.AppendLine(Loc.Get("calibration.the.existing.calibrations.overwriting.current.manual"));
+                lines.AppendLine(Loc.Get("calibration.reset.trims.restores.gains.1.0.brightness.100.on.the"));
                 _details.Text = lines.ToString();
                 _applyButton.IsEnabled = true;
             }
@@ -218,10 +219,10 @@ namespace Gloam.Features.Calibration
         private void ApplyMatch()
         {
             if (_solution == null) return;
-            if (!ConfirmDialog.Confirm(this, "Match Displays",
+            if (!ConfirmDialog.Confirm(this, Loc.Get("calibration.match.displays"),
                     "Apply the matched white to all displays?\n\nThis overwrites each monitor's manual " +
-                    "channel gains and brightness with the solved trim.",
-                    confirmLabel: "Apply", cancelLabel: "Cancel"))
+                    Loc.Get("calibration.channel.gains.and.brightness.with.the.solved.trim"),
+                    confirmLabel: "Apply", cancelLabel: Loc.Get("calibration.cancel")))
                 return;
 
             try
@@ -245,7 +246,7 @@ namespace Gloam.Features.Calibration
             catch (Exception ex)
             {
                 Log.Error($"DisplayMatchWindow: apply failed: {ex}");
-                ConfirmDialog.Info(this, "Match Displays", $"Apply failed: {ex.Message}");
+                ConfirmDialog.Info(this, Loc.Get("calibration.match.displays"), $"Apply failed: {ex.Message}");
             }
         }
 

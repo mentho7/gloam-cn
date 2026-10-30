@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
@@ -90,7 +91,7 @@ namespace Gloam.Features.Settings
                 _viewModel.CurrentMonitorFriendlyName,
                 CalibrationSetupViewModel.CorrectionsFolder,
                 typeFilter: "ccss",
-                title: "Find Display Spectrum",
+                title: Loc.Get("settings.find.display.spectrum"),
                 introText: "Search for a DisplayCAL .ccss spectral sample matching this panel. Gloam uses it only to estimate Ultra Night melanopic weights.")
             {
                 Owner = this

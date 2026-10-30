@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
@@ -196,9 +197,9 @@ namespace Gloam.Shell
                     return;
 
                 toastService.Show(
-                    "Old Gloam install found",
+                    Loc.Get("shell.old.gloam.install.found"),
                     "An outdated Gloam install remains at C:\\Program Files\\HDR-Gamma-Adjust. " +
-                    "Please uninstall or delete it — running it can corrupt Gloam's settings.",
+                    Loc.Get("shell.please.uninstall.or.delete.it.running.it.can.corrupt"),
                     ToastKind.Warning);
                 settings.MarkLegacyInstallWarningShown();
             }
@@ -312,7 +313,7 @@ namespace Gloam.Shell
             }
 
             _crashDialogShown = true;
-            string message = e.Exception?.Message ?? "An unexpected error occurred.";
+            string message = e.Exception?.Message ?? Loc.Get("shell.an.unexpected.error.occurred");
             string details = e.Exception == null ? "" : $"{e.Exception.GetType().FullName}: {e.Exception.Message}\n\n{e.Exception.StackTrace}";
 
             Window? owner = MainWindow;
@@ -322,7 +323,7 @@ namespace Gloam.Shell
             // things worse than the original error.
             try
             {
-                exit = CrashDialog.Show(owner, "Something went wrong", message, details);
+                exit = CrashDialog.Show(owner, Loc.Get("shell.something.went.wrong"), message, details);
             }
             catch (Exception dialogEx)
             {

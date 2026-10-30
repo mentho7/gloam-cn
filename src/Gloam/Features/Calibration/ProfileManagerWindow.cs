@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -96,8 +97,8 @@ namespace Gloam.Features.Calibration
             buttons.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             for (int i = 0; i < 4; i++) buttons.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             var activate = _activateButton = Make("Activate", (_, _) => ActivateSelectedProfile(), accent: true);
-            var deactivate = Make("Deactivate", (_, _) => Deactivate());
-            var delete = Make("Delete…", (_, _) => Delete());
+            var deactivate = Make(Loc.Get("calibration.deactivate"), (_, _) => Deactivate());
+            var delete = Make(Loc.Get("calibration.delete"), (_, _) => Delete());
             var close = Make("Close", (_, _) => Close());
             Grid.SetColumn(activate, 1);
             Grid.SetColumn(deactivate, 2);
@@ -116,7 +117,7 @@ namespace Gloam.Features.Calibration
             Grid.SetRow(buttons, 1);
             root.Children.Add(_list);
             root.Children.Add(buttons);
-            BrutalistChrome.Apply(this, "Calibration Profiles", root);
+            BrutalistChrome.Apply(this, Loc.Get("calibration.calibration.profiles"), root);
 
             Refresh();
         }
@@ -148,11 +149,11 @@ namespace Gloam.Features.Calibration
                         f.Name,
                         f.LastWriteTime.ToString("yyyy-MM-dd HH:mm"),
                         $"{f.Length / 1024} KB",
-                        string.Equals(f.Name, ActiveProfileName, StringComparison.OrdinalIgnoreCase) ? "ACTIVE" : ""))
+                        string.Equals(f.Name, ActiveProfileName, StringComparison.OrdinalIgnoreCase) ? Loc.Get("calibration.active") : ""))
                     .ToList();
                 _list.ItemsSource = rows;
                 SetStatus(rows.Count == 0
-                    ? "No calibration profiles found for this monitor."
+                    ? Loc.Get("calibration.no.calibration.profiles.found.for.this.monitor")
                     : $"{rows.Count} profile(s) in the Windows color store for this monitor.");
             }
             catch (Exception ex)
@@ -216,7 +217,7 @@ namespace Gloam.Features.Calibration
             }
             else
             {
-                SetStatus("Windows refused the association - is the monitor active and in the matching SDR/HDR mode?");
+                SetStatus(Loc.Get("calibration.windows.refused.the.association.is.the.monitor.active"));
             }
             Refresh();
         }
@@ -260,8 +261,8 @@ namespace Gloam.Features.Calibration
                 : $"Permanently delete these {rows.Count} profiles from the color store?\n\n" +
                   string.Join("\n", rows.Select(r => r.Name)) +
                   "\n\nThis cannot be undone.";
-            if (!ConfirmDialog.Confirm(this, rows.Count == 1 ? "Delete Profile" : "Delete Profiles",
-                    message, "Delete", "Cancel"))
+            if (!ConfirmDialog.Confirm(this, rows.Count == 1 ? Loc.Get("calibration.delete.profile") : Loc.Get("calibration.delete.profiles"),
+                    message, Loc.Get("nightmode.delete"), Loc.Get("calibration.cancel")))
                 return;
             string? activeBefore = ActiveProfileName;
             string restoreMessage = "";

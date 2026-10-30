@@ -1,8 +1,9 @@
 <Window x:Class="Gloam.Features.Calibration.ArgyllDownloadDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Gloam.Localization.Wpf;assembly=Gloam.Localization.Wpf"
         xmlns:controls="clr-namespace:Gloam.Controls"
-        Title="ArgyllCMS Download"
+        Title="{loc:Tr calibration.argyllcms.download}"
         Height="280" Width="450"
         WindowStartupLocation="CenterOwner"
         Background="Transparent"
@@ -38,7 +39,7 @@
                 <Grid Margin="16,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <controls:BrandMark Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" GapBrush="{DynamicResource ThemeSurface}"/>
-                        <TextBlock Text="Download ArgyllCMS" FontFamily="{DynamicResource DisplayFont}"
+                        <TextBlock Text="{loc:Tr calibration.download.argyllcms}" FontFamily="{DynamicResource DisplayFont}"
                                    FontWeight="Bold" FontSize="13" Foreground="{DynamicResource ThemeText}"/>
                     </StackPanel>
                 </Grid>
@@ -49,7 +50,7 @@
                 <!-- Confirmation View -->
                 <StackPanel x:Name="ConfirmationPanel" Visibility="Visible">
                     <TextBlock x:Name="ReasonText" Text="" TextWrapping="Wrap" Margin="0,0,0,16" LineHeight="20"/>
-                    <TextBlock Text="Would you like to download ArgyllCMS automatically?" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <TextBlock Text="{loc:Tr calibration.would.you.like.to.download.argyllcms.automatically}" FontWeight="Bold" Margin="0,0,0,8"/>
                     <TextBlock Foreground="{DynamicResource ThemeTextDim}" FontSize="12" TextWrapping="Wrap">
                         This will download approximately 15MB from argyllcms.com and install to your local AppData folder.
                     </TextBlock>
@@ -57,7 +58,7 @@
 
                 <!-- Progress View -->
                 <StackPanel x:Name="ProgressPanel" Visibility="Collapsed" VerticalAlignment="Center">
-                    <TextBlock x:Name="ProgressStatusText" Text="Downloading..." FontWeight="Bold" Margin="0,0,0,12"/>
+                    <TextBlock x:Name="ProgressStatusText" Text="{loc:Tr calibration.downloading}" FontWeight="Bold" Margin="0,0,0,12"/>
                     <Grid Margin="0,0,0,8">
                         <Border Background="{DynamicResource ThemeTrack}" Height="6"/>
                         <Border x:Name="ProgressBar" Background="{DynamicResource ThemeMeter}"
@@ -71,7 +72,7 @@
                     <TextBlock x:Name="ResultIcon" Text="OK" FontSize="32" FontWeight="Bold"
                                FontFamily="{DynamicResource DisplayFont}" HorizontalAlignment="Center"
                                Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,12"/>
-                    <TextBlock x:Name="ResultText" Text="Download complete!" FontWeight="Bold" FontSize="16"
+                    <TextBlock x:Name="ResultText" Text="{loc:Tr calibration.download.complete}" FontWeight="Bold" FontSize="16"
                                HorizontalAlignment="Center"/>
                     <TextBlock x:Name="ResultDetailText" Text="" Foreground="{DynamicResource ThemeTextDim}"
                                FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap"
@@ -91,12 +92,12 @@
 
                     <!-- Confirmation buttons -->
                     <StackPanel x:Name="ConfirmationButtons" Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="2">
-                        <Button Content="No, Thanks" Click="Cancel_Click" Margin="0,0,12,0"/>
-                        <Button x:Name="YesButton" Content="Yes, Download" Style="{StaticResource BrutBtnPrimary}" Click="Yes_Click"/>
+                        <Button Content="{loc:Tr calibration.no.thanks}" Click="Cancel_Click" Margin="0,0,12,0"/>
+                        <Button x:Name="YesButton" Content="{loc:Tr calibration.yes.download}" Style="{StaticResource BrutBtnPrimary}" Click="Yes_Click"/>
                     </StackPanel>
 
                     <!-- Progress cancel button -->
-                    <Button x:Name="CancelDownloadButton" Grid.Column="2" Content="Cancel"
+                    <Button x:Name="CancelDownloadButton" Grid.Column="2" Content="{loc:Tr calibration.cancel}"
                             Click="CancelDownload_Click" Visibility="Collapsed"/>
 
                     <!-- Result close button -->

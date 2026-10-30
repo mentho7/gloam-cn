@@ -1,3 +1,4 @@
+using Gloam.Localization.Wpf;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -83,7 +84,7 @@ namespace Gloam.Infrastructure.Theming
             };
 
             var toggle = MakeGlyph(BrutalistTheme.IsDark ? "◐" : "◑", 15);
-            toggle.ToolTip = "Toggle light / dark";
+            toggle.ToolTip = Loc.Get("theming.toggle.light.dark");
             // Down must not bubble to the header DragMove(): DragMove captures the mouse
             // for a modal move loop and swallows the Up, making the glyph inert.
             toggle.MouseLeftButtonDown += (_, e) => e.Handled = true;

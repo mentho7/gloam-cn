@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -29,7 +30,7 @@ namespace Gloam.Features.Calibration
 
         public WhiteTrimWindow()
         {
-            Title = "Visual White Trim";
+            Title = Loc.Get("calibration.visual.white.trim");
             Width = 720;
             Height = 560;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -71,14 +72,14 @@ namespace Gloam.Features.Calibration
             nudges.Children.Add(Make("< Green", 0, +Step));
             nudges.Children.Add(Make("Magenta >", 0, -Step));
             nudges.Children.Add(new Border { Width = 16 });
-            nudges.Children.Add(Make("Warmer", +Step, +Step * 0.35));
-            nudges.Children.Add(Make("Cooler", -Step, -Step * 0.35));
+            nudges.Children.Add(Make(Loc.Get("settings.offset.warmer"), +Step, +Step * 0.35));
+            nudges.Children.Add(Make(Loc.Get("settings.offset.cooler"), -Step, -Step * 0.35));
             nudges.Children.Add(new Border { Width = 16 });
             nudges.Children.Add(Make("Reset", double.NaN, double.NaN));
 
             var done = new Button
             {
-                Content = "Done - keep this white",
+                Content = Loc.Get("calibration.done.keep.this.white"),
                 Padding = new Thickness(16, 7, 16, 7),
                 Margin = new Thickness(4, 0, 4, 0),
                 BorderThickness = new Thickness(1),
@@ -90,7 +91,7 @@ namespace Gloam.Features.Calibration
 
             var cancel = new Button
             {
-                Content = "Cancel",
+                Content = Loc.Get("calibration.cancel"),
                 Padding = new Thickness(16, 7, 16, 7),
                 Margin = new Thickness(4, 0, 4, 0),
                 BorderThickness = new Thickness(1),

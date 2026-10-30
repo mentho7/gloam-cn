@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using System;
+using Gloam.Localization.Wpf;
 using Gloam.Core;
 using System.Diagnostics;
 
@@ -189,7 +190,7 @@ namespace Gloam.Infrastructure.Platform
             // framework-dependent and self-contained single-file publishes.
             return Environment.ProcessPath
                 ?? Process.GetCurrentProcess().MainModule?.FileName
-                ?? throw new InvalidOperationException("Could not determine the application executable path.");
+                ?? throw new InvalidOperationException(Loc.Get("platform.could.not.determine.the.application.executable.path"));
         }
     }
 }

@@ -1,8 +1,9 @@
 <Window x:Class="Gloam.Infrastructure.Dialogs.CrashDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Gloam.Localization.Wpf;assembly=Gloam.Localization.Wpf"
         xmlns:vm="clr-namespace:Gloam.Infrastructure.Dialogs"
-        Title="Gloam - Error"
+        Title="{loc:Tr tray.gloam.error}"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -53,7 +54,7 @@
                         HorizontalAlignment="Left" Padding="10,4"
                         Command="{Binding ToggleDetailsCommand}">
                     <TextBlock>
-                        <Run Text="Details"/>
+                        <Run Text="{loc:Tr dialogs.details}"/>
                         <Run Text="{Binding AreDetailsVisible, Mode=OneWay, StringFormat=' [{0}]'}"/>
                     </TextBlock>
                 </Button>
@@ -70,14 +71,14 @@
             <!-- Copy button (when details exist) -->
             <Button Grid.Row="3" Style="{StaticResource BrutBtnSecondary}"
                     HorizontalAlignment="Left" Padding="12,5" Margin="0,0,0,12"
-                    Content="Copy details"
+                    Content="{loc:Tr dialogs.copy.details}"
                     Command="{Binding CopyDetailsCommand}"
                     Visibility="{Binding HasDetails, Converter={StaticResource BoolToVis}}"/>
 
             <!-- Actions: Continue (secondary) | Exit (primary) -->
             <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Style="{StaticResource BrutBtnSecondary}"
-                        Content="Continue" Padding="18,9" Margin="0,0,10,0"
+                        Content="{loc:Tr dialogs.continue}" Padding="18,9" Margin="0,0,10,0"
                         Command="{Binding ContinueCommand}"/>
                 <Button Style="{StaticResource BrutBtnPrimary}"
                         Content="Exit" Padding="18,9"

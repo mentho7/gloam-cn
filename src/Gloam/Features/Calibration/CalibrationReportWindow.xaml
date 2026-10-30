@@ -1,6 +1,7 @@
 <Window x:Class="Gloam.Features.Calibration.CalibrationReportWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Gloam.Localization.Wpf;assembly=Gloam.Localization.Wpf"
         xmlns:controls="clr-namespace:Gloam.Controls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -103,7 +104,7 @@
                 <StackPanel Grid.Column="1">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,-6,-6,6">
                         <Button x:Name="ThemeToggleButton" Content="&#x25D0;" Width="30" Height="30" FontSize="15"
-                                Style="{StaticResource BrutIconButton}" ToolTip="Toggle light / dark" Click="ThemeToggle_Click"/>
+                                Style="{StaticResource BrutIconButton}" ToolTip="{loc:Tr chrome.toggleTheme}" Click="ThemeToggle_Click"/>
                         <Button Content="&#x2715;" Width="30" Height="30" FontSize="13"
                                 Style="{StaticResource BrutIconButton}"
                                 IsEnabled="{Binding IsCloseEnabled}" Click="CloseButton_Click"/>

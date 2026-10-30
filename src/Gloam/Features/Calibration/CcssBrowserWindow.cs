@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -41,7 +42,7 @@ namespace Gloam.Features.Calibration
             _displayName = initialQuery?.Trim() ?? "";
             _typeFilter = string.IsNullOrWhiteSpace(typeFilter) ? null : typeFilter.Trim().ToLowerInvariant();
             InitializeComponent();
-            Title = title ?? "Find Meter Correction - DisplayCAL Community Database";
+            Title = title ?? Loc.Get("calibration.find.meter.correction.displaycal.community.database");
             _query.Text = initialQuery;
             _status.Text = introText ??
                 "Search the community database by display model. .ccss spectral samples are preferred for an i1 Display; choose one measured for your panel model when possible.";
@@ -56,7 +57,7 @@ namespace Gloam.Features.Calibration
                                     "Gloam's corrections folder can be deleted (online results cannot).";
             _dedupeButton.ToolTip = "Delete redundant saved correction files whose contents are identical, " +
                                     "keeping one copy of each.";
-            BrutalistChrome.Apply(this, title ?? "Find Meter Correction", BodyRoot);
+            BrutalistChrome.Apply(this, title ?? Loc.Get("calibration.find.meter.correction"), BodyRoot);
             Loaded += (_, _) => SafeAsync.FireAndForget(SearchAsync, "CcssBrowserWindow.Loaded", ShowError);
         }
 
@@ -91,7 +92,7 @@ namespace Gloam.Features.Calibration
         {
             _downloadButton.IsEnabled = !_captureInProgress && _list.SelectedItem != null;
             _downloadButton.Content = _list.SelectedItem is CcssDatabaseClient.Entry { LocalPath: not null }
-                ? "Use Saved"
+                ? Loc.Get("calibration.use.saved")
                 : "Download & Use";
             _deleteButton.IsEnabled = !_captureInProgress &&
                 _list.SelectedItem is CcssDatabaseClient.Entry { LocalPath: not null };
@@ -132,10 +133,10 @@ namespace Gloam.Features.Calibration
 
             bool confirmed = ConfirmDialog.Confirm(
                 this,
-                "Delete correction",
+                Loc.Get("calibration.delete.correction"),
                 $"Delete this saved correction file from disk?\n\n{Path.GetFileName(path)}\n\nThis cannot be undone.",
-                "Delete",
-                "Cancel");
+                Loc.Get("nightmode.delete"),
+                Loc.Get("calibration.cancel"));
             if (!confirmed) return;
 
             try
@@ -161,7 +162,7 @@ namespace Gloam.Features.Calibration
             {
                 int removed = CcssDatabaseClient.RemoveDuplicates(_saveFolder);
                 _status.Text = removed == 0
-                    ? "No duplicate correction files found."
+                    ? Loc.Get("calibration.no.duplicate.correction.files.found")
                     : $"Removed {removed} duplicate correction file(s).";
                 await SearchAsync();
             }
@@ -175,7 +176,7 @@ namespace Gloam.Features.Calibration
         {
             if (_captureInProgress) return;
             _searchButton.IsEnabled = false;
-            _status.Text = "Searching…";
+            _status.Text = Loc.Get("calibration.searching");
             try
             {
                 var saved = CcssDatabaseClient.ListSaved(_saveFolder, _query.Text, _typeFilter);
@@ -238,7 +239,7 @@ namespace Gloam.Features.Calibration
         {
             if (_captureInProgress) return;
             SetCaptureBusy(true);
-            _status.Text = "Looking for a spectrometer…";
+            _status.Text = Loc.Get("calibration.looking.for.a.spectrometer");
 
             ColorimeterService? colorimeter = null;
             ProbeOperationScope? probe = null;
@@ -247,38 +248,38 @@ namespace Gloam.Features.Calibration
                 string? argyllBin = ArgyllPathFinder.FindArgyllBinPath();
                 if (argyllBin == null)
                 {
-                    _status.Text = "ArgyllCMS was not found. Start a calibration once so Gloam downloads it, then retry.";
+                    _status.Text = Loc.Get("calibration.argyllcms.was.not.found.start.a.calibration.once.so");
                     return;
                 }
 
                 colorimeter = new ColorimeterService(argyllBin);
                 if (!await colorimeter.InitializeAsync())
                 {
-                    _status.Text = "No instrument detected. Connect the spectrometer and try again.";
+                    _status.Text = Loc.Get("calibration.no.instrument.detected.connect.the.spectrometer.and.try");
                     return;
                 }
                 if (!colorimeter.ConnectedInstrumentIsSpectrometer)
                 {
                     _status.Text = $"'{colorimeter.ConnectedColorimeter?.Model ?? "The connected instrument"}' is not a spectrometer. " +
-                                   "Spectral capture needs an i1 Pro, ColorMunki Photo/Design or i1 Studio.";
+                                   Loc.Get("calibration.spectral.capture.needs.an.i1.pro.colormunki.photo");
                     return;
                 }
 
                 var monitor = PickMonitorForCapture();
                 if (monitor == null)
                 {
-                    _status.Text = "No display found to show measurement patches on.";
+                    _status.Text = Loc.Get("calibration.no.display.found.to.show.measurement.patches.on");
                     return;
                 }
                 Log.Info($"CcssBrowserWindow: spectral capture starting on '{monitor.FriendlyName}' " +
                          $"with '{colorimeter.ConnectedColorimeter?.Model}'.");
 
                 using var cts = new CancellationTokenSource();
-                _status.Text = "Measuring emission spectra… watch the patch window.";
+                _status.Text = Loc.Get("calibration.measuring.emission.spectra.watch.the.patch.window");
                 probe = await ProbeOperationScope.StartAsync(new ProbeOperationScope.Options(
                     monitor,
                     colorimeter,
-                    "Emission spectrum capture",
+                    Loc.Get("calibration.emission.spectrum.capture"),
                     PatchSize: 400,
                     Session: ProbeOperationScope.SessionKind.Spectral,
                     ConfigurePatchWindow: window => window.SetColor(1, 1, 1),
@@ -299,7 +300,7 @@ namespace Gloam.Features.Calibration
                 string displayName = !string.IsNullOrWhiteSpace(_displayName) ? _displayName : monitor.FriendlyName;
                 string path = CcssWriter.SaveToFolder(
                     displayName,
-                    colorimeter.ConnectedColorimeter?.Model ?? "Spectrometer",
+                    colorimeter.ConnectedColorimeter?.Model ?? Loc.Get("calibration.spectrometer"),
                     spectra,
                     _saveFolder);
                 Log.Info($"CcssBrowserWindow: spectral capture finished, CCSS saved to {path}.");
@@ -310,7 +311,7 @@ namespace Gloam.Features.Calibration
             }
             catch (OperationCanceledException)
             {
-                _status.Text = "Spectral capture cancelled.";
+                _status.Text = Loc.Get("calibration.spectral.capture.cancelled");
             }
             catch (Exception ex)
             {
@@ -341,7 +342,7 @@ namespace Gloam.Features.Calibration
         {
             if (_captureInProgress) return;
             SetCaptureBusy(true);
-            _status.Text = "Looking for the first instrument…";
+            _status.Text = Loc.Get("calibration.looking.for.the.first.instrument");
 
             ColorimeterService? first = null;
             ColorimeterService? second = null;
@@ -351,7 +352,7 @@ namespace Gloam.Features.Calibration
                 string? argyllBin = ArgyllPathFinder.FindArgyllBinPath();
                 if (argyllBin == null)
                 {
-                    _status.Text = "ArgyllCMS was not found. Start a calibration once so Gloam downloads it, then retry.";
+                    _status.Text = Loc.Get("calibration.argyllcms.was.not.found.start.a.calibration.once.so");
                     return;
                 }
 
@@ -366,7 +367,7 @@ namespace Gloam.Features.Calibration
                 var monitor = PickMonitorForCapture();
                 if (monitor == null)
                 {
-                    _status.Text = "No display found to show measurement patches on.";
+                    _status.Text = Loc.Get("calibration.no.display.found.to.show.measurement.patches.on");
                     return;
                 }
                 Log.Info($"CcssBrowserWindow: two-instrument CCMX capture starting on '{monitor.FriendlyName}' " +
@@ -402,21 +403,21 @@ namespace Gloam.Features.Calibration
                         bool wasTopmost = window.Topmost;
                         window.Topmost = false;
                         bool proceed = ConfirmDialog.Confirm(window,
-                            "Swap instruments",
+                            Loc.Get("calibration.swap.instruments"),
                             $"Phase 1 with '{firstInfo.Model}' is complete.\n\n" +
                             "1. Remove it from the panel and unplug it.\n" +
                             "2. Connect the OTHER instrument and place it over the same measurement square.\n" +
                             "3. Start phase 2 when ready.\n\n" +
-                            "Do not change display settings or let the panel sleep in between.",
-                            "Start phase 2", "Cancel");
+                            Loc.Get("calibration.do.not.change.display.settings.or.let.the.panel.sleep"),
+                            Loc.Get("calibration.start.phase.2"), Loc.Get("calibration.cancel"));
                         window.Topmost = wasTopmost;
                         if (!proceed) return false;
 
-                        _status.Text = "Looking for the second instrument…";
+                        _status.Text = Loc.Get("calibration.looking.for.the.second.instrument");
                         second = new ColorimeterService(argyllBin);
                         if (!await second.InitializeAsync(ct))
                             throw new InvalidOperationException(
-                                "No instrument was detected after the swap. Check the USB connection and retry.");
+                                Loc.Get("calibration.no.instrument.was.detected.after.the.swap.check.the.usb"));
                         secondInfo = second.ConnectedColorimeter!;
                         if (secondInfo.IsSpectrometer == firstInfo.IsSpectrometer)
                             throw new InvalidOperationException(
@@ -444,8 +445,8 @@ namespace Gloam.Features.Calibration
                 bool firstIsReference = firstInfo.IsSpectrometer;
                 var colorimeterReadings = firstIsReference ? readings.SecondInstrument : readings.FirstInstrument;
                 var referenceReadings = firstIsReference ? readings.FirstInstrument : readings.SecondInstrument;
-                string colorimeterName = (firstIsReference ? secondInfo : firstInfo)?.Model ?? "Colorimeter";
-                string referenceName = (firstIsReference ? firstInfo : secondInfo)?.Model ?? "Spectrometer";
+                string colorimeterName = (firstIsReference ? secondInfo : firstInfo)?.Model ?? Loc.Get("calibration.colorimeter");
+                string referenceName = (firstIsReference ? firstInfo : secondInfo)?.Model ?? Loc.Get("calibration.spectrometer");
 
                 var matrix = CcmxWriter.SolveCorrectionMatrix(colorimeterReadings, referenceReadings, whiteIndex: 0);
 
@@ -459,7 +460,7 @@ namespace Gloam.Features.Calibration
             }
             catch (OperationCanceledException)
             {
-                _status.Text = "Correction-matrix capture cancelled.";
+                _status.Text = Loc.Get("calibration.correction.matrix.capture.cancelled");
             }
             catch (Exception ex)
             {
@@ -491,11 +492,11 @@ namespace Gloam.Features.Calibration
             ColorimeterService service, CancellationToken cancellationToken)
         {
             var result = await service.MeasureAsync(
-                new ColorPatch { Name = "ccmx patch", DisplayRgb = new LinearRgb(0, 0, 0) },
+                new ColorPatch { Name = Loc.Get("calibration.ccmx.patch"), DisplayRgb = new LinearRgb(0, 0, 0) },
                 hdrMode: false,
                 cancellationToken: cancellationToken);
             if (!result.IsValid)
-                throw new InvalidOperationException(result.ErrorMessage ?? "Measurement failed.");
+                throw new InvalidOperationException(result.ErrorMessage ?? Loc.Get("calibration.measurement.failed"));
             return result.Xyz;
         }
 

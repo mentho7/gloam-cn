@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
@@ -338,7 +339,7 @@ namespace Gloam.Infrastructure.Platform
 
         /// <summary>Version label for the pending update (e.g. "1.2.0").</summary>
         public static string VersionLabel(UpdateInfo info)
-            => info.TargetFullRelease?.Version?.ToString() ?? "new version";
+            => info.TargetFullRelease?.Version?.ToString() ?? Loc.Get("platform.new.version");
 
         internal static bool IsNewerThanCurrent(UpdateInfo info, SemanticVersion? currentVersion)
             => IsNewerThanCurrent(info.TargetFullRelease, currentVersion, info.IsDowngrade);
@@ -429,7 +430,7 @@ namespace Gloam.Infrastructure.Platform
             => version?.ToString() ?? "unknown";
 
         private static string VersionLabel(VelopackAsset? asset)
-            => asset?.Version?.ToString() ?? "new version";
+            => asset?.Version?.ToString() ?? Loc.Get("platform.new.version");
 
         private void CaptureRuntimeState()
         {
@@ -450,7 +451,7 @@ namespace Gloam.Infrastructure.Platform
                 var lastAttempt = _state.LastCheckAttemptUtc;
                 if (!lastAttempt.HasValue)
                 {
-                    reason = "never checked";
+                    reason = Loc.Get("platform.never.checked");
                     return true;
                 }
 

@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -178,7 +179,7 @@ namespace Gloam.Features.Calibration
                 FontSize = 13,
                 FontWeight = FontWeights.Medium,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Text = "Verifying calibration",
+                Text = Loc.Get("calibration.verifying.calibration"),
             };
             _percent = new TextBlock { Foreground = TextDim, FontSize = 13, HorizontalAlignment = HorizontalAlignment.Right };
 
@@ -211,18 +212,18 @@ namespace Gloam.Features.Calibration
 
             // Cancel + mute, the same in-run controls the calibration screen offers. Hidden
             // until a sweep opts in via EnableSweepControls.
-            var cancelButton = MakeSubtleButton("Cancel");
+            var cancelButton = MakeSubtleButton(Loc.Get("calibration.cancel"));
             cancelButton.Margin = new Thickness(0, 0, 8, 0);
             cancelButton.Click += (_, _) =>
             {
                 if (_cancelRequested == null) return;
-                if (ConfirmDialog.Confirm(this, "Cancel Verification",
-                        "Cancel verification? Progress from this sweep will be lost.",
+                if (ConfirmDialog.Confirm(this, Loc.Get("calibration.cancel.verification"),
+                        Loc.Get("calibration.cancel.verification.progress.from.this.sweep.will.be"),
                         confirmLabel: "Yes", cancelLabel: "No"))
                     _cancelRequested?.Invoke();
             };
-            _muteButton = MakeSubtleButton("Sound: On");
-            _muteButton.ToolTip = "Mute or unmute capture and completion sounds";
+            _muteButton = MakeSubtleButton(Loc.Get("calibration.sound.on"));
+            _muteButton.ToolTip = Loc.Get("calibration.mute.or.unmute.capture.and.completion.sounds");
             _muteButton.Click += (_, _) =>
             {
                 CalibrationSounds.Muted = !CalibrationSounds.Muted;
@@ -314,12 +315,15 @@ namespace Gloam.Features.Calibration
         /// Pass null for <paramref name="nextPatchName"/> on the last patch.
         /// </summary>
         public void SetProgress(int current, int total, string patchName, string? nextPatchName,
-            string phase = "Verifying calibration")
+            string? phase = null)
         {
             SetProgressBar(current, total);
-            _phase.Text = phase;
+
+            // Resolved here rather than in the signature: a default argument must be a compile-time
+            // constant, and the catalog is read at call time so a language switch is picked up.
+            _phase.Text = phase ?? Loc.Get("calibration.verifying.calibration");
             _currentPatch.Text = patchName;
-            _nextPatch.Text = nextPatchName ?? "(last patch)";
+            _nextPatch.Text = nextPatchName ?? Loc.Get("calibration.last.patch");
             _currentNextRow.Visibility = Visibility.Visible;
         }
 
@@ -333,7 +337,7 @@ namespace Gloam.Features.Calibration
                 OffsetX,
                 OffsetY,
                 operationLabel,
-                secondaryLabel: "Cancel");
+                secondaryLabel: Loc.Get("calibration.cancel"));
             _patch.Visibility = Visibility.Collapsed;
             _sweepOverlay.Visibility = Visibility.Collapsed;
             _placement.Visibility = Visibility.Visible;
@@ -412,7 +416,7 @@ namespace Gloam.Features.Calibration
         }
 
         private void UpdateMuteLabel() =>
-            _muteButton.Content = CalibrationSounds.Muted ? "Sound: Muted" : "Sound: On";
+            _muteButton.Content = CalibrationSounds.Muted ? Loc.Get("calibration.sound.muted") : Loc.Get("calibration.sound.on");
 
         private Button MakeSubtleButton(string label) => new()
         {

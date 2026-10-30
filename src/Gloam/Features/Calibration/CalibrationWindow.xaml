@@ -1,9 +1,10 @@
 <Window x:Class="Gloam.Features.Calibration.CalibrationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Gloam.Localization.Wpf;assembly=Gloam.Localization.Wpf"
         xmlns:local="clr-namespace:Gloam.Features.Calibration" xmlns:controls="clr-namespace:Gloam.Controls"
         xmlns:vm="clr-namespace:Gloam.Features.Calibration"
-        Title="Display Calibration Finalize"
+        Title="{loc:Tr calibration.display.calibration.finalize}"
         Width="600" Height="700"
         MinWidth="560" MinHeight="500"
         WindowStartupLocation="CenterScreen"
@@ -204,7 +205,7 @@
                         <TextBlock Text="GLOAM" FontFamily="{DynamicResource DisplayFont}" FontWeight="ExtraBold"
                                    FontSize="14" Foreground="#F4F7FA" VerticalAlignment="Center"/>
                         <Border Width="1" Height="14" Background="#A8B0BC" Opacity="0.5" Margin="10,0"/>
-                        <TextBlock Text="Calibration" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold"
+                        <TextBlock Text="{loc:Tr calibration.calibration}" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold"
                                    FontSize="11" Foreground="#A8B0BC" VerticalAlignment="Center"/>
                     </StackPanel>
                     <Button Content="&#x2715;" HorizontalAlignment="Right" VerticalAlignment="Center"
@@ -215,8 +216,8 @@
 
             <!-- Header -->
             <StackPanel Grid.Row="1" Margin="24,16,24,4">
-                <TextBlock Text="Finalize Calibration" FontSize="20" FontWeight="SemiBold"/>
-                <TextBlock Text="Confirm display mode and measurement options, then start calibration"
+                <TextBlock Text="{loc:Tr calibration.finalize.calibration}" FontSize="20" FontWeight="SemiBold"/>
+                <TextBlock Text="{loc:Tr calibration.confirm.display.mode.and.measurement.options.then.start}"
                            Foreground="{StaticResource TextDim}" Margin="0,4,0,0"/>
             </StackPanel>
 
@@ -224,20 +225,20 @@
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="24,16">
                 <StackPanel>
                     <!-- Display Mode Selection -->
-                    <TextBlock Text="Display Mode" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <TextBlock Text="{loc:Tr calibration.display.mode}" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
                     <RadioButton Style="{StaticResource ModernRadioButton}"
                                  IsChecked="{Binding IsFullScreenMode}">
                         <StackPanel>
-                            <TextBlock Text="Full-Screen (Recommended)" FontWeight="Medium"/>
-                            <TextBlock Text="Best accuracy - dark surround eliminates ambient light interference"
+                            <TextBlock Text="{loc:Tr calibration.full.screen.recommended}" FontWeight="Medium"/>
+                            <TextBlock Text="{loc:Tr calibration.best.accuracy.dark.surround.eliminates.ambient.light}"
                                        Foreground="{StaticResource TextDim}" FontSize="12" TextWrapping="Wrap"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton Style="{StaticResource ModernRadioButton}"
                                  IsChecked="{Binding IsWindowedMode}">
                         <StackPanel>
-                            <TextBlock Text="Windowed Mode" FontWeight="Medium"/>
-                            <TextBlock Text="Allows multitasking - position the window where your colorimeter is placed"
+                            <TextBlock Text="{loc:Tr calibration.windowed.mode}" FontWeight="Medium"/>
+                            <TextBlock Text="{loc:Tr calibration.allows.multitasking.position.the.window.where.your}"
                                        Foreground="{StaticResource TextDim}" FontSize="12" TextWrapping="Wrap"/>
                         </StackPanel>
                     </RadioButton>
@@ -264,7 +265,7 @@
                     </Border>
 
                     <!-- Colorimeter Status -->
-                    <TextBlock Text="Colorimeter Status" FontSize="13" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                    <TextBlock Text="{loc:Tr calibration.colorimeter.status}" FontSize="13" FontWeight="SemiBold" Margin="0,24,0,8"/>
                     <Border Background="{StaticResource CardBackground}" BorderBrush="{StaticResource CardBorder}"
                             BorderThickness="1" CornerRadius="0" Padding="12">
                         <Grid>
@@ -279,7 +280,7 @@
                                 <TextBlock Text="{Binding ColorimeterStatusText}" FontWeight="Medium"/>
                                 <TextBlock Text="{Binding ColorimeterModelText}" Foreground="{StaticResource TextDim}" FontSize="12"/>
                             </StackPanel>
-                            <Button Grid.Column="2" Content="Refresh" Style="{StaticResource SubtleButton}"
+                            <Button Grid.Column="2" Content="{loc:Tr tray.refresh}" Style="{StaticResource SubtleButton}"
                                     Click="RefreshColorimeter_Click" Padding="8,4"/>
                         </Grid>
                     </Border>
@@ -311,14 +312,14 @@
                     </Border>
 
                     <!-- Additional Options -->
-                    <TextBlock Text="Options" FontSize="13" FontWeight="SemiBold" Margin="0,24,0,8"/>
-                    <CheckBox Content="Keep window on top (windowed mode)"
+                    <TextBlock Text="{loc:Tr calibration.options}" FontSize="13" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                    <CheckBox Content="{loc:Tr calibration.keep.window.on.top.windowed.mode}"
                               Foreground="White" IsChecked="{Binding AlwaysOnTop}" Margin="0,4"/>
-                    <CheckBox Content="Play sound on completion"
+                    <CheckBox Content="{loc:Tr calibration.play.sound.on.completion}"
                               Foreground="White" IsChecked="{Binding SoundOnCompletion}" Margin="0,4"/>
-                    <CheckBox Content="Play sound on each capture"
+                    <CheckBox Content="{loc:Tr calibration.play.sound.on.each.capture}"
                               Foreground="White" IsChecked="{Binding SoundOnCapture}" Margin="0,4"/>
-                    <CheckBox Content="Run detailed verification after calibration"
+                    <CheckBox Content="{loc:Tr calibration.run.detailed.verification.after.calibration}"
                               ToolTip="The automatic post-apply verification runs the extended 39-patch sweep (fine grayscale, saturation ramps, memory colors) instead of the quick one. Takes several times longer, and adds per-patch charts and worst/best patch lists to the report."
                               Foreground="White" IsChecked="{Binding RunDetailedVerify}" Margin="0,4"/>
                 </StackPanel>
@@ -342,10 +343,10 @@
                     </StackPanel>
                     <Button Grid.Column="1" Content="Back" Style="{StaticResource SubtleButton}"
                             Click="Back_Click" Margin="0,0,8,0"
-                            ToolTip="Return to calibration setup to adjust target, preset or meter options"/>
-                    <Button Grid.Column="2" Content="Cancel" Style="{StaticResource SubtleButton}"
+                            ToolTip="{loc:Tr calibration.return.to.calibration.setup.to.adjust.target.preset.or}"/>
+                    <Button Grid.Column="2" Content="{loc:Tr calibration.cancel}" Style="{StaticResource SubtleButton}"
                             Click="Cancel_Click" Margin="0,0,8,0"/>
-                    <Button Grid.Column="3" Content="Start Calibration"
+                    <Button Grid.Column="3" Content="{loc:Tr calibration.start.calibration}"
                             Style="{StaticResource ModernButton}" Click="Start_Click"
                             IsEnabled="{Binding CanStart}"/>
                 </Grid>
@@ -451,11 +452,11 @@
                             <Button Content="{Binding PauseButtonText}" IsEnabled="{Binding IsPauseEnabled}"
                                     Style="{StaticResource SubtleButton}"
                                     Click="Pause_Click" Margin="0,0,8,0"/>
-                            <Button Content="Cancel" Style="{StaticResource SubtleButton}"
+                            <Button Content="{loc:Tr calibration.cancel}" Style="{StaticResource SubtleButton}"
                                     IsEnabled="{Binding IsCancelEnabled}"
                                     Click="CancelMeasurement_Click" Margin="0,0,8,0"/>
                             <Button Content="{Binding MuteButtonText}" Style="{StaticResource SubtleButton}"
-                                    Click="Mute_Click" ToolTip="Mute or unmute capture and completion sounds"/>
+                                    Click="Mute_Click" ToolTip="{loc:Tr calibration.mute.or.unmute.capture.and.completion.sounds}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -464,14 +465,14 @@
             <!-- Pause Overlay -->
             <Grid Background="#CC1A1A1A" Visibility="{Binding IsPauseOverlayVisible, Converter={StaticResource BoolToVis}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="Calibration Paused" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr calibration.calibration.paused}" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                     <TextBlock Text="{Binding ResumeCountdownText}"
                                Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,8,0,24"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="Resume" Style="{StaticResource ModernButton}"
+                        <Button Content="{loc:Tr calibration.resume}" Style="{StaticResource ModernButton}"
                                 IsEnabled="{Binding IsCancelEnabled}"
                                 Click="Resume_Click" Margin="0,0,8,0"/>
-                        <Button Content="Cancel" Style="{StaticResource SubtleButton}"
+                        <Button Content="{loc:Tr calibration.cancel}" Style="{StaticResource SubtleButton}"
                                 IsEnabled="{Binding IsCancelEnabled}"
                                 Click="CancelMeasurement_Click"/>
                     </StackPanel>
@@ -495,13 +496,13 @@
                             CornerRadius="0" Padding="16" Margin="0,20,0,0"
                             Visibility="{Binding ShowDisplayModeOptions, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-                            <TextBlock Text="Display Preview Mode" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                            <TextBlock Text="{loc:Tr calibration.display.preview.mode}" FontWeight="SemiBold" Margin="0,0,0,12"/>
                             <RadioButton Style="{StaticResource ModernRadioButton}"
                                          GroupName="DisplayMode" IsChecked="{Binding IsViewCalibrationOnly}"
                                          Checked="DisplayModeOption_Changed">
                                 <StackPanel>
-                                    <TextBlock Text="Calibration Only" FontWeight="Medium"/>
-                                    <TextBlock Text="View display with only the new calibration LUT applied"
+                                    <TextBlock Text="{loc:Tr calibration.calibration.only}" FontWeight="Medium"/>
+                                    <TextBlock Text="{loc:Tr calibration.view.display.with.only.the.new.calibration.lut.applied}"
                                                Foreground="{StaticResource TextDim}" FontSize="12" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </RadioButton>
@@ -509,8 +510,8 @@
                                          GroupName="DisplayMode" IsChecked="{Binding IsViewWithPreviousSettings}"
                                          Checked="DisplayModeOption_Changed">
                                 <StackPanel>
-                                    <TextBlock Text="Calibration + Previous Settings" FontWeight="Medium"/>
-                                    <TextBlock Text="View with calibration, gamma adjustments, and night mode restored"
+                                    <TextBlock Text="{loc:Tr calibration.calibration.previous.settings}" FontWeight="Medium"/>
+                                    <TextBlock Text="{loc:Tr calibration.view.with.calibration.gamma.adjustments.and.night.mode}"
                                                Foreground="{StaticResource TextDim}" FontSize="12" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </RadioButton>
@@ -518,7 +519,7 @@
                     </Border>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
-                        <Button Content="View Report" Style="{StaticResource ModernButton}"
+                        <Button Content="{loc:Tr calibration.view.report}" Style="{StaticResource ModernButton}"
                                 Click="ViewReport_Click" Margin="0,0,8,0"
                                 Visibility="{Binding IsViewReportVisible, Converter={StaticResource BoolToVis}}"/>
                         <Button Content="Close" Style="{StaticResource SubtleButton}"

@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -68,9 +69,9 @@ namespace Gloam.Features.Tray
             {
                 // HDR is active - show gamma options with checkmarks. These stay open
                 // on click so modes can be A/B compared without reopening the menu.
-                _gamma22Item = new ActionViewModel(GammaLabel(GammaMode.Gamma22, "Gamma 2.2"), new RelayCommand(() => ApplyGamma(GammaMode.Gamma22)), staysOpenOnClick: true);
-                _gamma24Item = new ActionViewModel(GammaLabel(GammaMode.Gamma24, "Gamma 2.4"), new RelayCommand(() => ApplyGamma(GammaMode.Gamma24)), staysOpenOnClick: true);
-                _defaultItem = new ActionViewModel(GammaLabel(GammaMode.WindowsDefault, "Windows Default"), new RelayCommand(() => ApplyGamma(GammaMode.WindowsDefault)), staysOpenOnClick: true);
+                _gamma22Item = new ActionViewModel(GammaLabel(GammaMode.Gamma22, Loc.Get("settings.gamma.v22")), new RelayCommand(() => ApplyGamma(GammaMode.Gamma22)), staysOpenOnClick: true);
+                _gamma24Item = new ActionViewModel(GammaLabel(GammaMode.Gamma24, Loc.Get("settings.gamma.v24")), new RelayCommand(() => ApplyGamma(GammaMode.Gamma24)), staysOpenOnClick: true);
+                _defaultItem = new ActionViewModel(GammaLabel(GammaMode.WindowsDefault, Loc.Get("tray.windows.default")), new RelayCommand(() => ApplyGamma(GammaMode.WindowsDefault)), staysOpenOnClick: true);
 
                 SubItems.Add(_gamma22Item);
                 SubItems.Add(_gamma24Item);
@@ -78,17 +79,17 @@ namespace Gloam.Features.Tray
 
                 // Add settings option
                 SubItems.Add(new ActionViewModel("───────────", null));
-                SubItems.Add(new ActionViewModel("Settings...", new RelayCommand(OpenSettings)));
+                SubItems.Add(new ActionViewModel(Loc.Get("tray.settings"), new RelayCommand(OpenSettings)));
             }
             else
             {
                 // HDR not active - show SDR info and settings
                 _gamma22Item = _gamma24Item = _defaultItem = null;
-                SubItems.Add(new ActionViewModel("(SDR Display)", null));
+                SubItems.Add(new ActionViewModel(Loc.Get("tray.sdr.display"), null));
 
                 // Add settings option
                 SubItems.Add(new ActionViewModel("───────────", null));
-                SubItems.Add(new ActionViewModel("Settings...", new RelayCommand(OpenSettings)));
+                SubItems.Add(new ActionViewModel(Loc.Get("tray.settings"), new RelayCommand(OpenSettings)));
             }
         }
 
@@ -99,9 +100,9 @@ namespace Gloam.Features.Tray
         private void UpdateCheckmarks()
         {
             if (_gamma22Item == null || _gamma24Item == null || _defaultItem == null) return;
-            _gamma22Item.Header = GammaLabel(GammaMode.Gamma22, "Gamma 2.2");
-            _gamma24Item.Header = GammaLabel(GammaMode.Gamma24, "Gamma 2.4");
-            _defaultItem.Header = GammaLabel(GammaMode.WindowsDefault, "Windows Default");
+            _gamma22Item.Header = GammaLabel(GammaMode.Gamma22, Loc.Get("settings.gamma.v22"));
+            _gamma24Item.Header = GammaLabel(GammaMode.Gamma24, Loc.Get("settings.gamma.v24"));
+            _defaultItem.Header = GammaLabel(GammaMode.WindowsDefault, Loc.Get("tray.windows.default"));
         }
         
         private void OpenSettings()
@@ -144,7 +145,7 @@ namespace Gloam.Features.Tray
                      .OfType<Window>()
                      .FirstOrDefault(w => w.IsActive && w.IsVisible)
                      ?? Application.Current?.MainWindow;
-                 ConfirmDialog.Info(owner!, "Gloam - Error", $"Failed to apply gamma:\n\n{ex.Message}");
+                 ConfirmDialog.Info(owner!, Loc.Get("tray.gloam.error"), $"Failed to apply gamma:\n\n{ex.Message}");
              }
         }
     }

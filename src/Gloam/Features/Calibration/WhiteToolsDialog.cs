@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -20,7 +21,7 @@ namespace Gloam.Features.Calibration
 
         public WhiteToolsDialog(bool canMeasure, bool canTrim, bool canValidateHdr)
         {
-            Title = "White Tools";
+            Title = Loc.Get("calibration.white.tools");
             Width = 560;
             Height = 450;
             MinWidth = 520;
@@ -41,7 +42,7 @@ namespace Gloam.Features.Calibration
 
             var intro = new TextBlock
             {
-                Text = "Choose a white-point operation for this freshly generated profile.",
+                Text = Loc.Get("calibration.choose.a.white.point.operation.for.this.freshly"),
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 14)
             };
@@ -53,27 +54,27 @@ namespace Gloam.Features.Calibration
             root.Children.Add(stack);
 
             stack.Children.Add(MakeOption(
-                "Re-anchor white",
+                Loc.Get("calibration.re.anchor.white"),
                 "Measure only white again, rebuild the profile around the fresh reading, then reinstall and verify. Best for panel warm-up drift.",
-                "Measure",
+                Loc.Get("calibration.measure"),
                 canMeasure,
                 WhiteToolAction.ReanchorWhite));
             stack.Children.Add(MakeOption(
-                "Visual white trim",
+                Loc.Get("calibration.visual.white.trim"),
                 "Nudge target white by eye against a reference display. The offset is baked into the installed profile.",
                 "Trim",
                 canTrim,
                 WhiteToolAction.VisualTrim));
             stack.Children.Add(MakeOption(
-                "Validate HDR patch renderer",
+                Loc.Get("calibration.validate.hdr.patch.renderer"),
                 "Run the FP16 scRGB renderer probe check before trusting HDR-range measurements on this system.",
-                "Validate",
+                Loc.Get("calibration.validate"),
                 canValidateHdr,
                 WhiteToolAction.ValidateHdrRenderer));
 
             var close = new Button
             {
-                Content = "Cancel",
+                Content = Loc.Get("calibration.cancel"),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 MinWidth = 92,
                 Margin = new Thickness(0, 14, 0, 0)
@@ -82,7 +83,7 @@ namespace Gloam.Features.Calibration
             Grid.SetRow(close, 2);
             root.Children.Add(close);
 
-            BrutalistChrome.Apply(this, "White Tools", root);
+            BrutalistChrome.Apply(this, Loc.Get("calibration.white.tools"), root);
         }
 
         private UIElement MakeOption(string title, string body, string action, bool enabled, WhiteToolAction result)
@@ -117,7 +118,7 @@ namespace Gloam.Features.Calibration
                 MinWidth = 94,
                 Margin = new Thickness(0, 10, 12, 10),
                 VerticalAlignment = VerticalAlignment.Center,
-                ToolTip = enabled ? null : "Unavailable for this report state."
+                ToolTip = enabled ? null : Loc.Get("calibration.unavailable.for.this.report.state")
             };
             button.SetResourceReference(BackgroundProperty, "ThemeAccent");
             button.SetResourceReference(ForegroundProperty, "ThemeOnAccent");
