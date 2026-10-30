@@ -173,7 +173,7 @@
                         <TextBlock Text="GLOAM" FontFamily="{DynamicResource DisplayFont}" FontWeight="ExtraBold"
                                    FontSize="14" Foreground="{DynamicResource ThemeText}" VerticalAlignment="Center"/>
                         <Border Width="1" Height="14" Background="{DynamicResource ThemeTextDim}" Opacity="0.5" Margin="10,0"/>
-                        <TextBlock Text="Settings" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold"
+                        <TextBlock Text="{loc:Tr settings.window.title}" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold"
                                    FontSize="11" Foreground="{DynamicResource ThemeTextDim}" VerticalAlignment="Center"/>
                     </StackPanel>
                     <Button Content="&#x2715;" HorizontalAlignment="Right" VerticalAlignment="Center"
@@ -192,7 +192,7 @@
 
                 <!-- Monitor Selector Header -->
                 <StackPanel Grid.Row="0" Margin="0,0,0,16">
-                    <TextBlock Text="Monitor" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{loc:Tr settings.monitor.label}" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
                     <ComboBox ItemsSource="{Binding Monitors}" DisplayMemberPath="Label"
                               SelectedItem="{Binding SelectedMonitor}"/>
                 </StackPanel>
@@ -220,11 +220,11 @@
                         <!-- Gamma Section -->
                         <Border Style="{StaticResource SectionCard}">
                             <StackPanel>
-                                <TextBlock Text="Gamma" Style="{StaticResource SectionHeader}"/>
+                                <TextBlock Text="{loc:Tr settings.gamma.title}" Style="{StaticResource SectionHeader}"/>
                                 <ComboBox SelectedIndex="{Binding GammaModeIndex}">
-                                    <ComboBoxItem Content="Gamma 2.2"/>
-                                    <ComboBoxItem Content="Gamma 2.4"/>
-                                    <ComboBoxItem Content="Windows Default"/>
+                                    <ComboBoxItem Content="{loc:Tr settings.gamma.v22}"/>
+                                    <ComboBoxItem Content="{loc:Tr settings.gamma.v24}"/>
+                                    <ComboBoxItem Content="{loc:Tr settings.gamma.windowsDefault}"/>
                                 </ComboBox>
                             </StackPanel>
                         </Border>
@@ -233,14 +233,14 @@
                         <Border Style="{StaticResource SectionCard}">
                             <StackPanel>
                                 <Grid>
-                                    <TextBlock Text="Brightness" Style="{StaticResource SectionHeader}"/>
+                                    <TextBlock Text="{loc:Tr settings.brightness.title}" Style="{StaticResource SectionHeader}"/>
                                     <TextBlock Text="{Binding Value, ElementName=BrightnessSlider, StringFormat={}{0:F0}%}" Style="{StaticResource ValueDisplay}"/>
                                 </Grid>
                                 <Slider x:Name="BrightnessSlider" IsSnapToTickEnabled="True" TickFrequency="1" Style="{StaticResource ModernSlider}"
                                         Minimum="10" Maximum="100"
                                         Value="{Binding Brightness}"/>
-                                <CheckBox Content="Enhance shadow detail (Recommended)"
-                                          ToolTip="When dimming, slightly lifts shadows to prevent them from becoming invisible (black crush)."
+                                <CheckBox Content="{loc:Tr settings.brightness.enhance}"
+                                          ToolTip="{loc:Tr settings.brightness.enhanceHint}"
                                           Style="{StaticResource ModernToggle}" Margin="0,8,0,0"
                                           IsChecked="{Binding EnhanceShadows}"/>
 
@@ -259,9 +259,9 @@
                         <!-- Temperature/Tint Section -->
                         <Border Style="{StaticResource SectionCard}">
                             <StackPanel>
-                                <TextBlock Text="Color temperature" Style="{StaticResource SectionHeader}"/>
+                                <TextBlock Text="{loc:Tr settings.colorTemp.title}" Style="{StaticResource SectionHeader}"/>
 
-                                <TextBlock Text="Temperature" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="{loc:Tr settings.temperature.label}" Style="{StaticResource FieldLabel}"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -278,13 +278,13 @@
                                                behaviors:ClickToEdit.TargetSlider="{Binding ElementName=TemperatureSlider}"/>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock Text="Warm" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"/>
-                                    <TextBlock Text="Cool" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"
+                                    <TextBlock Text="{loc:Tr settings.temperature.warm}" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"/>
+                                    <TextBlock Text="{loc:Tr settings.temperature.cool}" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"
                                                HorizontalAlignment="Right"/>
                                 </Grid>
 
                                 <!-- Tint Section -->
-                                <TextBlock Text="Tint" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="{loc:Tr settings.tint.label}" Style="{StaticResource FieldLabel}"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -301,8 +301,8 @@
                                                behaviors:ClickToEdit.TargetSlider="{Binding ElementName=TintSlider}"/>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock Text="Green" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"/>
-                                    <TextBlock Text="Magenta" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"
+                                    <TextBlock Text="{loc:Tr settings.tint.green}" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"/>
+                                    <TextBlock Text="{loc:Tr settings.tint.magenta}" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"
                                                HorizontalAlignment="Right"/>
                                 </Grid>
                             </StackPanel>
@@ -311,11 +311,11 @@
                         <!-- Per-monitor night-mode controls -->
                         <Border Style="{StaticResource SectionCard}">
                             <StackPanel>
-                                <TextBlock Text="Night mode override" Style="{StaticResource SectionHeader}"/>
-                                <TextBlock Text="Fine-tune this monitor's temperature relative to the global setting."
+                                <TextBlock Text="{loc:Tr settings.nightOverride.title}" Style="{StaticResource SectionHeader}"/>
+                                <TextBlock Text="{loc:Tr settings.nightOverride.hint}"
                                            Foreground="{DynamicResource ThemeTextDim}" FontSize="11" Margin="0,0,0,12" TextWrapping="Wrap"/>
 
-                                <TextBlock Text="Temperature offset" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="{loc:Tr settings.offset.label}" Style="{StaticResource FieldLabel}"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -332,14 +332,14 @@
                                                behaviors:ClickToEdit.TargetSlider="{Binding ElementName=TempOffsetSlider}"/>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock Text="Warmer" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"/>
-                                    <TextBlock Text="Cooler" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"
+                                    <TextBlock Text="{loc:Tr settings.offset.warmer}" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"/>
+                                    <TextBlock Text="{loc:Tr settings.offset.cooler}" Foreground="{DynamicResource ThemeTextDim}" FontSize="10"
                                                HorizontalAlignment="Right"/>
                                 </Grid>
 
                                 <Separator Margin="0,16,0,16" Background="{DynamicResource ThemeBorder}"/>
-                                <TextBlock Text="Advanced Ultra Night spectrum" Style="{StaticResource SectionHeader}" FontSize="11" Margin="0,0,0,8" Foreground="{DynamicResource ThemeTextDim}"/>
-                                <TextBlock Text="Optional DisplayCAL .ccss spectral sample for this panel. Used only to tune Ultra Night's amber/red mix."
+                                <TextBlock Text="{loc:Tr settings.ultraNight.title}" Style="{StaticResource SectionHeader}" FontSize="11" Margin="0,0,0,8" Foreground="{DynamicResource ThemeTextDim}"/>
+                                <TextBlock Text="{loc:Tr settings.ultraNight.hint}"
                                            Foreground="{DynamicResource ThemeTextDim}" FontSize="11" Margin="0,-4,0,10" TextWrapping="Wrap"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -349,9 +349,9 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding NightSpectrumLabel}" Style="{StaticResource MonoValue}"
                                                TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <Button Grid.Column="1" Content="Find spectrum" Style="{StaticResource SecondaryButton}"
+                                    <Button Grid.Column="1" Content="{loc:Tr settings.ultraNight.find}" Style="{StaticResource SecondaryButton}"
                                             Padding="12,6" Margin="0,0,8,0" Click="FindNightSpectrum_Click"/>
-                                    <Button Grid.Column="2" Content="Clear"
+                                    <Button Grid.Column="2" Content="{loc:Tr settings.ultraNight.clear}"
                                             Padding="12,6" Command="{Binding ClearNightSpectrumCommand}">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
@@ -370,10 +370,10 @@
 
                         <!-- RGB Fine Tuning Section -->
                         <Border Style="{StaticResource SectionCard}">
-                            <Expander Header="RGB fine tuning" Foreground="{DynamicResource ThemeText}" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold" IsExpanded="False">
+                            <Expander Header="{loc:Tr settings.rgb.title}" Foreground="{DynamicResource ThemeText}" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold" IsExpanded="False">
                                 <StackPanel Margin="0,12,0,0">
                                     <!-- Red -->
-                                    <TextBlock Text="Red gain" Style="{StaticResource FieldLabel}"/>
+                                    <TextBlock Text="{loc:Tr settings.rgb.red}" Style="{StaticResource FieldLabel}"/>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -391,7 +391,7 @@
                                     </Grid>
 
                                     <!-- Green -->
-                                    <TextBlock Text="Green gain" Style="{StaticResource FieldLabel}"/>
+                                    <TextBlock Text="{loc:Tr settings.rgb.green}" Style="{StaticResource FieldLabel}"/>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -409,7 +409,7 @@
                                     </Grid>
 
                                     <!-- Blue -->
-                                    <TextBlock Text="Blue gain" Style="{StaticResource FieldLabel}"/>
+                                    <TextBlock Text="{loc:Tr settings.rgb.blue}" Style="{StaticResource FieldLabel}"/>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -426,7 +426,7 @@
                                                    behaviors:ClickToEdit.TargetSlider="{Binding ElementName=BlueGainSlider}"/>
                                     </Grid>
 
-                                    <Button Content="Reset RGB" Style="{StaticResource ModernButton}"
+                                    <Button Content="{loc:Tr settings.resetRgb}" Style="{StaticResource ModernButton}"
                                             Command="{Binding ResetRgbCommand}" Margin="0,12,0,0" HorizontalAlignment="Left"/>
                                 </StackPanel>
                             </Expander>
@@ -440,7 +440,7 @@
                      aligned StackPanel, then a 2-column grid) still let the button group overlap
                      and clip the checkbox to "Live P" once the Apply button appeared. -->
                 <StackPanel Grid.Row="2" Margin="0,16,0,0">
-                    <CheckBox Content="Live Preview"
+                    <CheckBox Content="{loc:Tr settings.livePreview}"
                               Foreground="{DynamicResource ThemeText}"
                               HorizontalAlignment="Left" Margin="0,0,0,10"
                               IsChecked="{Binding IsLivePreview}"/>
@@ -458,12 +458,12 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Content="Compare (Hold)" Style="{StaticResource SecondaryButton}"
+                        <Button Content="{loc:Tr settings.compare}" Style="{StaticResource SecondaryButton}"
                                 PreviewMouseDown="Compare_MouseDown" PreviewMouseUp="Compare_MouseUp"
                                 Margin="0,0,8,0"/>
-                        <Button Content="Reset All" Style="{StaticResource SecondaryButton}"
+                        <Button Content="{loc:Tr settings.resetAll}" Style="{StaticResource SecondaryButton}"
                                 Command="{Binding ResetAllCommand}" Margin="0,0,8,0"/>
-                        <Button Content="Save &amp; Close" Style="{StaticResource ModernButton}"
+                        <Button Content="{loc:Tr settings.saveAndClose}" Style="{StaticResource ModernButton}"
                                 Command="{Binding SaveAndCloseCommand}"/>
                     </StackPanel>
                 </StackPanel>

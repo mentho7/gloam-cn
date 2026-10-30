@@ -43,7 +43,7 @@
   "src/Gloam/Features/NightMode/NightModeScheduleControl.xaml.cs": 34,
   "src/Gloam/Features/NightMode/NightModeScheduleViewModel.cs": 5,
   "src/Gloam/Features/Settings/SettingsViewModel.cs": 1,
-  "src/Gloam/Features/Settings/SettingsWindow.xaml": 32,
+  "src/Gloam/Features/Settings/SettingsWindow.xaml": 4,
   "src/Gloam/Features/Settings/SettingsWindow.xaml.cs": 3,
   "src/Gloam/Features/Tray/MonitorViewModel.cs": 10,
   "src/Gloam/Features/Tray/ToastWindow.xaml": 1,

@@ -48,9 +48,23 @@ namespace Gloam.Features.GameLab
             _editorStatus = loc.Get("gamelab.editorStatus");
             _discoveryStatus = loc.Get("gamelab.discoveryNote");
 
-            // Same reason as DashboardViewModel: these are resolved getters, so a language switch
-            // has to invalidate every binding or the card keeps the old language.
-            loc.CultureChanged += (_, _) => OnPropertyChanged(string.Empty);
+            // Re-notifying is not enough here: these values live in fields, so a stale field would
+            // be re-read and the card would keep the previous language. The placeholder fields are
+            // rewritten, then every binding is invalidated.
+            loc.CultureChanged += (_, _) =>
+            {
+                if (!HasActiveSession)
+                {
+                    _activeSessionSummary = loc.Get("gamelab.waitingForGame");
+                    _activeSessionDetails = loc.Get("gamelab.switchToGame");
+                }
+
+                // Status lines are transient hints rather than user data; resetting them to the
+                // new language is better than leaving one line in the old one.
+                _editorStatus = loc.Get("gamelab.editorStatus");
+                _discoveryStatus = loc.Get("gamelab.discoveryNote");
+                OnPropertyChanged(string.Empty);
+            };
 
             Profiles.CollectionChanged += OnProfilesChanged;
             DiscoveredGames.CollectionChanged += OnDiscoveredGamesChanged;
