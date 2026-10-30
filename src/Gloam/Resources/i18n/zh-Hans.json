@@ -1,0 +1,9 @@
+{
+  "$comment": "简体中文目录。键名与 en-US.json 一致；占位符必须与源语言完全相同。",
+  "culture": "zh-Hans",
+  "strings": {
+    "settings.language.description": "切换后立即生效。尚未翻译的文本仍显示英文。",
+    "settings.language.followSystem": "跟随 Windows",
+    "settings.language.heading": "界面语言"
+  }
+}

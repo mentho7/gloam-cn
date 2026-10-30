@@ -1,0 +1,9 @@
+{
+  "$comment": "Source catalog. Every other language is validated against these keys and placeholders. Placeholders use {name} syntax; plural entries use CLDR categories (one/other/...).",
+  "culture": "en-US",
+  "strings": {
+    "settings.language.description": "Applies immediately. Text that has not been translated yet stays in English.",
+    "settings.language.followSystem": "Follow Windows",
+    "settings.language.heading": "Interface language"
+  }
+}

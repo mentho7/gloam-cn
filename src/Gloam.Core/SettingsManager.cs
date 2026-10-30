@@ -464,6 +464,28 @@ namespace Gloam.Core
         }
 
         /// <summary>
+        /// Persisted UI language tag, or <c>null</c> to follow the Windows display language.
+        /// Stored as a plain tag rather than a <see cref="System.Globalization.CultureInfo"/> so
+        /// the settings file stays portable and a tag this build cannot serve is not fatal.
+        /// </summary>
+        public string? Language
+        {
+            get { lock (_dataLock) { return _data.Language; } }
+        }
+
+        public void SetLanguage(string? tag)
+        {
+            string? normalized = string.IsNullOrWhiteSpace(tag) ? null : tag.Trim();
+            lock (_dataLock)
+            {
+                if (string.Equals(_data.Language, normalized, StringComparison.OrdinalIgnoreCase)) return;
+                _data.Language = normalized;
+                _dataVersion++;
+            }
+            Save();
+        }
+
+        /// <summary>
         /// Trust-check reminder cadence in days; 0 = reminders off (the default — the check
         /// needs the probe attached, so it is opt-in). The last-run time is not stored here:
         /// it is derived from the newest TrustCheckHistory entry, the actual source of truth.
@@ -1375,6 +1397,9 @@ namespace Gloam.Core
             public List<GamerProfileRule> GamerProfiles { get; set; } = new List<GamerProfileRule>();
             // Brutalist UI theme: true = dark, false = light, null = follow OS.
             public bool? DarkTheme { get; set; } = null;
+            // UI language tag; null/absent = follow the OS display language. Added after v1,
+            // so an older file simply has no value and behaves as "follow the system".
+            public string? Language { get; set; }
             public bool StartupDefaultApplied { get; set; }
             public bool LegacyInstallWarningShown { get; set; }
             public bool AllowWindowsNightLight { get; set; }

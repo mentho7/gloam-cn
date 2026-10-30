@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:Gloam.Controls"
         xmlns:behaviors="clr-namespace:Gloam.Behaviors"
+        xmlns:loc="clr-namespace:Gloam.Localization.Wpf;assembly=Gloam.Localization.Wpf"
         Title="Gloam - Settings"
         Width="600" Height="780"
         MinWidth="540" MinHeight="620"
@@ -199,6 +200,22 @@
                 <!-- Scrollable Content -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden" Padding="0,0,4,0">
                     <StackPanel>
+
+                        <!-- Interface language. App-wide rather than per monitor: it is the one
+                             setting on this page that is not a property of a display.
+                             {loc:Tr} resolves through the runtime-bound localizer, so the label
+                             itself re-renders when the language changes. -->
+                        <Border Style="{StaticResource SectionCard}">
+                            <StackPanel>
+                                <TextBlock Text="{loc:Tr settings.language.heading}" Style="{StaticResource SectionHeader}"/>
+                                <TextBlock Text="{loc:Tr settings.language.description}"
+                                           Foreground="{DynamicResource ThemeTextDim}" FontSize="11"
+                                           TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <ComboBox ItemsSource="{Binding Languages}"
+                                          SelectedItem="{Binding SelectedLanguage}"
+                                          DisplayMemberPath="DisplayName"/>
+                            </StackPanel>
+                        </Border>
 
                         <!-- Gamma Section -->
                         <Border Style="{StaticResource SectionCard}">

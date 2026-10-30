@@ -50,6 +50,33 @@ namespace Gloam.Features.Settings
         private DispatcherTimer? _previewTimer;
         private const int PreviewDebounceMs = 100; // Faster response for UI
 
+        private readonly LanguageService? _languageService;
+
+        /// <summary>
+        /// Languages the picker offers. Empty when no language service was supplied, in which
+        /// case the section renders a single empty combo rather than throwing.
+        /// </summary>
+        public IReadOnlyList<LanguageOption> Languages =>
+            _languageService?.Options ?? (IReadOnlyList<LanguageOption>)Array.Empty<LanguageOption>();
+
+        /// <summary>
+        /// Applying a language takes effect immediately and is persisted by the service. The
+        /// property is read back from the service rather than cached, so an externally triggered
+        /// change (OS setting, hot reload) is reflected without extra plumbing.
+        /// </summary>
+        public LanguageOption? SelectedLanguage
+        {
+            get => _languageService?.Selected;
+            set
+            {
+                if (value is null || _languageService is null) return;
+                if (ReferenceEquals(value, _languageService.Selected)) return;
+
+                _languageService.Select(value);
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<MonitorChoice> Monitors { get; }
 
         public ICommand SetBrightnessCommand { get; }
@@ -65,8 +92,11 @@ namespace Gloam.Features.Settings
             MonitorInfo initialMonitor,
             List<MonitorInfo> allMonitors,
             SettingsManager settingsManager,
-            Action<MonitorInfo, GammaMode, CalibrationSettings?, int?>? applyCallback)
+            Action<MonitorInfo, GammaMode, CalibrationSettings?, int?>? applyCallback,
+            LanguageService? languageService = null)
         {
+            // Optional: the window passes the app-scoped service in, tests may leave it out.
+            _languageService = languageService;
             _monitors = allMonitors;
             _settingsManager = settingsManager;
             _applyCallback = applyCallback;

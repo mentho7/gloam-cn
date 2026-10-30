@@ -24,7 +24,12 @@ namespace Gloam.Features.Settings
             InitializeComponent();
             WindowBoundsPersistence.Attach(this, settingsManager, "MonitorSettings");
 
-            _viewModel = new SettingsViewModel(initialMonitor, allMonitors, settingsManager, applyCallback);
+            // Localization is app-scoped, not per monitor. Resolved from the composition root
+            // because this window is constructed by several callers that have no reason to know
+            // about it; the parameter stays optional so the window remains constructible in tests.
+            LanguageService? languageService = App.Services?.GetService(typeof(LanguageService)) as LanguageService;
+
+            _viewModel = new SettingsViewModel(initialMonitor, allMonitors, settingsManager, applyCallback, languageService);
             _viewModel.CloseRequested += Close;
             DataContext = _viewModel;
 

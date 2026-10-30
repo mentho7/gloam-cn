@@ -111,6 +111,15 @@ namespace Gloam.Shell
                 _ = services.GetRequiredService<NightModeService>();
                 _ = services.GetRequiredService<ProfileManager>();
 
+                // Localization is part of the startup contract, so the smoke test resolves it:
+                // a catalog that fails to parse, or a resource embedded under the wrong name,
+                // shows up here instead of as a window full of raw keys.
+                var localizer = services.GetRequiredService<ILocalizer>();
+                string cultures = string.Join(", ", localizer.AvailableCultures.Select(c => c.Name));
+                Log.Info($"Launch smoke: localization active={localizer.Culture.Name} catalogs=[{cultures}]");
+                if (localizer.MissingKeys is null)
+                    throw new IOException("Localization did not initialise its missing-key report.");
+
                 Log.Info("Launch smoke: service composition completed.");
                 Log.Info("Launch smoke: completed.");
 

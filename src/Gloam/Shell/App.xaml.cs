@@ -50,7 +50,35 @@ namespace Gloam.Shell
             // (HotkeyManager is an optional ctor parameter).
             services.AddSingleton<TrayViewModel>();
 
+            // Localization. One localizer per process; catalogs are embedded in this assembly and
+            // may be overridden from %LOCALAPPDATA%\Gloam\i18n without a rebuild.
+            services.AddSingleton<ILocalizer>(_ => BuildLocalizer());
+            services.AddSingleton(sp => new LocalizedStrings(sp.GetRequiredService<ILocalizer>()));
+            services.AddSingleton(sp => new LanguageService(
+                sp.GetRequiredService<ILocalizer>(),
+                tag => sp.GetRequiredService<SettingsManager>().SetLanguage(tag)));
+
             return services.BuildServiceProvider();
+        }
+
+        /// <summary>
+        /// Builds the process localizer: embedded catalogs first, then the optional external folder
+        /// on top so a translation can be corrected without releasing a build.
+        /// </summary>
+        internal static ILocalizer BuildLocalizer()
+        {
+            var options = new LocalizationOptions
+            {
+                // Optional by design: absent on a fresh install, and a malformed file in here is
+                // skipped rather than fatal.
+                ExternalCatalogDirectory = System.IO.Path.Combine(AppPaths.DataDir, "i18n"),
+            };
+
+            var sources = new CompositeCatalogSource(
+                new EmbeddedCatalogSource(typeof(App).Assembly, "Gloam.Resources.i18n."),
+                new DirectoryCatalogSource(options.ExternalCatalogDirectory));
+
+            return Localizer.Load(options, sources);
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -104,6 +132,13 @@ namespace Gloam.Shell
                 BrutalistTheme.Persist = dark => themeSettings.SetDarkTheme(dark);
                 BrutalistTheme.Initialize(themeSettings.DarkTheme ?? ThemeDetector.IsDarkMode());
                 ApplyTrayMenuTheme();
+
+                // Localization must be published before the first XAML is parsed: {loc:Tr}
+                // bindings resolve through LocalizedStrings.Default, and the culture font policy
+                // rewrites the BodyFont/DisplayFont tokens that windows read at load time.
+                LocalizedStrings.Default = _serviceProvider.GetRequiredService<LocalizedStrings>();
+                _serviceProvider.GetRequiredService<LanguageService>().ApplyStartup(themeSettings.Language);
+                Log.Info($"App.OnStartup: UI language = {_serviceProvider.GetRequiredService<ILocalizer>().Culture.Name}");
 
                 var updateService = _serviceProvider.GetRequiredService<UpdateService>();
                 StartupManager.EnableByDefaultForFreshInstall(themeSettings, updateService.IsInstalled);

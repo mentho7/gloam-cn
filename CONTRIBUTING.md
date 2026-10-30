@@ -36,6 +36,14 @@ which is what CI enforces:
 dotnet build src/Gloam.sln -c Release -p:GloamStrictBuild=true
 ```
 
+## UI text and translations
+
+User-visible text lives in JSON catalogs under `src/Gloam/Resources/i18n/`, not in XAML or code
+literals. Read [docs/localization.md](docs/localization.md) before adding UI text: the test suite
+fails a pull request that adds a hard-coded string, so the rule is enforced rather than suggested.
+
+Project layout and the composition rules are in [docs/project-structure.md](docs/project-structure.md).
+
 ## Golden fixtures
 
 Gloam's color math is pinned by *golden fixtures*: real measurement recordings from real

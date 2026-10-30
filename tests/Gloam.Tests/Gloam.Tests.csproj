@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Gloam.Core\Gloam.Core.csproj" />
+    <ProjectReference Include="..\..\src\Gloam.Localization\Gloam.Localization.csproj" />
     <ProjectReference Include="..\..\src\Gloam\Gloam.csproj" />
   </ItemGroup>
 

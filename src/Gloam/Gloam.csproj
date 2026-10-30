@@ -79,11 +79,23 @@
     <Using Include="Gloam.Infrastructure.Dialogs" />
     <Using Include="Gloam.Infrastructure.Platform" />
     <Using Include="Gloam.Infrastructure.Theming" />
+    <Using Include="Gloam.Localization" />
+    <Using Include="Gloam.Localization.Wpf" />
+  </ItemGroup>
+
+  <!-- Translation catalogs ship inside the binary as the baseline set. The same files can also
+       be dropped into %LOCALAPPDATA%\Gloam\i18n at runtime, where they override these — see
+       LocalizationOptions.ExternalCatalogDirectory. Embedded so a fresh install is translated
+       without any post-install step. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\i18n\*.json" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Gloam.Core\Gloam.Core.csproj" />
     <ProjectReference Include="..\Gloam.Interop\Gloam.Interop.csproj" />
+    <ProjectReference Include="..\Gloam.Localization\Gloam.Localization.csproj" />
+    <ProjectReference Include="..\Gloam.Localization.Wpf\Gloam.Localization.Wpf.csproj" />
   </ItemGroup>
 
   <ItemGroup>

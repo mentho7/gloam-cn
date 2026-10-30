@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Deliberately platform-neutral: no WPF, no System.Windows, no registry. The UI
+         adapter (Gloam.Localization.Wpf) and the headless CLI can both consume this. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Gloam.Tests" />
+  </ItemGroup>
+
+</Project>
