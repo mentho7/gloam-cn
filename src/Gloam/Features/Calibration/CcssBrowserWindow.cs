@@ -142,7 +142,7 @@ namespace Gloam.Features.Calibration
             try
             {
                 CcssDatabaseClient.Delete(path);
-                _status.Text = $"Deleted {Path.GetFileName(path)}.";
+                _status.Text = Loc.Format("calibration.correctionDeleted", ("file", Path.GetFileName(path)));
                 await SearchAsync();
             }
             catch (Exception ex)
@@ -163,7 +163,7 @@ namespace Gloam.Features.Calibration
                 int removed = CcssDatabaseClient.RemoveDuplicates(_saveFolder);
                 _status.Text = removed == 0
                     ? Loc.Get("calibration.no.duplicate.correction.files.found")
-                    : $"Removed {removed} duplicate correction file(s).";
+                    : Loc.Format("calibration.correctionsDeduplicated", ("count", removed));
                 await SearchAsync();
             }
             catch (Exception ex)
@@ -292,7 +292,7 @@ namespace Gloam.Features.Calibration
                     ct => colorimeter.MeasureSpectralAsync(ct))
                 {
                     Progress = (done, total, name) =>
-                        window.SetProgress(done, total, name, null, phase: $"Measuring {name} spectrum"),
+                        window.SetProgress(done, total, name, null, phase: Loc.Format("calibration.measuringSpectrum", ("name", name))),
                 };
 
                 var spectra = await capture.CaptureAsync(probe.Token);
@@ -377,7 +377,7 @@ namespace Gloam.Features.Calibration
                 probe = await ProbeOperationScope.StartAsync(new ProbeOperationScope.Options(
                     monitor,
                     first,
-                    $"Correction matrix · {firstInfo.Model}",
+                    Loc.Format("calibration.correctionMatrix", ("model", firstInfo.Model)),
                     PatchSize: 400,
                     ConfigurePatchWindow: window => window.SetColor(1, 1, 1),
                     CancellationToken: cts.Token));
@@ -426,7 +426,7 @@ namespace Gloam.Features.Calibration
                                 $"{(firstInfo.IsSpectrometer ? "spectrometers" : "colorimeters")}. " +
                                 "Swap in the other instrument type and retry.");
 
-                        _status.Text = $"Phase 2: measuring with {secondInfo.Model}… watch the patch window.";
+                        _status.Text = Loc.Format("calibration.phase2", ("model", secondInfo.Model));
                         await second.BeginMeasurementSessionAsync(hdrMode: false, ct);
                         return true;
                     },
@@ -436,7 +436,7 @@ namespace Gloam.Features.Calibration
                         window.SetProgress(done, total, name, null, phase: $"{phase}: measuring {name}"),
                 };
 
-                _status.Text = $"Phase 1: measuring with {firstInfo.Model}… watch the patch window.";
+                _status.Text = Loc.Format("calibration.phase1", ("model", firstInfo.Model));
                 var readings = await capture.CaptureAsync(probe.Token);
                 await second!.EndMeasurementSessionAsync();
 

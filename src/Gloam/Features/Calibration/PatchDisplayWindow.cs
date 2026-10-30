@@ -306,7 +306,7 @@ namespace Gloam.Features.Calibration
         public void SetProgress(int current, int total, string patchName)
         {
             SetProgressBar(current, total);
-            _phase.Text = $"Verifying - {patchName}";
+            _phase.Text = Loc.Format("calibration.verifyingPatch", ("patch", patchName));
             _currentNextRow.Visibility = Visibility.Collapsed;
         }
 
@@ -400,7 +400,7 @@ namespace Gloam.Features.Calibration
             double pct = total > 0 ? current * 100.0 / total : 0;
             _progress.Value = pct;
             _percent.Text = $"{pct:F0}%";
-            _patchInfo.Text = $"Patch {current} of {total}";
+            _patchInfo.Text = Loc.Format("calibration.patchCounter", ("current", current), ("total", total));
         }
 
         /// <summary>

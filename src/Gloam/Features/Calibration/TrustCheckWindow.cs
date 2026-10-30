@@ -58,7 +58,7 @@ namespace Gloam.Features.Calibration
         private void Monitor_SelectionChanged(object sender, SelectionChangedEventArgs e) => RefreshTrend();
         private void Run_Click(object sender, RoutedEventArgs e)
             => SafeAsync.FireAndForget(RunAsync, nameof(Run_Click),
-                ex => _status.Text = $"Trust check failed: {ex.Message}");
+                ex => _status.Text = Loc.Format("calibration.trustFailed", ("message", ex.Message)));
         private void Export_Click(object sender, RoutedEventArgs e) => ExportCsv();
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
         private void Reminder_Checked(object sender, RoutedEventArgs e) =>
@@ -248,7 +248,7 @@ namespace Gloam.Features.Calibration
             catch (Exception ex)
             {
                 Log.Error($"TrustCheckWindow: check failed: {ex}");
-                _status.Text = $"Trust check failed: {ex.Message}";
+                _status.Text = Loc.Format("calibration.trustFailed", ("message", ex.Message));
             }
             finally
             {
@@ -344,7 +344,7 @@ namespace Gloam.Features.Calibration
             };
             if (dialog.ShowDialog(this) != true) return;
             System.IO.File.WriteAllText(dialog.FileName, TrustCheckHistory.BuildCsv(history));
-            _status.Text = $"Exported {history.Count} check(s) to {dialog.FileName}.";
+            _status.Text = Loc.Format("calibration.trustExported", ("count", history.Count), ("file", dialog.FileName));
         }
     }
 }

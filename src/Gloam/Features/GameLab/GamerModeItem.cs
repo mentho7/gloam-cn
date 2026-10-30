@@ -80,8 +80,8 @@ namespace Gloam.Features.GameLab
         public string FilteredProfileCountText => !string.IsNullOrWhiteSpace(ProfileSearchText)
             ? $"{FilteredProfiles.Count} RESULTS"
             : _showAllProfiles
-                ? $"ALL · {Profiles.Count}"
-                : $"RECENT · {FilteredProfiles.Count}";
+                ? Loc.Format("gamelab.filterAll", ("count", Profiles.Count))
+                : Loc.Format("gamelab.filterRecent", ("count", FilteredProfiles.Count));
         public string ShowAllProfilesLabel => _showAllProfiles
             ? Loc.Get("gamelab.recent.only")
             : Loc.Get("gamelab.view.all");
@@ -94,15 +94,15 @@ namespace Gloam.Features.GameLab
         ];
         public int SelectedDiscoveryCount => DiscoveredGames.Count(item => item.IsSelected && !item.AlreadyAdded);
         public string AddDiscoveredButtonLabel => _largeAddArmed
-            ? $"Confirm adding {SelectedDiscoveryCount} games"
+            ? Loc.Format("gamelab.confirmAddMany", ("count", SelectedDiscoveryCount))
             : SelectedDiscoveryCount switch
             {
                 0 => Loc.Get("gamelab.add.selected.games"),
                 1 => Loc.Get("gamelab.add.1.selected.game"),
-                _ => $"Add {SelectedDiscoveryCount} selected games"
+                _ => Loc.Format("gamelab.addMany", ("count", SelectedDiscoveryCount))
             };
         public string ClearProfilesLabel => _clearProfilesArmed
-            ? $"Confirm remove all {Profiles.Count}"
+            ? Loc.Format("gamelab.confirmRemoveAll", ("count", Profiles.Count))
             : Loc.Get("gamelab.clear.game.library");
 
         public GamerLibraryPresetOption? SelectedLibraryPreset
@@ -234,7 +234,7 @@ namespace Gloam.Features.GameLab
         public void ShowMessage(string message) => EditorStatus = message;
 
         public void ShowSaved() =>
-            EditorStatus = $"Applied · {DateTime.Now:h:mm:ss tt}";
+            EditorStatus = Loc.Format("gamelab.appliedAt", ("time", DateTime.Now.ToString("h:mm:ss tt")));
 
         public void ShowSaveFailed() =>
             EditorStatus = Loc.Get("gamelab.not.saved.check.that.gloam.can.write.its.settings.file");
@@ -647,11 +647,11 @@ namespace Gloam.Features.GameLab
                 string gamma = OverrideGamma ? GammaLabel(GammaMode) : Loc.Get("gamelab.monitor.gamma");
                 string shadows = ShadowDetailPercent <= 0.01
                     ? Loc.Get("gamelab.reference.shadows")
-                    : $"shadow visibility {ShadowDetailPercent:F0}%";
+                    : Loc.Format("gamelab.shadowVisibility", ("value", ShadowDetailPercent.ToString("F0")));
                 string night = NightPolicy switch
                 {
                     GamerNightPolicy.ForceDaylight => Loc.Get("gamelab.6500k.while.active"),
-                    GamerNightPolicy.NightOps => $"Night Ops {NightOpsKelvin}K",
+                    GamerNightPolicy.NightOps => Loc.Format("gamelab.nightOpsKelvin", ("kelvin", NightOpsKelvin)),
                     _ => Loc.Get("gamelab.follows.night.schedule")
                 };
                 return $"{gamma} · {shadows} · {night}";

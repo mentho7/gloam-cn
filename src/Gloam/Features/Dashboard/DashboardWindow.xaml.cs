@@ -227,7 +227,7 @@ namespace Gloam.Features.Dashboard
                     // and carries its wide, honest band.
                     lines.AppendLine(
                         $"{Name(state.MonitorDevicePath)}:  {FormatReduction(u.ReductionValue)} ± {u.ReductionExpandedU:P0} melanopic vs 6500K   " +
-                        $"·   {u.EdiValue:F1} ± {u.EdiExpandedU:F1} mel-lx (est.)" +
+                        Loc.Format("dashboard.ediEstimate", ("value", u.EdiValue.ToString("F1")), ("uncertainty", u.EdiExpandedU.ToString("F1"))) +
                         (state.IsHdrActive ? "   · HDR (SDR-white anchored)" : string.Empty));
                 }
                 MelanopicSummary.Text = lines.ToString().TrimEnd();
@@ -269,19 +269,19 @@ namespace Gloam.Features.Dashboard
             {
                 case CircadianPhase.Daytime:
                     over = false;
-                    message = $"Daytime: bright light is good for alertness (aim for {DaytimeMelEdiTarget:F0}+ mel-lx total at your eyes). Right now {screenPhrase} about {ediText}.";
+                    message = Loc.Format("dashboard.adviceDaytime", ("target", DaytimeMelEdiTarget.ToString("F0")), ("screen", screenPhrase), ("value", ediText));
                     break;
                 case CircadianPhase.Evening:
                     over = combinedEdi > EveningMelEdiCeiling;
                     message = over
-                        ? $"Evening: keep total light under {EveningMelEdiCeiling:F0} mel-lx in the hours before bed. Right now {screenPhrase} about {ediText}, so warm or dim the screen."
-                        : $"Evening: on track for the hours before bed. Right now {screenPhrase} about {ediText}, within the under-{EveningMelEdiCeiling:F0} mel-lx target.";
+                        ? Loc.Format("dashboard.adviceEveningOver", ("ceiling", EveningMelEdiCeiling.ToString("F0")), ("screen", screenPhrase), ("value", ediText))
+                        : Loc.Format("dashboard.adviceEveningOk", ("screen", screenPhrase), ("value", ediText), ("ceiling", EveningMelEdiCeiling.ToString("F0")));
                     break;
                 default: // Night
                     over = combinedEdi > NightMelEdiCeiling;
                     message = over
-                        ? $"Night: aim for under {NightMelEdiCeiling:F0} mel-lx near sleep. Right now {screenPhrase} about {ediText}, so keep the screen warm and dim."
-                        : $"Night: low light, good for sleep. Right now {screenPhrase} about {ediText}.";
+                        ? Loc.Format("dashboard.adviceNightOver", ("ceiling", NightMelEdiCeiling.ToString("F0")), ("screen", screenPhrase), ("value", ediText))
+                        : Loc.Format("dashboard.adviceNightOk", ("screen", screenPhrase), ("value", ediText));
                     break;
             }
 
@@ -296,7 +296,7 @@ namespace Gloam.Features.Dashboard
                 DoseBig.Text = _cachedEveningDose >= 100 ? _cachedEveningDose.ToString("F0") : _cachedEveningDose.ToString("F1");
                 DoseBig.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty,
                     _cachedEveningDose > _cachedEveningBudget ? "ThemeAmber" : "ThemeText");
-                DoseGoal.Text = $"of ~{_cachedEveningBudget:F0} at the 10 mel-lx evening target";
+                DoseGoal.Text = Loc.Format("dashboard.doseOfBudget", ("budget", _cachedEveningBudget.ToString("F0")));
             }
             else
             {

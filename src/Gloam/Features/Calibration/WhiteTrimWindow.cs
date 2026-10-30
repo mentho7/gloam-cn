@@ -151,6 +151,6 @@ namespace Gloam.Features.Calibration
         }
 
         private void UpdateReadout() =>
-            _readout.Text = $"Target white offset: Δx {_dx:+0.0000;-0.0000;0}  Δy {_dy:+0.0000;-0.0000;0}";
+            _readout.Text = Loc.Format("calibration.whiteOffset", ("dx", _dx.ToString("+0.0000;-0.0000;0")), ("dy", _dy.ToString("+0.0000;-0.0000;0")));
     }
 }

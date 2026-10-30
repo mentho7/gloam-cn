@@ -38,7 +38,7 @@ namespace Gloam.Features.Calibration
             _monitor = monitor;
             _settings = settings;
 
-            Title = $"Calibration Profiles - {monitor.FriendlyName}";
+            Title = Loc.Format("calibration.profilesTitle", ("monitor", monitor.FriendlyName));
             Width = 720;
             Height = 460;
             MinWidth = 720;
@@ -213,7 +213,7 @@ namespace Gloam.Features.Calibration
                 SetStatus(!_monitor.IsHdrActive &&
                           CalibrationInstallPreflight.DetectSdrAutoColorManagement(_monitor.DeviceName, hdrActive: false) == false
                     ? $"Activated: {row.Name}. Windows applies it only while \"Automatically manage color for apps\" is on (Settings > System > Display)."
-                    : $"Activated: {row.Name}");
+                    : Loc.Format("calibration.profileActivated", ("name", row.Name)));
             }
             else
             {
@@ -245,7 +245,7 @@ namespace Gloam.Features.Calibration
             else
             {
                 SetStatus(rows.Count == 1
-                    ? $"Deactivated: {rows[0].Name} (file kept in the color store)."
+                    ? Loc.Format("calibration.profileDeactivated", ("name", rows[0].Name))
                     : $"Deactivated {rows.Count} profiles (files kept in the color store)." +
                       (touchedActive ? " No previous Windows profile was recorded to restore." : ""));
             }
@@ -277,7 +277,7 @@ namespace Gloam.Features.Calibration
             if (!string.IsNullOrEmpty(restoreMessage))
                 SetStatus(restoreMessage);
             else
-                SetStatus(rows.Count == 1 ? $"Deleted: {rows[0].Name}" : $"Deleted {rows.Count} profiles.");
+                SetStatus(rows.Count == 1 ? Loc.Format("calibration.profileDeleted", ("name", rows[0].Name)) : Loc.Format("calibration.profilesDeleted", ("count", rows.Count)));
             Refresh();
         }
 

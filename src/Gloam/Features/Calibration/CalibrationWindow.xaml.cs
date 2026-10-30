@@ -1211,7 +1211,7 @@ namespace Gloam.Features.Calibration
                 {
                     Dispatcher.Invoke(() =>
                     {
-                        ShowCompletion(false, $"Calibration failed: {_calibrationResult.Message}");
+                        ShowCompletion(false, Loc.Format("calibration.failedWithMessage", ("message", _calibrationResult.Message)));
 
                         if (Vm.SoundOnCompletion)
                             CalibrationSounds.PlayFailure();
@@ -1235,7 +1235,7 @@ namespace Gloam.Features.Calibration
                         ShowCompletion(false,
                             "Colorimeter communication failed even after driver installation.\n\n" +
                             "Unplug/replug the colorimeter, close other calibration software, and retry.\n\n" +
-                            $"Details: {ex.Message}");
+                            Loc.Format("calibration.failureDetails", ("message", ex.Message)));
                         CalibrationCompleted?.Invoke(this, new CalibrationCompleteEventArgs(false, ex.Message));
                     }
                     else
@@ -1257,7 +1257,7 @@ namespace Gloam.Features.Calibration
                             ShowCompletion(false,
                                 "Colorimeter communication failed even after driver installation.\n\n" +
                                 "Unplug/replug the colorimeter, close other calibration software, and retry.\n\n" +
-                                $"Details: {ex.Message}");
+                                Loc.Format("calibration.failureDetails", ("message", ex.Message)));
                             CalibrationCompleted?.Invoke(this, new CalibrationCompleteEventArgs(false, ex.Message));
                         }
                         else
@@ -1271,7 +1271,7 @@ namespace Gloam.Features.Calibration
 
                 Dispatcher.Invoke(() =>
                 {
-                    ShowCompletion(false, $"Calibration failed: {ex.Message}");
+                    ShowCompletion(false, Loc.Format("calibration.failedWithError", ("message", ex.Message)));
 
                     if (Vm.SoundOnCompletion)
                         CalibrationSounds.PlayFailure();
@@ -1331,7 +1331,7 @@ namespace Gloam.Features.Calibration
                     ? e.NextPatch.Name ?? GetPatchDescription(e.NextPatch)
                     : Loc.Get("calibration.last.patch");
 
-                Vm.TimeInfoText = $"Elapsed: {FormatElapsedTime(e.Elapsed)} • Remaining: ~{FormatElapsedTime(e.EstimatedRemaining)}";
+                Vm.TimeInfoText = Loc.Format("calibration.progressTiming", ("elapsed", FormatElapsedTime(e.Elapsed)), ("remaining", FormatElapsedTime(e.EstimatedRemaining)));
             });
         }
 
@@ -1467,7 +1467,7 @@ namespace Gloam.Features.Calibration
                 // the pause state was torn down) mid-countdown.
                 for (int i = 3; i > 0; i--)
                 {
-                    Vm.ResumeCountdownText = $"Resuming in {i}...";
+                    Vm.ResumeCountdownText = Loc.Format("calibration.resumingIn", ("seconds", i));
                     await Task.Delay(1000);
                     if (_isCancelled || !_isPaused || !_isCalibrationRunning)
                     {
@@ -1873,7 +1873,7 @@ namespace Gloam.Features.Calibration
         private void UpdateProgress()
         {
             Vm.ProgressPercent = _totalPatches > 0 ? (_currentPatchIndex * 100.0 / _totalPatches) : 0;
-            Vm.PatchInfoText = $"Patch {_currentPatchIndex + 1} of {_totalPatches}";
+            Vm.PatchInfoText = Loc.Format("calibration.patchOfShort", ("current", _currentPatchIndex + 1), ("total", _totalPatches));
 
             var elapsed = _elapsedTimer.Elapsed;
             var estimatedTotal = _currentPatchIndex > 0
@@ -1882,7 +1882,7 @@ namespace Gloam.Features.Calibration
             var remaining = estimatedTotal - elapsed;
             if (remaining < TimeSpan.Zero) remaining = TimeSpan.Zero;
 
-            Vm.TimeInfoText = $"Elapsed: {FormatElapsedTime(elapsed)} • Remaining: ~{FormatElapsedTime(remaining)}";
+            Vm.TimeInfoText = Loc.Format("calibration.progressTimingShort", ("elapsed", FormatElapsedTime(elapsed)), ("remaining", FormatElapsedTime(remaining)));
 
             if (_patches != null && _currentPatchIndex < _patches.Count)
             {

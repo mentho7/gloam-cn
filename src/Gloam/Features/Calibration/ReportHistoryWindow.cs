@@ -190,7 +190,7 @@ namespace Gloam.Features.Calibration
             // historical mode, fed entirely from the saved profile JSON. Not owned by this
             // window so it survives closing the browser.
             new CalibrationReportWindow(row.Profile).Show();
-            _status.Text = $"Opened: {row.Monitor} ({row.Date})";
+            _status.Text = Loc.Format("calibration.reportOpened", ("monitor", row.Monitor), ("date", row.Date));
         }
 
         private void Delete()
@@ -205,7 +205,7 @@ namespace Gloam.Features.Calibration
             {
                 File.Delete(row.FilePath);
                 Refresh();
-                _status.Text = $"Deleted: {row.Monitor} ({row.Date})";
+                _status.Text = Loc.Format("calibration.reportDeleted", ("monitor", row.Monitor), ("date", row.Date));
             }
             catch (Exception ex)
             {

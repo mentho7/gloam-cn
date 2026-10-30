@@ -863,7 +863,7 @@ namespace Gloam.Features.Dashboard
                     GamerMode.SetDiscoveryResults(update.Games, saved);
                     string cacheText = update.UsedCache ? " · unchanged library reused" : string.Empty;
                     GamerMode.DiscoveryStatus =
-                        $"Checking {update.Stage} · {GamerMode.DiscoveredGames.Count} new games found{cacheText}";
+                        Loc.Format("dashboard.scanProgress", ("stage", update.Stage), ("count", GamerMode.DiscoveredGames.Count), ("extra", cacheText));
                 });
                 IReadOnlyList<DiscoveredGame> games = await _gameLibrary.ScanLibrariesAsync(progress);
                 int metadataUpdates = 0;
@@ -900,7 +900,7 @@ namespace Gloam.Features.Dashboard
                     0 when games.Count > 0 => Loc.Get("dashboard.every.game.found.by.the.scanner.is.already.in.your") + hdrSuffix,
                     0 => Loc.Get("dashboard.no.supported.launcher.games.were.found.you.can.still"),
                     1 => Loc.Get("dashboard.found.1.game.review.it.before.adding") + hdrSuffix,
-                    _ => $"Found {newGames} new games. Nothing is checked automatically; add only the profiles you want." + hdrSuffix
+                    _ => Loc.Format("dashboard.foundNewGames", ("count", newGames)) + hdrSuffix
                 };
             }
             catch (OperationCanceledException)
@@ -935,7 +935,7 @@ namespace Gloam.Features.Dashboard
             {
                 GamerMode.ArmLargeAddConfirmation();
                 GamerMode.DiscoveryStatus =
-                    $"Adding {selected.Count} profiles will create a large library. Click the confirmation button only if you want every selected game.";
+                    Loc.Format("dashboard.addManyWarning", ("count", selected.Count));
                 return;
             }
 
@@ -976,10 +976,10 @@ namespace Gloam.Features.Dashboard
             GamerMode.DiscoveredGames.Clear();
             GamerMode.ResetLargeAddConfirmation();
             GamerMode.DiscoveryStatus = pausedLargeImport
-                ? $"Added {added} games. Game Mode is paused so you can review the library before anything activates."
+                ? Loc.Format("dashboard.addedPaused", ("count", added))
                 : added == 1
                     ? Loc.Get("dashboard.added.1.game.with.the.competitive.look.you.can.change")
-                    : $"Added {added} games with the Competitive look. You can tune each one below.";
+                    : Loc.Format("dashboard.addedCompetitive", ("count", added));
         }
 
         private void AddGamerProfile()
@@ -1036,8 +1036,8 @@ namespace Gloam.Features.Dashboard
             item.SelectAndRevealProfile(editor);
             item.NewAppText = string.Empty;
             item.ShowMessage(executablePath != null
-                ? $"Added {editor.GameTitle} with a verified executable path."
-                : $"Added {editor.GameTitle} disabled. Run the game or use the library scanner to verify its path.");
+                ? Loc.Format("dashboard.addedWithPath", ("title", editor.GameTitle))
+                : Loc.Format("dashboard.addedDisabled", ("title", editor.GameTitle)));
             return true;
         }
 
@@ -1093,7 +1093,7 @@ namespace Gloam.Features.Dashboard
             {
                 string targetDescription = selection.HdrCapableOnly ? Loc.Get("dashboard.hdr.capable.games") : "games";
                 GamerMode.ShowMessage(
-                    $"Applied {selection.Label.Split('·')[0].Trim()} to {targets.Count} {targetDescription}.");
+                    Loc.Format("dashboard.appliedLook", ("look", selection.Label.Split('·')[0].Trim()), ("count", targets.Count), ("targets", targetDescription)));
                 GamerMode.SelectedLibraryPreset = null;
             }
         }
@@ -1104,7 +1104,7 @@ namespace Gloam.Features.Dashboard
             if (!GamerMode.ToggleClearProfilesConfirmation())
             {
                 GamerMode.ShowMessage(
-                    $"This removes all {GamerMode.Profiles.Count} saved game profiles. Click the red confirmation again to continue.");
+                    Loc.Format("dashboard.clearLibraryConfirm", ("count", GamerMode.Profiles.Count)));
                 return;
             }
 

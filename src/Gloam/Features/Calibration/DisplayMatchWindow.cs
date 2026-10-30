@@ -241,7 +241,7 @@ namespace Gloam.Features.Calibration
                 _summary.Text += "\nApplied.";
                 Log.Info($"DisplayMatchWindow: applied match — white ({_solution.CommonWhite.X:F4}, " +
                          $"{_solution.CommonWhite.Y:F4}) at {_solution.CommonLuminanceNits:F0} nits " +
-                         $"across {_solution.Adjustments.Count} displays.");
+                         Loc.Format("calibration.matchAcross", ("count", _solution.Adjustments.Count)));
             }
             catch (Exception ex)
             {
