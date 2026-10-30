@@ -1,0 +1,30 @@
+# Line endings are declared here rather than left to each developer's core.autocrlf.
+#
+# .editorconfig already asks for end_of_line = lf, but .editorconfig is an editor convention and
+# git ignores it. With no .gitattributes, behaviour depended on the clone's global config:
+# core.autocrlf=true on Windows produced "LF will be replaced by CRLF" warnings on every commit
+# and made it possible for a contributor to commit a file this repo considers LF as CRLF.
+* text=auto eol=lf
+
+# Windows scripts keep CRLF: cmd.exe in particular mis-handles bare LF in batch files.
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binary assets. Declared explicitly so git never attempts text normalisation, merge, or a
+# line-oriented diff on them — the ICC profiles and font packs are shipped artefacts.
+*.icm binary
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ttf binary
+*.woff2 binary
+*.exe binary
+*.dll binary
+
+# Generated and vendored content: not reviewed, not diffed.
+package-lock.json -diff linguist-generated
+site/assets/katex/** -diff linguist-vendored
