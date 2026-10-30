@@ -71,7 +71,9 @@ namespace Gloam.Features.GameLab
         }
 
         public bool HasProfiles => Profiles.Count > 0;
-        public string ProfileCountText => Profiles.Count == 1 ? "1 GAME" : $"{Profiles.Count} GAMES";
+        public string ProfileCountText => Profiles.Count == 1
+            ? LocalizedStrings.Default.Localizer.Get("gamelab.gameCount.one")
+            : LocalizedStrings.Default.Localizer.Format("gamelab.gameCount.other", ("count", Profiles.Count));
         public bool HasDiscoveryResults => DiscoveredGames.Count > 0;
         public bool HasFilteredProfiles => FilteredProfiles.Count > 0;
         public string FilteredProfileCountText => !string.IsNullOrWhiteSpace(ProfileSearchText)

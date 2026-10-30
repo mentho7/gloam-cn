@@ -109,6 +109,10 @@
     "settings.livePreview": "实时预览",
     "settings.compare": "对比（按住）",
     "settings.resetAll": "全部重置",
-    "settings.saveAndClose": "保存并关闭"
+    "settings.saveAndClose": "保存并关闭",
+    "dashboard.gameLab.runningPlaceholder": "选择正在运行的游戏，或输入它的 .exe 名称",
+    "dashboard.gameLab.addGame": "添加游戏",
+    "gamelab.gameCount.one": "1 个游戏",
+    "gamelab.gameCount.other": "{count} 个游戏"
   }
 }

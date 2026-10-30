@@ -29,6 +29,17 @@ namespace Gloam.Features.Settings
             // about it; the parameter stays optional so the window remains constructible in tests.
             LanguageService? languageService = App.Services?.GetService(typeof(LanguageService)) as LanguageService;
 
+            // No container (design time, screenshot harness, or a caller that built this window
+            // directly): fall back to the published localizer so the picker still lists languages.
+            // Only the persisted preference is lost, which beats an empty combo box.
+            if (languageService is null)
+            {
+                languageService = new LanguageService(
+                    LocalizedStrings.Default.Localizer,
+                    _ => { },
+                    followSystemLabelKey: "settings.language.followSystem");
+            }
+
             _viewModel = new SettingsViewModel(initialMonitor, allMonitors, settingsManager, applyCallback, languageService);
             _viewModel.CloseRequested += Close;
             DataContext = _viewModel;

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
@@ -21,6 +24,7 @@ namespace Gloam.Controls
     public sealed class LanguageToggleButton : Button
     {
         private LanguageService? _languages;
+        private ILocalizer? _fallback;
 
         public LanguageToggleButton()
         {
@@ -34,14 +38,26 @@ namespace Gloam.Controls
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             _languages = Shell.App.Services?.GetService(typeof(LanguageService)) as LanguageService;
-            if (_languages is null)
+            if (_languages is not null)
+            {
+                _languages.LanguageChanged += OnLanguageChanged;
+                Refresh();
+                return;
+            }
+
+            // No container: design time, a screenshot harness, or a host that never registered the
+            // service. Fall back to the published localizer so the control still switches; only the
+            // persisted preference is lost, which is better than a missing control.
+            ILocalizer localizer = LocalizedStrings.Default.Localizer;
+            if (localizer.AvailableCultures.Count < 2)
             {
                 Visibility = Visibility.Collapsed;
                 return;
             }
 
-            _languages.LanguageChanged += OnLanguageChanged;
-            Refresh();
+            _fallback = localizer;
+            _fallback.CultureChanged += OnFallbackCultureChanged;
+            RefreshFallback();
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -49,10 +65,57 @@ namespace Gloam.Controls
             if (_languages is not null)
                 _languages.LanguageChanged -= OnLanguageChanged;
 
+            if (_fallback is not null)
+                _fallback.CultureChanged -= OnFallbackCultureChanged;
+
             _languages = null;
+            _fallback = null;
         }
 
-        private void OnClick(object sender, RoutedEventArgs e) => _languages?.Toggle();
+        private void OnClick(object sender, RoutedEventArgs e)
+        {
+            if (_languages is not null)
+            {
+                _languages.Toggle();
+                return;
+            }
+
+            if (_fallback is null)
+                return;
+
+            IReadOnlyList<CultureInfo> cultures = _fallback.AvailableCultures;
+            int current = -1;
+            for (int i = 0; i < cultures.Count; i++)
+            {
+                if (string.Equals(cultures[i].Name, _fallback.Culture.Name, StringComparison.OrdinalIgnoreCase))
+                    current = i;
+            }
+
+            CultureInfo next = cultures[(current + 1) % cultures.Count];
+            CultureInfo.CurrentUICulture = next;
+            _fallback.SetCulture(next);
+            CultureFontPolicy.Apply(_fallback.Culture);
+        }
+
+        private void OnFallbackCultureChanged(object? sender, CultureChangedEventArgs e) => RefreshFallback();
+
+        private void RefreshFallback()
+        {
+            if (_fallback is null)
+                return;
+
+            IReadOnlyList<CultureInfo> cultures = _fallback.AvailableCultures;
+            string current = _fallback.Culture.TwoLetterISOLanguageName;
+            CultureInfo next = cultures.FirstOrDefault(c =>
+                !string.Equals(c.TwoLetterISOLanguageName, current, StringComparison.OrdinalIgnoreCase)) ?? cultures[0];
+
+            Visibility = Visibility.Visible;
+            Content = next.TwoLetterISOLanguageName.ToUpperInvariant();
+
+            string tooltip = _fallback.Format("chrome.language.switchTo", ("language", next.NativeName));
+            ToolTip = tooltip;
+            AutomationProperties.SetName(this, tooltip);
+        }
 
         private void OnLanguageChanged(object? sender, CultureChangedEventArgs e) => Refresh();
 

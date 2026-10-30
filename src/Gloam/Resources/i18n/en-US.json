@@ -109,6 +109,10 @@
     "settings.livePreview": "Live Preview",
     "settings.compare": "Compare (Hold)",
     "settings.resetAll": "Reset All",
-    "settings.saveAndClose": "Save & Close"
+    "settings.saveAndClose": "Save & Close",
+    "dashboard.gameLab.runningPlaceholder": "Choose a running game or type its .exe name",
+    "dashboard.gameLab.addGame": "Add game",
+    "gamelab.gameCount.one": "1 GAME",
+    "gamelab.gameCount.other": "{count} GAMES"
   }
 }

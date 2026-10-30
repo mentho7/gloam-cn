@@ -546,7 +546,7 @@
                                                     </Style>
                                                 </ComboBox.Resources>
                                             </ComboBox>
-                                            <TextBlock Text="Choose a running game or type its .exe name" Margin="9,0,30,0"
+                                            <TextBlock Text="{loc:Tr dashboard.gameLab.runningPlaceholder}" Margin="9,0,30,0"
                                                        VerticalAlignment="Center" IsHitTestVisible="False"
                                                        Foreground="{DynamicResource ThemeTextDim}">
                                                 <TextBlock.Style>
@@ -560,7 +560,7 @@
                                                     </Style>
                                                 </TextBlock.Style>
                                             </TextBlock>
-                                            <Button x:Name="AddGamerProfileButton" Grid.Column="1" Content="Add game"
+                                            <Button x:Name="AddGamerProfileButton" Grid.Column="1" Content="{loc:Tr dashboard.gameLab.addGame}"
                                                     AutomationProperties.AutomationId="AddGamerProfile"
                                                     Command="{Binding AddGamerProfileCommand}" Padding="16,7"/>
                                         </Grid>
