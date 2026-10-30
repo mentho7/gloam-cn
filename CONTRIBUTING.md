@@ -11,8 +11,13 @@ cd gloam
 dotnet run --project src/Gloam
 ```
 
-You need the .NET 8 SDK. `global.json` pins it, so a newer major SDK will refuse rather
-than silently building against something else.
+You need the .NET 11 SDK. `global.json` sets the floor and stays inside the 11.0 feature band,
+so a newer major SDK refuses rather than silently building against something else. If you only
+have the 11.0 RC installed, keep `allowPrerelease` in `global.json`; drop it at GA.
+
+Analyzer rules are pinned to the SDK version (`AnalysisLevel` in `Directory.Build.props`) rather
+than tracking `latest`. The build must not change behaviour because someone updated their SDK, so
+raising that value is a deliberate change paired with fixing whatever the new rules report.
 
 Package a local installer:
 

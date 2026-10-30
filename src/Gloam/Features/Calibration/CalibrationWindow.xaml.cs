@@ -682,7 +682,7 @@ namespace Gloam.Features.Calibration
             if (_targetMonitor != null)
             {
                 IntPtr targetHmon = _targetMonitor.HMonitor;
-                var mi = new MONITORINFO { cbSize = Marshal.SizeOf(typeof(MONITORINFO)) };
+                var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
                 if (targetHmon != IntPtr.Zero && GetMonitorInfo(targetHmon, ref mi))
                 {
                     bounds = mi.rcMonitor;
@@ -707,7 +707,7 @@ namespace Gloam.Features.Calibration
             if (helper.Handle != IntPtr.Zero)
             {
                 IntPtr hMon = MonitorFromWindow(helper.Handle, MONITOR_DEFAULTTONEAREST);
-                var mi = new MONITORINFO { cbSize = Marshal.SizeOf(typeof(MONITORINFO)) };
+                var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
                 if (GetMonitorInfo(hMon, ref mi))
                 {
                     bounds = mi.rcMonitor;

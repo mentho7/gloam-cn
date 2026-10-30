@@ -212,17 +212,17 @@ namespace Gloam.Core
             copy.AppName = AppExclusionRule.NormalizeAppName(copy.AppName);
             copy.ExecutablePath = SanitizeExecutablePath(copy.ExecutablePath);
             copy.DisplayName = SanitizeLabel(copy.DisplayName, copy.AppName);
-            copy.PictureIntent = Enum.IsDefined(typeof(GamerPictureIntent), copy.PictureIntent)
+            copy.PictureIntent = Enum.IsDefined(copy.PictureIntent)
                 ? copy.PictureIntent : GamerPictureIntent.CompetitiveClarity;
-            copy.DisplayScope = Enum.IsDefined(typeof(GamerDisplayScope), copy.DisplayScope)
+            copy.DisplayScope = Enum.IsDefined(copy.DisplayScope)
                 ? copy.DisplayScope : GamerDisplayScope.WindowDisplays;
-            copy.HdrExpectation = Enum.IsDefined(typeof(GamerHdrExpectation), copy.HdrExpectation)
+            copy.HdrExpectation = Enum.IsDefined(copy.HdrExpectation)
                 ? copy.HdrExpectation : GamerHdrExpectation.Automatic;
-            copy.HdrCapability = Enum.IsDefined(typeof(GamerHdrCapability), copy.HdrCapability)
+            copy.HdrCapability = Enum.IsDefined(copy.HdrCapability)
                 ? copy.HdrCapability : GamerHdrCapability.Unknown;
-            copy.GammaMode = Enum.IsDefined(typeof(GammaMode), copy.GammaMode)
+            copy.GammaMode = Enum.IsDefined(copy.GammaMode)
                 ? copy.GammaMode : GammaMode.Gamma22;
-            copy.NightPolicy = Enum.IsDefined(typeof(GamerNightPolicy), copy.NightPolicy)
+            copy.NightPolicy = Enum.IsDefined(copy.NightPolicy)
                 ? copy.NightPolicy : GamerNightPolicy.FollowSchedule;
             copy.ShadowDetailStrength = ClampFinite(copy.ShadowDetailStrength, 0.0, 1.0, 0.0);
             copy.ShadowDetailPivot = ClampFinite(copy.ShadowDetailPivot, 0.02, 0.25, 0.10);

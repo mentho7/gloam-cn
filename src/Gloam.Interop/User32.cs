@@ -75,7 +75,7 @@ namespace Gloam.Interop
         /// </summary>
         public static bool TryGetMonitorBounds(IntPtr hMonitor, out Dxgi.RECT bounds)
         {
-            var mi = new MONITORINFO { cbSize = Marshal.SizeOf(typeof(MONITORINFO)) };
+            var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
             if (hMonitor != IntPtr.Zero && GetMonitorInfo(hMonitor, ref mi))
             {
                 bounds = mi.rcMonitor;
@@ -92,7 +92,7 @@ namespace Gloam.Interop
         /// </summary>
         public static bool TryGetMonitorWorkArea(IntPtr hMonitor, out Dxgi.RECT work)
         {
-            var mi = new MONITORINFO { cbSize = Marshal.SizeOf(typeof(MONITORINFO)) };
+            var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
             if (hMonitor != IntPtr.Zero && GetMonitorInfo(hMonitor, ref mi))
             {
                 work = mi.rcWork;

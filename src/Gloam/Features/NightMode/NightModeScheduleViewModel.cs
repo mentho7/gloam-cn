@@ -25,7 +25,7 @@ namespace Gloam.Features.NightMode
         public event Action? PointEdited;
 
         public List<ScheduleTriggerType> TriggerTypes { get; } =
-            Enum.GetValues(typeof(ScheduleTriggerType)).Cast<ScheduleTriggerType>().ToList();
+            Enum.GetValues<ScheduleTriggerType>().ToList();
 
         /// <summary>Schedule rows, sorted chronologically by resolved time of day.</summary>
         public ObservableCollection<SchedulePointViewModel> Points { get; } = new();

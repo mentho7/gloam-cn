@@ -213,7 +213,7 @@ namespace Gloam.Core
             RedOffset = ClampFinite(RedOffset, -0.5, 0.5, 0.0),
             GreenOffset = ClampFinite(GreenOffset, -0.5, 0.5, 0.0),
             BlueOffset = ClampFinite(BlueOffset, -0.5, 0.5, 0.0),
-            Algorithm = Enum.IsDefined(typeof(NightModeAlgorithm), Algorithm)
+            Algorithm = Enum.IsDefined(Algorithm)
                 ? Algorithm
                 : NightModeAlgorithm.Perceptual,
             NightModeCcssPath = NightModeCcssPath,

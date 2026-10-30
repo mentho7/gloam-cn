@@ -263,7 +263,7 @@ namespace Gloam.Core
         /// to the perceptual default. The enum member is kept so old settings still deserialize.
         /// </summary>
         private static NightModeAlgorithm ResolveAlgorithm(NightModeAlgorithm algorithm) =>
-            algorithm == NightModeAlgorithm.BlueReduction || !Enum.IsDefined(typeof(NightModeAlgorithm), algorithm)
+            algorithm == NightModeAlgorithm.BlueReduction || !Enum.IsDefined(algorithm)
                 ? NightModeAlgorithm.Perceptual
                 : algorithm;
 

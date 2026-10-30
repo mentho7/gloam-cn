@@ -130,7 +130,7 @@ namespace Gloam.Features.Calibration
         {
             IntPtr vtbl = Marshal.ReadIntPtr(comObject);
             IntPtr fn = Marshal.ReadIntPtr(vtbl, slot * IntPtr.Size);
-            return (T)Marshal.GetDelegateForFunctionPointer(fn, typeof(T));
+            return Marshal.GetDelegateForFunctionPointer<T>(fn);
         }
 
         #endregion
@@ -206,7 +206,7 @@ namespace Gloam.Features.Calibration
             if (hr < 0) throw new InvalidOperationException($"CreateDXGIFactory1 failed (0x{hr:X8}).");
             try
             {
-                hr = Marshal.QueryInterface(factory1, ref IID_IDXGIFactory2, out IntPtr factory2);
+                hr = Marshal.QueryInterface(factory1, in IID_IDXGIFactory2, out IntPtr factory2);
                 if (hr < 0) throw new InvalidOperationException("IDXGIFactory2 unavailable (needs Windows 8+).");
                 try
                 {
@@ -224,7 +224,7 @@ namespace Gloam.Features.Calibration
                     hr = create(factory2, _device, _hwnd, ref desc, IntPtr.Zero, IntPtr.Zero, out IntPtr swapChain1);
                     if (hr < 0) throw new InvalidOperationException($"CreateSwapChainForHwnd FP16 failed (0x{hr:X8}).");
 
-                    hr = Marshal.QueryInterface(swapChain1, ref IID_IDXGISwapChain3, out _swapChain);
+                    hr = Marshal.QueryInterface(swapChain1, in IID_IDXGISwapChain3, out _swapChain);
                     Marshal.Release(swapChain1);
                     if (hr < 0) throw new InvalidOperationException("IDXGISwapChain3 unavailable (needs Windows 10+).");
 

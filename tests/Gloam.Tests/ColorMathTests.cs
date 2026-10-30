@@ -172,7 +172,9 @@ namespace Gloam.Tests
             Assert.InRange(deltaE, 1.9, 2.2);
         }
 
-        public static TheoryData<CieLab, CieLab, double> DeltaE2000ReferencePairs => new()
+        // Cached rather than rebuilt per access: xUnit reads MemberData once per theory run, so an
+        // expression-bodied getter would allocate the whole pair table on every read (WFO2000).
+        public static TheoryData<CieLab, CieLab, double> DeltaE2000ReferencePairs { get; } = new()
         {
             { new CieLab(50.0000,  2.6772, -79.7751), new CieLab(50.0000,   0.0000, -82.7485),  2.0425 },
             { new CieLab(50.0000,  3.1571, -77.2803), new CieLab(50.0000,   0.0000, -82.7485),  2.8615 },

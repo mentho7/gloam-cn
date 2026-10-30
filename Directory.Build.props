@@ -4,7 +4,13 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <!-- Pinned, not "latest-recommended". The analyzer rule set ships with the SDK, so
+         "latest-*" means the build's pass/fail behaviour silently changes when a developer or
+         CI runner updates the SDK: a routine SDK bump produced 48 new diagnostics here, and
+         because GloamStrictBuild treats warnings as errors that is a red build for a change
+         nobody made. Pinning keeps diagnostics a property of the repository; bump this value
+         deliberately, in the same commit that fixes whatever the new rules report. -->
+    <AnalysisLevel>11.0-recommended</AnalysisLevel>
     <AnalysisMode>Default</AnalysisMode>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <Deterministic>true</Deterministic>

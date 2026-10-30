@@ -54,6 +54,44 @@ readability and code review; the global usings keep the churn local.
 This is a UI-assembly-only policy. `Gloam.Core` and `Gloam.Localization` use explicit usings, which
 is what you want at a real module boundary.
 
+## Toolchain
+
+**Target framework: `net11.0` / `net11.0-windows` everywhere.** The project previously targeted
+`net8.0`, which reaches end of support on 2026-11-10. .NET 11 is an STS release: fine for an
+actively maintained desktop app, but it means the next forced move is .NET 13, not .NET 12 — worth
+diarising.
+
+**`global.json` sets an SDK floor, not a pin.** The floor is `11.0.100-rc.3` because SemVer orders
+that *below* `11.0.100`, so asking for `11.0.100` while only the RC is installed fails SDK
+resolution even with `allowPrerelease`. Raise the floor to `11.0.100` and drop `allowPrerelease`
+once GA is the norm.
+
+**`AnalysisLevel` is pinned to `11.0-recommended`.** It used to be `latest-recommended`, which
+means the analyzer rule set followed whichever SDK happened to be installed. An SDK upgrade then
+changed the build's pass/fail behaviour: a routine bump produced 48 new diagnostics, and because
+`GloamStrictBuild` treats warnings as errors, that was a red build for a change nobody made.
+Bumping the pin is now a deliberate change, made in the same commit that fixes what the new rules
+report.
+
+## Toolchain
+
+**Target framework: `net11.0` / `net11.0-windows` everywhere.** The project previously targeted
+`net8.0`, which reaches end of support on 2026-11-10. .NET 11 is an STS release: fine for an
+actively maintained desktop app, but it means the next forced move is .NET 13, not .NET 12 — worth
+diarising.
+
+**`global.json` sets an SDK floor, not a pin.** The floor is `11.0.100-rc.3` because SemVer orders
+that *below* `11.0.100`, so asking for `11.0.100` while only the RC is installed fails SDK
+resolution even with `allowPrerelease`. Raise the floor to `11.0.100` and drop `allowPrerelease`
+once GA is the norm.
+
+**`AnalysisLevel` is pinned to `11.0-recommended`.** It used to be `latest-recommended`, which
+means the analyzer rule set followed whichever SDK happened to be installed. An SDK upgrade then
+changed the build's pass/fail behaviour: a routine bump produced 48 new diagnostics, and because
+`GloamStrictBuild` treats warnings as errors, that was a red build for a change nobody made.
+Bumping the pin is now a deliberate change, made in the same commit that fixes what the new rules
+report.
+
 ## Rules worth keeping
 
 **The composition root stays a composition root.** `Shell/App.xaml.cs` builds the container and
