@@ -98,10 +98,10 @@ public sealed class DocumentationFigures
     /// <summary>Enlarged crops kept for reviewing a specific control during the audit.</summary>
     private static void Zoom(string shots, string output)
     {
-        Write(ZoomBitmap(Path.Combine(shots, "gamelab-zh-Hans.png"), new Int32Rect(455, 372, 610, 62), 3),
+        Write(ZoomBitmap(Path.Combine(shots, "gamelab-zh-Hans-full.png"), new Int32Rect(300, 352, 745, 110), 2),
             Path.Combine(output, "zoom-gamelab-advanced-zh.png"));
 
-        Write(ZoomBitmap(Path.Combine(shots, "gamelab-qps-ploc.png"), new Int32Rect(300, 120, 760, 90), 2),
+        Write(ZoomBitmap(Path.Combine(shots, "gamelab-qps-ploc-full.png"), new Int32Rect(300, 120, 760, 90), 2),
             Path.Combine(output, "zoom-gamelab-state-qps.png"));
     }
 
