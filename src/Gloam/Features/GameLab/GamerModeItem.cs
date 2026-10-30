@@ -78,7 +78,8 @@ namespace Gloam.Features.GameLab
         public bool HasDiscoveryResults => DiscoveredGames.Count > 0;
         public bool HasFilteredProfiles => FilteredProfiles.Count > 0;
         public string FilteredProfileCountText => !string.IsNullOrWhiteSpace(ProfileSearchText)
-            ? $"{FilteredProfiles.Count} RESULTS"
+            ? LocalizedStrings.Default.Localizer.Format(
+                "gamelab.filteredCount", ("count", FilteredProfiles.Count))
             : _showAllProfiles
                 ? Loc.Format("gamelab.filterAll", ("count", Profiles.Count))
                 : Loc.Format("gamelab.filterRecent", ("count", FilteredProfiles.Count));
@@ -338,8 +339,17 @@ namespace Gloam.Features.GameLab
         private void OnProfilesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.OldItems != null)
+            {
                 foreach (GamerProfileEditorItem profile in e.OldItems)
+                {
                     profile.PropertyChanged -= OnProfilePropertyChanged;
+
+                    // The editor subscribes to CultureChanged, and the localizer outlives every
+                    // profile. Without this a removed profile stays alive for the process lifetime,
+                    // and each language switch keeps notifying windows that are already closed.
+                    profile.Dispose();
+                }
+            }
             if (e.NewItems != null)
                 foreach (GamerProfileEditorItem profile in e.NewItems)
                     profile.PropertyChanged += OnProfilePropertyChanged;
@@ -529,16 +539,61 @@ namespace Gloam.Features.GameLab
     }
 
     /// <summary>Observable editor wrapper around the Core persistence model.</summary>
-    public sealed class GamerProfileEditorItem : ObservableObject
+    public sealed class GamerProfileEditorItem : ObservableObject, IDisposable
     {
+        private readonly ILocalizer _loc;
         private GamerProfileRule _profile;
 
         public GamerProfileEditorItem(GamerProfileRule profile)
         {
             _profile = (profile ?? throw new ArgumentNullException(nameof(profile))).Sanitized();
+
+            // The combo boxes on this editor are bound to SelectedProfile.<list>, so invalidating
+            // the parent's properties is not enough: WPF re-reads the bound path but the leaf object
+            // raised nothing, and the options stayed in the previous language while the labels
+            // around them changed. Subscribe on the leaf.
+            _loc = LocalizedStrings.Default.Localizer;
+            _loc.CultureChanged += OnCultureChanged;
         }
 
-        public IReadOnlyList<GamerChoice<GamerPictureIntent>> AvailablePictureIntents { get; } =
+        private void OnCultureChanged(object? sender, CultureChangedEventArgs e)
+        {
+            // The option lists are rebuilt with new items on every read, so refreshing bindings
+            // replaces each ComboBox's ItemsSource. During that replace the combo has no matching
+            // item and its TwoWay binding writes the resulting null back into the view model, which
+            // loses the user's choice. Re-assert each value after the refresh: the setter early-outs
+            // when nothing changed, so the binding is re-read explicitly.
+            GamerPictureIntent intent = PictureIntent;
+            GamerDisplayScope scope = DisplayScope;
+            GamerHdrExpectation expectation = HdrExpectation;
+            GamerHdrCapability capability = HdrCapability;
+            GammaMode gamma = GammaMode;
+            GamerNightPolicy policy = NightPolicy;
+
+            OnPropertyChanged(string.Empty);
+
+            PictureIntent = intent;
+            DisplayScope = scope;
+            HdrExpectation = expectation;
+            HdrCapability = capability;
+            GammaMode = gamma;
+            NightPolicy = policy;
+
+            OnPropertyChanged(nameof(PictureIntent));
+            OnPropertyChanged(nameof(DisplayScope));
+            OnPropertyChanged(nameof(HdrExpectation));
+            OnPropertyChanged(nameof(HdrCapability));
+            OnPropertyChanged(nameof(GammaMode));
+            OnPropertyChanged(nameof(NightPolicy));
+        }
+
+        public void Dispose() => _loc.CultureChanged -= OnCultureChanged;
+
+        // Computed rather than captured once: every Label below is catalog text, so a field
+        // initializer would freeze the options in whichever language was active when this item was
+        // constructed. The studio switches language on an open window, and the combo boxes are part
+        // of that window.
+        public IReadOnlyList<GamerChoice<GamerPictureIntent>> AvailablePictureIntents =>
         [
             new(GamerPictureIntent.Reference, Loc.Get("gamelab.accurate"), Loc.Get("gamelab.keeps.the.game.faithful.and.uses.your.measured.display")),
             new(GamerPictureIntent.CompetitiveClarity, Loc.Get("gamelab.competitive"), Loc.Get("gamelab.reveals.dark.movement.while.bright.areas.stay.unchanged")),
@@ -546,39 +601,39 @@ namespace Gloam.Features.GameLab
             new(GamerPictureIntent.NightOps, Loc.Get("gamelab.night.play"), Loc.Get("gamelab.warms.late.sessions.while.preserving.useful.color")),
             new(GamerPictureIntent.Custom, Loc.Get("gamelab.custom"))
         ];
-        public IReadOnlyList<GamerChoice<GamerPictureIntent>> AvailableQuickLooks { get; } =
+        public IReadOnlyList<GamerChoice<GamerPictureIntent>> AvailableQuickLooks =>
         [
             new(GamerPictureIntent.Reference, Loc.Get("gamelab.accurate"), Loc.Get("gamelab.faithful.color")),
             new(GamerPictureIntent.CompetitiveClarity, Loc.Get("gamelab.competitive"), Loc.Get("gamelab.see.into.shadows")),
             new(GamerPictureIntent.CinematicHdr, Loc.Get("gamelab.hdr.cinema"), Loc.Get("gamelab.preserve.hdr")),
             new(GamerPictureIntent.NightOps, Loc.Get("gamelab.night.play"), Loc.Get("gamelab.easy.on.your.eyes"))
         ];
-        public IReadOnlyList<GamerChoice<GamerNightPolicy>> AvailableNightPolicies { get; } =
+        public IReadOnlyList<GamerChoice<GamerNightPolicy>> AvailableNightPolicies =>
         [
             new(GamerNightPolicy.FollowSchedule, Loc.Get("gamelab.follow.schedule")),
             new(GamerNightPolicy.ForceDaylight, Loc.Get("gamelab.force.daylight.6500k")),
             new(GamerNightPolicy.NightOps, Loc.Get("gamelab.spectral.night.ops"))
         ];
-        public IReadOnlyList<GamerChoice<GamerHdrExpectation>> AvailableHdrExpectations { get; } =
+        public IReadOnlyList<GamerChoice<GamerHdrExpectation>> AvailableHdrExpectations =>
         [
             new(GamerHdrExpectation.Automatic, Loc.Get("gamelab.automatic")),
             new(GamerHdrExpectation.RequireSdr, Loc.Get("gamelab.require.sdr")),
             new(GamerHdrExpectation.RequireHdr, Loc.Get("gamelab.require.hdr"))
         ];
-        public IReadOnlyList<GamerChoice<GamerHdrCapability>> AvailableHdrCapabilities { get; } =
+        public IReadOnlyList<GamerChoice<GamerHdrCapability>> AvailableHdrCapabilities =>
         [
             new(GamerHdrCapability.Unknown, Loc.Get("gamelab.not.detected"), Loc.Get("gamelab.excluded.from.automatic.hdr.bulk.changes")),
             new(GamerHdrCapability.Detected, Loc.Get("gamelab.detected.automatically"), Loc.Get("gamelab.a.local.game.configuration.advertises.hdr.output")),
             new(GamerHdrCapability.UserConfirmed, Loc.Get("gamelab.yes.supports.hdr"), Loc.Get("gamelab.include.this.game.in.hdr.bulk.changes")),
             new(GamerHdrCapability.SdrOnly, Loc.Get("gamelab.no.sdr.only"), Loc.Get("gamelab.never.include.this.game.in.hdr.bulk.changes"))
         ];
-        public IReadOnlyList<GamerChoice<GamerDisplayScope>> AvailableDisplayScopes { get; } =
+        public IReadOnlyList<GamerChoice<GamerDisplayScope>> AvailableDisplayScopes =>
         [
             new(GamerDisplayScope.WindowDisplays, Loc.Get("gamelab.game.window.display.s")),
             new(GamerDisplayScope.AllDisplays, Loc.Get("gamelab.all.displays")),
             new(GamerDisplayScope.SpecificDisplay, Loc.Get("gamelab.one.specific.display"))
         ];
-        public IReadOnlyList<GamerChoice<GammaMode>> AvailableGammaModes { get; } =
+        public IReadOnlyList<GamerChoice<GammaMode>> AvailableGammaModes =>
         [
             new(GammaMode.Gamma22, Loc.Get("settings.gamma.v22")),
             new(GammaMode.Gamma24, Loc.Get("settings.gamma.v24")),

@@ -68,7 +68,7 @@
                 <GridView>
                     <GridViewColumn Header="{loc:Tr calibration.source}" Width="70" DisplayMemberBinding="{Binding Source}"/>
                     <GridViewColumn Header="{loc:Tr dashboard.display}" Width="250" DisplayMemberBinding="{Binding Display}"/>
-                    <GridViewColumn Header="Type" Width="64" CellTemplate="{StaticResource CorrectionTypeChip}"/>
+                    <GridViewColumn Header="{loc:Tr common.type}" Width="64" CellTemplate="{StaticResource CorrectionTypeChip}"/>
                     <GridViewColumn Header="{loc:Tr calibration.instrument}" Width="130" DisplayMemberBinding="{Binding Instrument}"/>
                     <GridViewColumn Header="{loc:Tr calibration.measured.with}" Width="150" DisplayMemberBinding="{Binding Reference}"/>
                     <GridViewColumn Header="{loc:Tr calibration.created}" Width="120" DisplayMemberBinding="{Binding Created}"/>

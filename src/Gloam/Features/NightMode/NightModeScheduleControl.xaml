@@ -202,7 +202,7 @@
 
             <DataGrid.Columns>
                 <!-- Trigger Type -->
-                <DataGridTemplateColumn Header="Type" Width="80">
+                <DataGridTemplateColumn Header="{loc:Tr common.type}" Width="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding TriggerType}" Foreground="{DynamicResource ThemeText}"/>

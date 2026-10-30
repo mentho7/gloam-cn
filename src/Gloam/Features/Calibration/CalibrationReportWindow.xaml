@@ -150,7 +150,7 @@
 
                             <!-- Column headers -->
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Tr calibration.average}" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Max" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Tr calibration.max}" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Row="0" Grid.Column="3" Text="{loc:Tr calibration.grayscale}" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Row="0" Grid.Column="4" Text="{loc:Tr calibration.primaries}" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
 
@@ -426,28 +426,28 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="" Style="{StaticResource MetricLabel}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Tr calibration.measured}" Style="{StaticResource MetricLabel}"/>
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Tr calibration.target}" Style="{StaticResource MetricLabel}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="3" Text="Error" Style="{StaticResource MetricLabel}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="3" Text="{loc:Tr calibration.error}" Style="{StaticResource MetricLabel}"/>
 
                             <!-- Red -->
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Red" Foreground="#ef4444" Style="{StaticResource MetricValue}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Tr calibration.red}" Foreground="#ef4444" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding RedMeasuredText}" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding RedTargetText}" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding RedErrorText}" Style="{StaticResource MetricValue}"/>
 
                             <!-- Green -->
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Green" Foreground="#22c55e" Style="{StaticResource MetricValue}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Tr calibration.green}" Foreground="#22c55e" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding GreenMeasuredText}" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding GreenTargetText}" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding GreenErrorText}" Style="{StaticResource MetricValue}"/>
 
                             <!-- Blue -->
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Blue" Foreground="#3b82f6" Style="{StaticResource MetricValue}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{loc:Tr calibration.blue}" Foreground="#3b82f6" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding BlueMeasuredText}" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding BlueTargetText}" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding BlueErrorText}" Style="{StaticResource MetricValue}"/>
 
                             <!-- White -->
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="White" Style="{StaticResource MetricValue}"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="{loc:Tr calibration.white}" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding WhiteMeasuredText}" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding WhiteTargetText}" Style="{StaticResource MetricValue}"/>
                             <TextBlock Grid.Row="4" Grid.Column="3" Text="{Binding WhiteErrorText}" Style="{StaticResource MetricValue}"/>
@@ -623,7 +623,7 @@
                             Margin="0,0,10,0"
                             Click="CharacterizeHdrButton_Click"/>
 
-                    <Button Content="Close"
+                    <Button Content="{loc:Tr common.close}"
                             IsEnabled="{Binding IsCloseEnabled}"
                             Style="{StaticResource BrutBtnSecondary}"
                             Click="CloseButton_Click"/>

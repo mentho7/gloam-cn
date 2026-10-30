@@ -1,6 +1,7 @@
 <UserControl x:Class="Gloam.Features.Calibration.ProbePlacementControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:Gloam.Localization.Wpf;assembly=Gloam.Localization.Wpf"
              Focusable="True"
              PreviewKeyDown="Control_PreviewKeyDown">
     <UserControl.Resources>
@@ -94,7 +95,7 @@
                     </TextBlock>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Button x:Name="SecondaryButton"
-                                Content="Back"
+                                Content="{loc:Tr common.back}"
                                 Style="{StaticResource BrutBtnSecondary}"
                                 Click="SecondaryButton_Click"
                                 Margin="0,0,12,0"

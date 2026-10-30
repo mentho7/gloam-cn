@@ -776,6 +776,19 @@
     "calibration.marginal.calibration.your.display.shows.noticeable": "Marginal calibration. Your display shows noticeable color inaccuracies. Consider re-calibrating or checking display settings.",
     "calibration.acceptable.calibration.your.display.shows.reasonable": "Acceptable calibration. Your display shows reasonable color accuracy for general use. Some color shifts may be visible in side-by-side comparisons.",
     "calibration.good.calibration.your.display.shows.solid.color": "Good calibration. Your display shows solid color accuracy for most professional and creative work. Some deviation may be noticeable in critical comparisons.",
-    "calibration.very.good.calibration.your.display.shows.excellent": "Very good calibration. Your display shows excellent color accuracy suitable for color-critical work. Minor variations may exist in edge cases."
+    "calibration.very.good.calibration.your.display.shows.excellent": "Very good calibration. Your display shows excellent color accuracy suitable for color-critical work. Minor variations may exist in edge cases.",
+    "gamelab.filteredCount": "{count} RESULTS",
+    "common.close": "Close",
+    "common.back": "Back",
+    "common.type": "Type",
+    "common.error": "Error",
+    "common.exit": "Exit",
+    "common.apply": "Apply",
+    "calibration.max": "Max",
+    "calibration.error": "Error",
+    "calibration.red": "Red",
+    "calibration.green": "Green",
+    "calibration.blue": "Blue",
+    "calibration.white": "White"
   }
 }

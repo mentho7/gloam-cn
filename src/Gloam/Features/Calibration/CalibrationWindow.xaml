@@ -341,7 +341,7 @@
                         <TextBlock Text=" • " Foreground="{StaticResource TextDim}"/>
                         <TextBlock Text="{Binding EstimatedTimeText}" Foreground="{StaticResource TextDim}"/>
                     </StackPanel>
-                    <Button Grid.Column="1" Content="Back" Style="{StaticResource SubtleButton}"
+                    <Button Grid.Column="1" Content="{loc:Tr common.back}" Style="{StaticResource SubtleButton}"
                             Click="Back_Click" Margin="0,0,8,0"
                             ToolTip="{loc:Tr calibration.return.to.calibration.setup.to.adjust.target.preset.or}"/>
                     <Button Grid.Column="2" Content="{loc:Tr calibration.cancel}" Style="{StaticResource SubtleButton}"
@@ -522,7 +522,7 @@
                         <Button Content="{loc:Tr calibration.view.report}" Style="{StaticResource ModernButton}"
                                 Click="ViewReport_Click" Margin="0,0,8,0"
                                 Visibility="{Binding IsViewReportVisible, Converter={StaticResource BoolToVis}}"/>
-                        <Button Content="Close" Style="{StaticResource SubtleButton}"
+                        <Button Content="{loc:Tr common.close}" Style="{StaticResource SubtleButton}"
                                 Click="Close_Click"/>
                     </StackPanel>
                 </StackPanel>

@@ -101,7 +101,7 @@
                             Click="CancelDownload_Click" Visibility="Collapsed"/>
 
                     <!-- Result close button -->
-                    <Button x:Name="CloseButton" Grid.Column="2" Content="Close"
+                    <Button x:Name="CloseButton" Grid.Column="2" Content="{loc:Tr common.close}"
                             Click="Close_Click" Visibility="Collapsed"/>
                 </Grid>
             </Border>

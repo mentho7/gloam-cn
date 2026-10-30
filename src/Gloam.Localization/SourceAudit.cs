@@ -61,7 +61,7 @@ public static partial class LocalizationSourceAudit
             foreach (Match match in XamlTextAttribute().Matches(lines[i]))
             {
                 string value = match.Groups["value"].Value.Trim();
-                if (!LooksTranslatable(value))
+                if (!LooksTranslatable(value, declaredAsText: true))
                     continue;
 
                 hardcoded.Add(new HardcodedString(file, i + 1, value));
@@ -116,7 +116,7 @@ public static partial class LocalizationSourceAudit
             foreach (Match match in CSharpLiteral().Matches(line))
             {
                 string value = match.Groups["value"].Value.Trim();
-                if (!LooksTranslatable(value))
+                if (!LooksTranslatable(value, declaredAsText: false))
                     continue;
 
                 hardcoded.Add(new HardcodedString(file, i + 1, value));
@@ -130,9 +130,21 @@ public static partial class LocalizationSourceAudit
     /// A string is worth translating when it contains a letter and either a space or enough
     /// characters to be a label. Filters out units, keys, format specifiers and symbol runs.
     /// </summary>
-    private static bool LooksTranslatable(string value)
+    private static bool LooksTranslatable(string value, bool declaredAsText)
     {
-        if (value.Length < 4)
+        // Short labels are the most-clicked text in the application. The old floor of four
+        // characters meant every three- to five-letter label was invisible to the audit, which is
+        // why several buttons stayed in English through two migration rounds while the ratchet
+        // reported no regression. A value read out of Text/Content/Header is text by declaration,
+        // so length says nothing there; only the C# heuristic needs a floor, because short literals
+        // in code are usually tokens ("Auto", "Center", "Wrap").
+        bool fromAttribute = declaredAsText;
+        if (!fromAttribute && value.Length < 4)
+            return false;
+
+        // Acronyms, product names and unit symbols read the same in every language. Listed as a
+        // pattern rather than per key because these appear as bare literals, not catalog entries.
+        if (AcronymOrBrand().IsMatch(value))
             return false;
 
         // Markup extension or binding, not literal text.
@@ -184,9 +196,12 @@ public static partial class LocalizationSourceAudit
         if (!hasLetter)
             return false;
 
-        // Single words that are identifiers/keys rather than prose: require whitespace, or a
-        // value long enough that a bare word is still a label ("Refresh", "Calibration").
-        return hasSpace || value.Length >= 6;
+        // A single word is only counted when it is long enough to be a label rather than an
+        // identifier. The cutoff used to be six characters, which silently excluded the most
+        // frequently clicked text in the application - "Add", "Exit", "Type", "Close", "Apply".
+        // Those stayed in English across two migration rounds while the ratchet reported no
+        // regression, because it could not see them. Acronyms and product names are filtered above.
+        return fromAttribute || hasSpace || value.Length >= 6;
     }
 
     private static int Count(string text, char needle)
@@ -235,6 +250,13 @@ public static partial class LocalizationSourceAudit
     /// <summary>Matches a logger call: <c>Log.Warn(</c>, <c>_log.Error(</c>, <c>Logger.Info(</c>.</summary>
     [GeneratedRegex(@"\b(?:Log|_log|_logger|Logger|Diag|Diagnostics)\s*\.\s*\w+\s*\(", RegexOptions.CultureInvariant)]
     private static partial Regex LogCall();
+
+    /// <summary>
+    /// Matches a value that is never translated: an all-caps acronym (HDR, SDR, RGB, GAMMA), a
+    /// product name written in mixed case (Gloam, Steam), or a coordinate abbreviation.
+    /// </summary>
+    [GeneratedRegex(@"^([A-Z0-9]{2,6}|Gloam|Duv|CCT|Steam|Epic|Xbox|Lat|Lon|Max)$", RegexOptions.CultureInvariant)]
+    private static partial Regex AcronymOrBrand();
 
     /// <summary>Matches a #RGB / #RRGGBB colour literal.</summary>
     [GeneratedRegex(@"^#[0-9A-Fa-f]{3,8}$", RegexOptions.CultureInvariant)]

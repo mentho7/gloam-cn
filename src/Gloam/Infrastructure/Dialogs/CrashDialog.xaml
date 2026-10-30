@@ -41,7 +41,7 @@
             <!-- Header: accent-red kicker + title -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
                 <Border Width="4" Background="{DynamicResource ThemeAccent}" Margin="0,0,10,0"/>
-                <TextBlock Style="{StaticResource Kicker}" Text="Error" VerticalAlignment="Center"/>
+                <TextBlock Style="{StaticResource Kicker}" Text="{loc:Tr common.error}" VerticalAlignment="Center"/>
             </StackPanel>
 
             <TextBlock Grid.Row="1" Style="{StaticResource OverlayTitle}"
@@ -81,7 +81,7 @@
                         Content="{loc:Tr dialogs.continue}" Padding="18,9" Margin="0,0,10,0"
                         Command="{Binding ContinueCommand}"/>
                 <Button Style="{StaticResource BrutBtnPrimary}"
-                        Content="Exit" Padding="18,9"
+                        Content="{loc:Tr common.exit}" Padding="18,9"
                         Command="{Binding ExitCommand}"/>
             </StackPanel>
         </Grid>

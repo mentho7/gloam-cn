@@ -124,7 +124,7 @@
 
                     <!-- Result buttons -->
                     <StackPanel x:Name="ResultButtons" Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="2" Visibility="Collapsed">
-                        <Button x:Name="CloseButton" Content="Close" Click="Close_Click" Margin="0,0,12,0"/>
+                        <Button x:Name="CloseButton" Content="{loc:Tr common.close}" Click="Close_Click" Margin="0,0,12,0"/>
                         <Button x:Name="RetryButton" Content="{loc:Tr calibration.retry.calibration}" Style="{StaticResource BrutBtnPrimary}" Click="Retry_Click"/>
                     </StackPanel>
                 </Grid>

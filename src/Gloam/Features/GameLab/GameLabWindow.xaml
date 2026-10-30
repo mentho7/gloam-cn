@@ -141,9 +141,14 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding GamerModeStateTitle}" Style="{StaticResource Kicker}"/>
+                            <!-- Wraps rather than trims: the column is a fixed 265px because the
+                                 card's other columns are data-driven, but this line is a sentence
+                                 from the catalog. Trimming it silently drops the end of the
+                                 sentence in any language longer than English, which is exactly the
+                                 case the pseudo-locale layout check exists to catch. -->
                             <TextBlock Text="{Binding GamerModeStateDetails}" FontSize="9"
                                        Foreground="{DynamicResource ThemeTextDim}" Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextWrapping="Wrap"/>
                         </StackPanel>
                         <Border Grid.Column="1" Background="{DynamicResource ThemeBorder}" Margin="0,1,14,1"/>
                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
@@ -180,7 +185,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </Grid>
-                            <Button Grid.Column="1" Content="Apply" Margin="6,0,0,0" Padding="9,6"
+                            <Button Grid.Column="1" Content="{loc:Tr dashboard.gameLab.apply}" Margin="6,0,0,0" Padding="9,6"
                                     Command="{Binding ApplyGamerLibraryPresetCommand}"
                                     IsEnabled="{Binding GamerMode.HasSelectedLibraryPreset}"/>
                         </Grid>
@@ -335,7 +340,7 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <Button x:Name="AddGamerProfileButton" Grid.Column="1" Content="Add"
+                                <Button x:Name="AddGamerProfileButton" Grid.Column="1" Content="{loc:Tr dashboard.autoDisable.add}"
                                         Command="{Binding AddGamerProfileCommand}" Padding="11,7"
                                         AutomationProperties.AutomationId="AddGamerProfile"/>
                             </Grid>
