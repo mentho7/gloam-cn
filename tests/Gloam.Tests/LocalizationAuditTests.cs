@@ -86,6 +86,62 @@ public partial class LocalizationAuditTests
             "XAML references keys the en-US catalog does not define:\n  " + string.Join("\n  ", missing));
     }
 
+    /// <summary>
+    /// Keys whose translation is legitimately identical to the source.
+    /// </summary>
+    /// <remarks>
+    /// Brand names, product names, industry specification names and unit symbols read the same in
+    /// every language. Listing them by key - rather than by "looks like English" heuristics - means
+    /// a new entry that copies the source has to be added here deliberately, with a reason.
+    /// </remarks>
+    private static readonly HashSet<string> UntranslatableByDesign = new(StringComparer.Ordinal)
+    {
+        "tray.tooltip",              // brand + version number
+        "dashboard.gameLab.title",   // product feature name
+        "settings.gamma.v22",        // standard curve designation
+        "settings.gamma.v24",
+        "calibration.ccfl.lcd",      // backlight technology
+        "calibration.argyllcms",     // third-party tool name
+        "calibration.dci.p3.d65",    // colour space + white point
+        "calibration.e2000",         // metric symbol
+        "calibration.k",             // unit: kelvin
+        "calibration.cd.m2",         // unit: candela per square metre
+    };
+
+    [Fact]
+    public void Every_translation_differs_from_the_source_unless_it_cannot_be_translated()
+    {
+        IReadOnlyList<StringCatalog> catalogs = ShippedCatalogs.Load();
+        StringCatalog source = catalogs.First(c => c.Culture.TwoLetterISOLanguageName == "en");
+        var copied = new List<string>();
+
+        foreach (StringCatalog catalog in catalogs)
+        {
+            if (ReferenceEquals(catalog, source))
+                continue;
+
+            foreach (var (key, entry) in catalog.Entries)
+            {
+                if (entry.IsPlural || UntranslatableByDesign.Contains(key))
+                    continue;
+
+                if (!source.TryGet(key, out CatalogEntry? sourceEntry) || sourceEntry is null ||
+                    sourceEntry.IsPlural)
+                {
+                    continue;
+                }
+
+                if (string.Equals(sourceEntry.Template, entry.Template, StringComparison.Ordinal))
+                    copied.Add($"{catalog.Culture.Name}: {key}");
+            }
+        }
+
+        Assert.True(copied.Count == 0,
+            "Translated catalogs contain entries identical to the English source. Either translate " +
+            "them or add them to UntranslatableByDesign with a reason://n  " +
+            string.Join("\n  ", copied));
+    }
+
     [Fact]
     public void Every_catalog_key_is_referenced_somewhere_in_source()
     {

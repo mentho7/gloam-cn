@@ -17,7 +17,8 @@ namespace Gloam.Tests;
 /// between a switch and a restart, and it is entirely a property of the WPF layer.
 /// </remarks>
 [ResetsLocalization]
-public class LocalizationWpfTests
+[Collection(UiGlobalState.Name)]
+    public class LocalizationWpfTests
 {
     private const string LatinXaml = """
         <TextBlock xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

@@ -1,3 +1,4 @@
+using Xunit;
 using System.Globalization;
 using Gloam.Localization;
 using Gloam.Localization.Wpf;
@@ -42,4 +43,18 @@ internal static class TestLocalization
 internal sealed class ResetsLocalizationAttribute : Xunit.Sdk.BeforeAfterTestAttribute
 {
     public override void After(System.Reflection.MethodInfo methodUnderTest) => TestLocalization.UseEnglish();
+}
+
+/// <summary>
+/// Tests that replace the process-wide localization, the shared Application, or the data directory.
+/// </summary>
+/// <remarks>
+/// xunit runs test classes in parallel. These mutate state every other test also reads — the
+/// published localizer, AppPaths, the single Application — so running two of them at once makes both
+/// flaky in a way that never reproduces when either is run alone.
+/// </remarks>
+[CollectionDefinition(Name, DisableParallelization = true)]
+public sealed class UiGlobalState
+{
+    public const string Name = "ui-global-state";
 }

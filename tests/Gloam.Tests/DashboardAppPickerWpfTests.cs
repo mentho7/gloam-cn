@@ -15,12 +15,13 @@ using Xunit;
 
 namespace Gloam.Tests
 {
+    [Collection(UiGlobalState.Name)]
     public sealed class DashboardAppPickerWpfTests
     {
         [Fact]
         public void Picker_StaysOpenAcrossLiveRefresh_AndAddButtonPersistsTypedApp()
         {
-            RunSta(() =>
+            WpfTestHost.Run(() =>
             {
                 string originalData = AppPaths.DataDir;
                 string originalRoaming = AppPaths.RoamingDataDir;
@@ -33,11 +34,8 @@ namespace Gloam.Tests
                 {
                     AppPaths.UseDataDirectoriesForCurrentProcess(
                         Path.Combine(root, "data"), Path.Combine(root, "roaming"));
-                    app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
-                    app.Resources.MergedDictionaries.Add(new ResourceDictionary
-                    {
-                        Source = new Uri("pack://application:,,,/Gloam;component/Themes/Tokens.xaml")
-                    });
+                    // The shared host owns the one Application this process may create.
+                    app = WpfTestHost.Application;
 
                     var settings = new SettingsManager();
                     nightMode = new NightModeService(settings.NightMode);

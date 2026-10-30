@@ -31,6 +31,7 @@ namespace Gloam.Tests
     /// and rasterised with RenderTargetBitmap. Same fonts, same layout, same resources.
     /// </remarks>
     [ResetsLocalization]
+    [Collection(UiGlobalState.Name)]
     public sealed class UiSnapshotTests
     {
         [Fact]
@@ -47,55 +48,41 @@ namespace Gloam.Tests
             // One Application per process: creating a second one throws. The language switch is
             // done by republishing LocalizedStrings.Default and opening a fresh window, which is
             // exactly what the running app does.
-            RunSta(() =>
+            WpfTestHost.Run(() =>
             {
                 string root = Path.Combine(Path.GetTempPath(), $"gloam-shot-{Guid.NewGuid():N}");
                 string originalData = AppPaths.DataDir;
                 string originalRoaming = AppPaths.RoamingDataDir;
-                var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
 
                 try
                 {
                     AppPaths.UseDataDirectoriesForCurrentProcess(
                         Path.Combine(root, "data"), Path.Combine(root, "roaming"));
 
-                    app.Resources.MergedDictionaries.Add(new ResourceDictionary
-                    {
-                        Source = new Uri("pack://application:,,,/Gloam;component/Themes/Tokens.xaml"),
-                    });
-
-                    CaptureOne(output, "en-US", "dashboard", app, BuildDashboard);
-                    CaptureOne(output, "zh-Hans", "dashboard", app, BuildDashboard);
-                    CaptureOne(output, "en-US", "settings", app, BuildSettings);
-                    CaptureOne(output, "zh-Hans", "settings", app, BuildSettings);
+                    CaptureOne(output, "en-US", "dashboard", UiFixtures.BuildDashboard);
+                    CaptureOne(output, "zh-Hans", "dashboard", UiFixtures.BuildDashboard);
+                    CaptureOne(output, "en-US", "settings", UiFixtures.BuildSettings);
+                    CaptureOne(output, "zh-Hans", "settings", UiFixtures.BuildSettings);
 
                     // Pseudo-language pass: ~40% longer strings, which is what the layout has to
                     // survive before a second real language can be promised.
-                    CaptureOne(output, "qps-ploc", "dashboard", app, BuildDashboard, pseudo: true);
-                    CaptureOne(output, "qps-ploc", "settings", app, BuildSettings, pseudo: true);
+                    CaptureOne(output, "qps-ploc", "dashboard", UiFixtures.BuildDashboard, pseudo: true);
+                    CaptureOne(output, "qps-ploc", "settings", UiFixtures.BuildSettings, pseudo: true);
+
+                    // The Game Lab window is the second main surface and is reached straight from the
+                    // tray, so it belongs in the manual alongside the dashboard.
+                    CaptureOne(output, "en-US", "gamelab", UiFixtures.BuildGameLab);
+                    CaptureOne(output, "zh-Hans", "gamelab", UiFixtures.BuildGameLab);
+                    CaptureOne(output, "qps-ploc", "gamelab", UiFixtures.BuildGameLab, pseudo: true);
                 }
                 finally
                 {
-                    app.Shutdown();
                     AppPaths.UseDataDirectoriesForCurrentProcess(originalData, originalRoaming);
                 }
             });
         }
 
-        private static Window BuildSettings()
-        {
-            var settings = new SettingsManager();
-            var monitor = new MonitorInfo { FriendlyName = "TL156MDMP31-0" };
-
-            return new SettingsWindow(monitor, new List<MonitorInfo> { monitor }, settings)
-            {
-                ShowInTaskbar = false,
-                Left = -20000,
-                Top = -20000,
-            };
-        }
-
-        private static void CaptureOne(string folder, string culture, string name, Application app,
+        private static void CaptureOne(string folder, string culture, string name,
             Func<Window> factory, bool pseudo = false)
         {
             Localizer localizer = new(
@@ -107,6 +94,13 @@ namespace Gloam.Tests
             ILocalizer effective = pseudo ? new PseudoLocalizer(localizer) : localizer;
             LocalizedStrings.Default = new LocalizedStrings(effective);
             CultureFontPolicy.Apply(localizer.Culture);
+
+            // A fresh data directory per capture. The windows persist what they are given, so a
+            // shared directory let one capture's sample profile show up in the next one's list -
+            // the Chinese screenshot ended up with two entries where English had one.
+            string captureRoot = Path.Combine(Path.GetTempPath(), $"gloam-shot-data-{Guid.NewGuid():N}");
+            AppPaths.UseDataDirectoriesForCurrentProcess(
+                Path.Combine(captureRoot, "data"), Path.Combine(captureRoot, "roaming"));
 
             Window window = factory();
             try
@@ -184,40 +178,6 @@ namespace Gloam.Tests
             }
         }
 
-        private static Window BuildDashboard()
-        {
-            var settings = new SettingsManager();
-            var nightMode = new NightModeService(settings.NightMode);
-            var update = new UpdateService(new NoUpdateManager());
-
-            return new DashboardWindow(
-                new MonitorManager(), settings, nightMode, update, (_, _, _, _, _) => { })
-            {
-                ShowInTaskbar = false,
-                Left = -20000,
-                Top = -20000,
-                Width = 1080,
-                Height = 760,
-            };
-        }
-
-        private static void RunSta(Action body)
-        {
-            ExceptionDispatchInfo? failure = null;
-            var thread = new Thread(() =>
-            {
-                try { body(); }
-                catch (Exception ex) { failure = ExceptionDispatchInfo.Capture(ex); }
-            })
-            {
-                IsBackground = true,
-            };
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            thread.Join();
-            failure?.Throw();
-        }
-
         private static void Pump(TimeSpan duration)
         {
             var frame = new DispatcherFrame();
@@ -225,19 +185,6 @@ namespace Gloam.Tests
             timer.Tick += (_, _) => { timer.Stop(); frame.Continue = false; };
             timer.Start();
             Dispatcher.PushFrame(frame);
-        }
-
-        private sealed class NoUpdateManager : IUpdateManagerAdapter
-        {
-            public bool IsInstalled => false;
-            public bool IsPortable => true;
-            public SemanticVersion? CurrentVersion => null;
-            public VelopackAsset? UpdatePendingRestart => null;
-            public Task<UpdateInfo?> CheckForUpdatesAsync() => Task.FromResult<UpdateInfo?>(null);
-            public Task DownloadUpdatesAsync(UpdateInfo info) => Task.CompletedTask;
-            public void ApplyUpdatesAndRestart(UpdateInfo info) { }
-            public void WaitExitThenApplyUpdates(VelopackAsset asset, bool silent, bool restart) { }
-            public string? GetLocalPackagePath(VelopackAsset asset) => null;
         }
     }
 }
