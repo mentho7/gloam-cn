@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -574,19 +575,19 @@ namespace Gloam.Features.Calibration
                     "Excellent calibration! Your display is performing at reference-level accuracy. Color reproduction is virtually indistinguishable from the target.",
 
                 CalibrationGrade.AMinus or CalibrationGrade.BPlus =>
-                    "Very good calibration. Your display shows excellent color accuracy suitable for color-critical work. Minor variations may exist in edge cases.",
+                    Loc.Get("calibration.very.good.calibration.your.display.shows.excellent"),
 
                 CalibrationGrade.B or CalibrationGrade.BMinus =>
-                    "Good calibration. Your display shows solid color accuracy for most professional and creative work. Some deviation may be noticeable in critical comparisons.",
+                    Loc.Get("calibration.good.calibration.your.display.shows.solid.color"),
 
                 CalibrationGrade.CPlus or CalibrationGrade.C =>
-                    "Acceptable calibration. Your display shows reasonable color accuracy for general use. Some color shifts may be visible in side-by-side comparisons.",
+                    Loc.Get("calibration.acceptable.calibration.your.display.shows.reasonable"),
 
                 CalibrationGrade.CMinus or CalibrationGrade.D =>
-                    "Marginal calibration. Your display shows noticeable color inaccuracies. Consider re-calibrating or checking display settings.",
+                    Loc.Get("calibration.marginal.calibration.your.display.shows.noticeable"),
 
                 _ =>
-                    "Poor calibration. Significant color errors were detected. Please check your display settings, colorimeter placement, and try calibrating again."
+                    Loc.Get("calibration.poor.calibration.significant.color.errors.were.detected")
             };
         }
 
@@ -601,7 +602,7 @@ namespace Gloam.Features.Calibration
 
                 double cct = ColorMath.ChromaticityToCct(_characterization.WhitePoint);
                 double duv = ColorMath.CalculateDuv(_characterization.WhitePoint);
-                Vm.WhitePointCctText = double.IsFinite(cct) ? $"{cct:F0} K" : "-- K";
+                Vm.WhitePointCctText = double.IsFinite(cct) ? $"{cct:F0} K" : Loc.Get("calibration.k");
                 Vm.WhitePointDuvText = FormatNumber(duv, "F4");
             }
             else if (_profile?.MeasuredCharacteristics != null)
@@ -611,7 +612,7 @@ namespace Gloam.Features.Calibration
                 Vm.BlackLevelText = FormatNits(mc.BlackLevel, "F4");
                 Vm.ContrastRatioText = FormatContrastRatio(mc.ContrastRatio);
                 Vm.MeasuredGammaText = FormatNumber(mc.MeasuredGamma, "F2");
-                Vm.WhitePointCctText = double.IsFinite(mc.MeasuredCct) ? $"{mc.MeasuredCct:F0} K" : "-- K";
+                Vm.WhitePointCctText = double.IsFinite(mc.MeasuredCct) ? $"{mc.MeasuredCct:F0} K" : Loc.Get("calibration.k");
                 Vm.WhitePointDuvText = FormatNumber(mc.MeasuredDuv, "F4");
             }
 
@@ -730,26 +731,26 @@ namespace Gloam.Features.Calibration
             if (grade <= CalibrationGrade.A)
             {
                 recommendations.Add("Your display is calibrated to professional standards.");
-                recommendations.Add("Re-calibrate every 2-4 weeks to maintain accuracy.");
+                recommendations.Add(Loc.Get("calibration.re.calibrate.every.2.4.weeks.to.maintain.accuracy"));
             }
             else if (grade <= CalibrationGrade.B)
             {
-                recommendations.Add("Consider recalibrating with more patches for improved accuracy.");
-                recommendations.Add("Ensure room lighting is consistent during calibration.");
-                recommendations.Add("Re-calibrate every 2-4 weeks to maintain accuracy.");
+                recommendations.Add(Loc.Get("calibration.consider.recalibrating.with.more.patches.for.improved"));
+                recommendations.Add(Loc.Get("calibration.ensure.room.lighting.is.consistent.during.calibration"));
+                recommendations.Add(Loc.Get("calibration.re.calibrate.every.2.4.weeks.to.maintain.accuracy"));
             }
             else if (grade <= CalibrationGrade.C)
             {
-                recommendations.Add("Check that your display has warmed up for at least 30 minutes.");
-                recommendations.Add("Verify the colorimeter is properly positioned on the display.");
-                recommendations.Add("Try using a larger patch set for more accurate profiling.");
+                recommendations.Add(Loc.Get("calibration.check.that.your.display.has.warmed.up.for.at.least.30"));
+                recommendations.Add(Loc.Get("calibration.verify.the.colorimeter.is.properly.positioned.on.the"));
+                recommendations.Add(Loc.Get("calibration.try.using.a.larger.patch.set.for.more.accurate.profiling"));
             }
             else
             {
-                recommendations.Add("Verify your colorimeter is properly connected and positioned.");
-                recommendations.Add("Check display settings (reset to factory defaults if possible).");
-                recommendations.Add("Ensure ambient light is minimized during calibration.");
-                recommendations.Add("Consider using full-screen mode for better measurement accuracy.");
+                recommendations.Add(Loc.Get("calibration.verify.your.colorimeter.is.properly.connected.and"));
+                recommendations.Add(Loc.Get("calibration.check.display.settings.reset.to.factory.defaults.if"));
+                recommendations.Add(Loc.Get("calibration.ensure.ambient.light.is.minimized.during.calibration"));
+                recommendations.Add(Loc.Get("calibration.consider.using.full.screen.mode.for.better.measurement"));
             }
 
             // The hard-won rule of this project: once the panel already measures inside the
@@ -793,7 +794,7 @@ namespace Gloam.Features.Calibration
         {
             if (_profile?.IsActive == true)
             {
-                Vm.StatusText = "Profile is active and applied.";
+                Vm.StatusText = Loc.Get("calibration.profile.is.active.and.applied");
                 Vm.StatusBrush = CalibrationReportViewModel.GreenBrush;
                 Vm.ApplyButtonContent = "Re-apply Profile";
             }
@@ -801,7 +802,7 @@ namespace Gloam.Features.Calibration
             {
                 Vm.StatusText = "Profile is not currently active.";
                 Vm.StatusBrush = CalibrationReportViewModel.DimBrush;
-                Vm.ApplyButtonContent = "Apply Profile";
+                Vm.ApplyButtonContent = Loc.Get("calibration.apply.profile");
             }
         }
 
@@ -1027,7 +1028,7 @@ namespace Gloam.Features.Calibration
             // a nonsense S-curve "target". Grade and draw against the sRGB content curve.
             bool pqTarget = target?.TransferFunction == TransferFunctionType.Pq;
             double targetGamma = pqTarget ? 2.2 : (target?.Gamma ?? 2.2);
-            string targetLabel = pqTarget ? "Target (sRGB content)" : "Target";
+            string targetLabel = pqTarget ? "Target (sRGB content)" : Loc.Get("calibration.target");
             const int N = 41;
 
             double MeasuredOut(ToneCurve? curve, double v) => curve?.Lookup(v) ?? v;
@@ -1081,7 +1082,7 @@ namespace Gloam.Features.Calibration
                 new("Panel (fit)", palette.Cyan, tFit),
             };
             if (grays is { Count: > 1 })
-                toneSeries.Add(new CalibrationCharts.Series("Measured", palette.Orange,
+                toneSeries.Add(new CalibrationCharts.Series(Loc.Get("calibration.measured"), palette.Orange,
                     grays.Select(m => (m.Patch.DisplayRgb.R, NormY(m))).ToList(), Scatter: true));
             if (corrected is { Count: > 1 })
             {
@@ -1120,7 +1121,7 @@ namespace Gloam.Features.Calibration
                     .Where(m => m.Patch.DisplayRgb.R is >= 0.05 and <= 0.95 && NormY(m) > 0)
                     .Select(m => (m.Patch.DisplayRgb.R, Math.Log(NormY(m)) / Math.Log(m.Patch.DisplayRgb.R)))
                     .ToList();
-                gammaSeries.Add(new CalibrationCharts.Series("Measured", palette.Orange,
+                gammaSeries.Add(new CalibrationCharts.Series(Loc.Get("calibration.measured"), palette.Orange,
                     gammaScatter, Scatter: true));
             }
             if (corrected is { Count: > 1 })
@@ -1359,7 +1360,7 @@ namespace Gloam.Features.Calibration
         {
             if (_applyContext == null || _activeCharacterization == null)
             {
-                ConfirmDialog.Info(this, "Apply Profile",
+                ConfirmDialog.Info(this, Loc.Get("calibration.apply.profile"),
                     "This calibration can't be applied (missing display characterization).");
                 return;
             }
@@ -1406,7 +1407,7 @@ namespace Gloam.Features.Calibration
                         string.Join("\n\n", preflightMessages.Select(m => m.Message)) +
                         "\n\nContinue installing this profile?",
                         confirmLabel: "Install",
-                        cancelLabel: "Cancel");
+                        cancelLabel: Loc.Get("calibration.cancel"));
                     if (!continueInstall)
                     {
                         Vm.StatusText = "Apply cancelled.";
@@ -1525,7 +1526,7 @@ namespace Gloam.Features.Calibration
         {
             if (_applyContext == null || _activeCharacterization == null)
             {
-                ConfirmDialog.Info(this, "White Tools",
+                ConfirmDialog.Info(this, Loc.Get("calibration.white.tools"),
                     "White tools need the live calibration context (open this report right after a calibration).");
                 return;
             }
@@ -1580,7 +1581,7 @@ namespace Gloam.Features.Calibration
                     "Gloam will open the probe-positioning surface, then take three short measurements: " +
                     "SDR white, the FP16 renderer at the same level, and the FP16 renderer at double " +
                     "that level (briefly bright).",
-                    confirmLabel: "Position probe", cancelLabel: "Cancel"))
+                    confirmLabel: "Position probe", cancelLabel: Loc.Get("calibration.cancel")))
                 return;
 
             ProbeOperationScope? probe = null;
@@ -1960,7 +1961,7 @@ namespace Gloam.Features.Calibration
                 return;
             if (!ConfirmDialog.Confirm(this, "Re-anchor White",
                     "Gloam will open the probe-positioning surface, then re-measure the display's white anchor.",
-                    confirmLabel: "Position probe", cancelLabel: "Cancel"))
+                    confirmLabel: "Position probe", cancelLabel: Loc.Get("calibration.cancel")))
                 return;
 
             ProbeOperationScope? probe = null;
@@ -2179,7 +2180,7 @@ namespace Gloam.Features.Calibration
                     "brightness tracking and color together. It runs at most 2 passes, stops early when both " +
                     "are accurate, and automatically keeps the best measured result.\n\n" +
                     "Tip: turn night mode off first - it tints and dims the measurements.",
-                    confirmLabel: "Position probe", cancelLabel: "Cancel"))
+                    confirmLabel: "Position probe", cancelLabel: Loc.Get("calibration.cancel")))
                 return false;
 
             ProbeOperationScope? probe = null;
@@ -2242,10 +2243,10 @@ namespace Gloam.Features.Calibration
                         {
                             var toneReadings = await MeasurePqRungsAsync(
                                 patchWindow, colorimeter, ctx, ladder,
-                                "HDR tone + color", sequenceOffset, token);
+                                Loc.Get("calibration.hdr.tone.color"), sequenceOffset, token);
                             var colorReadings = await MeasureColoredStimuliAsync(
                                 patchWindow, colorimeter, ctx, colorSet,
-                                "HDR tone + color", sequenceOffset + ladder.Count, token);
+                                Loc.Get("calibration.hdr.tone.color"), sequenceOffset + ladder.Count, token);
                             return new HdrJointRefinement.Measurements(
                                 toneReadings.Select(r => r.M).ToList(), colorReadings);
                         },
@@ -2337,7 +2338,7 @@ namespace Gloam.Features.Calibration
             finally
             {
                 _verifyCts = null;
-                Vm.VerifyButtonContent = "Re-verify";
+                Vm.VerifyButtonContent = Loc.Get("calibration.re.verify");
                 if (probe != null)
                     await probe.DisposeAsync();
             }
@@ -2409,7 +2410,7 @@ namespace Gloam.Features.Calibration
                 Log.Error($"CalibrationReportWindow: HDR characterization failed: {ex}");
                 Vm.StatusText = $"HDR characterization failed: {ex.Message}";
                 Vm.StatusBrush = CalibrationReportViewModel.AmberBrush;
-                _operationNotice = ("Characterize HDR", $"Failed:\n\n{ex.Message}");
+                _operationNotice = (Loc.Get("calibration.characterize.hdr"), $"Failed:\n\n{ex.Message}");
             }
             ShowOperationNotice();
         }
@@ -2425,7 +2426,7 @@ namespace Gloam.Features.Calibration
         {
             if (_applyContext is not { Colorimeter: { } colorimeter, HdrMode: true } ctx)
             {
-                ConfirmDialog.Info(this, "Characterize HDR",
+                ConfirmDialog.Info(this, Loc.Get("calibration.characterize.hdr"),
                     "HDR characterization needs the live HDR calibration session.");
                 return;
             }
@@ -2449,13 +2450,13 @@ namespace Gloam.Features.Calibration
                 .OrderBy(n => n)
                 .ToList();
 
-            if (!ConfirmDialog.Confirm(this, "Characterize HDR",
+            if (!ConfirmDialog.Confirm(this, Loc.Get("calibration.characterize.hdr"),
                     $"Gloam will open the probe-positioning surface, then measure {rungs.Count} PQ rungs " +
                     $"concentrated near the claimed {ladderBase:F0}-nit peak, " +
                     $"then the same white through window sizes from 1% to full-frame (~3 minutes total), and reports " +
                     "the panel's TRUE tone-mapping knee, peak and ABL behavior with suggested HGIG game settings.\n\n" +
                     "Tip: turn night mode off first.",
-                    confirmLabel: "Position probe", cancelLabel: "Cancel"))
+                    confirmLabel: "Position probe", cancelLabel: Loc.Get("calibration.cancel")))
                 return;
 
             ProbeOperationScope? probe = null;
@@ -2467,7 +2468,7 @@ namespace Gloam.Features.Calibration
                 probe = await ProbeOperationScope.StartAsync(new ProbeOperationScope.Options(
                     ctx.Monitor,
                     colorimeter,
-                    "Characterize HDR",
+                    Loc.Get("calibration.characterize.hdr"),
                     HdrMode: true,
                     PatchSize: ctx.PatchSize,
                     PatchOffsetX: ctx.PatchOffsetX,
@@ -2574,7 +2575,7 @@ namespace Gloam.Features.Calibration
                 Vm.StatusText = $"HDR characterized: true peak {characterizationResult.MeasuredPeakNits:F0} nits " +
                                 $"(claimed {claimedPeak:F0}), knee ~{characterizationResult.KneeNits:F0} nits.";
                 Vm.StatusBrush = CalibrationReportViewModel.GreenBrush;
-                _operationNotice = ("Characterize HDR",
+                _operationNotice = (Loc.Get("calibration.characterize.hdr"),
                     ToneMappingAnalyzer.Describe(characterizationResult) + chainNote +
                     "\n\nSaved to this report.");
                 CalibrationSounds.PlayCompletion();
@@ -2584,19 +2585,19 @@ namespace Gloam.Features.Calibration
             {
                 Vm.StatusText = "HDR characterization cancelled.";
                 Vm.StatusBrush = CalibrationReportViewModel.DimBrush;
-                _operationNotice = ("Characterize HDR", "Cancelled.");
+                _operationNotice = (Loc.Get("calibration.characterize.hdr"), "Cancelled.");
             }
             catch (Exception ex)
             {
                 Log.Error($"CalibrationReportWindow: HDR characterization failed: {ex}");
                 Vm.StatusText = $"HDR characterization failed: {ex.Message}";
                 Vm.StatusBrush = CalibrationReportViewModel.AmberBrush;
-                _operationNotice = ("Characterize HDR", $"Failed:\n\n{ex.Message}");
+                _operationNotice = (Loc.Get("calibration.characterize.hdr"), $"Failed:\n\n{ex.Message}");
             }
             finally
             {
                 _verifyCts = null;
-                Vm.VerifyButtonContent = "Re-verify";
+                Vm.VerifyButtonContent = Loc.Get("calibration.re.verify");
                 if (probe != null)
                     await probe.DisposeAsync();
             }
@@ -2742,7 +2743,7 @@ namespace Gloam.Features.Calibration
                 : "The profile hasn't been applied from this window yet, so Verify will measure " +
                   "whatever is currently active on the display. The probe-positioning surface opens next.";
             if (!ConfirmDialog.Confirm(this, "Verify Calibration", prompt,
-                    confirmLabel: "Position probe", cancelLabel: "Cancel"))
+                    confirmLabel: "Position probe", cancelLabel: Loc.Get("calibration.cancel")))
                 return;
 
             await RunVerificationAsync(requestPlacement: true);
@@ -2983,7 +2984,7 @@ namespace Gloam.Features.Calibration
             finally
             {
                 _verifyCts = null;
-                Vm.VerifyButtonContent = "Re-verify";
+                Vm.VerifyButtonContent = Loc.Get("calibration.re.verify");
                 if (probe != null)
                     await probe.DisposeAsync();
             }

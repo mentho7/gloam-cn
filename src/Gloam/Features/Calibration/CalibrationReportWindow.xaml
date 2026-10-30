@@ -90,7 +90,7 @@
                 <StackPanel Grid.Column="0">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                         <controls:BrandMark Width="20" Height="20" Margin="0,0,9,0" VerticalAlignment="Center" GapBrush="{DynamicResource ThemeSurface}"/>
-                        <TextBlock Text="Calibration report" FontFamily="{DynamicResource DisplayFont}"
+                        <TextBlock Text="{loc:Tr calibration.calibration.report}" FontFamily="{DynamicResource DisplayFont}"
                                    FontWeight="ExtraBold" FontSize="20" Foreground="{DynamicResource ThemeText}" VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock Text="{Binding MonitorNameText}" FontSize="13" Foreground="{DynamicResource ThemeTextDim}" Margin="0,2,0,0"/>
@@ -130,7 +130,7 @@
                 <!-- Summary Section: before/after accuracy table -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>
-                        <TextBlock Text="Accuracy (ΔE2000)" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="{loc:Tr calibration.accuracy.e2000}" Style="{StaticResource SectionHeader}"/>
                         <TextBlock Text="Native = the uncorrected panel, measured during calibration. After = re-measured automatically through the applied profile (gamma preference and night mode are suspended during the sweep)."
                                    FontSize="12" Foreground="{DynamicResource ThemeTextDim}" TextWrapping="Wrap" Margin="0,-4,0,12"/>
 
@@ -149,13 +149,13 @@
                             </Grid.RowDefinitions>
 
                             <!-- Column headers -->
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Average" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Tr calibration.average}" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="Max" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Row="0" Grid.Column="3" Text="Grayscale" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Row="0" Grid.Column="4" Text="Primaries" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="3" Text="{loc:Tr calibration.grayscale}" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="4" Text="{loc:Tr calibration.primaries}" Style="{StaticResource MetricLabel}" HorizontalAlignment="Center"/>
 
                             <!-- Before: native panel -->
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Native (before)" Style="{StaticResource MetricLabel}" FontSize="13" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Tr calibration.native.before}" Style="{StaticResource MetricLabel}" FontSize="13" VerticalAlignment="Center"/>
                             <!-- Value (grade color, headline size) + uncertainty tail (dim, small):
                                  the ± must not read as an alarm color or compete with the headline. -->
                             <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource MetricValue}" HorizontalAlignment="Center" ToolTip="{Binding AvgDeltaEToolTip}"><Run Text="{Binding AvgDeltaEValueText, Mode=OneWay}" FontSize="22" Foreground="{Binding AvgDeltaEBrush}"/><Run Text="{Binding AvgDeltaEUncertaintyText, Mode=OneWay}" FontSize="13" Foreground="{DynamicResource ThemeTextDim}"/></TextBlock>
@@ -164,7 +164,7 @@
                             <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding PrimaryDeltaEText}" Foreground="{Binding PrimaryDeltaEBrush}" Style="{StaticResource MetricValue}" FontSize="22" HorizontalAlignment="Center"/>
 
                             <!-- After: re-measured through the applied correction -->
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Calibrated (after)" Style="{StaticResource MetricLabel}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Tr calibration.calibrated.after}" Style="{StaticResource MetricLabel}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource MetricValue}" FontWeight="Bold" HorizontalAlignment="Center" ToolTip="{Binding AfterAvgToolTip}"><Run Text="{Binding AfterAvgValueText, Mode=OneWay}" FontSize="22" Foreground="{Binding AfterAvgBrush}"/><Run Text="{Binding AfterAvgUncertaintyText, Mode=OneWay}" FontSize="13" FontWeight="Normal" Foreground="{DynamicResource ThemeTextDim}"/></TextBlock>
                             <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding AfterMaxText}" Foreground="{Binding AfterMaxBrush}" Style="{StaticResource MetricValue}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding AfterGrayscaleText}" Foreground="{Binding AfterGrayscaleBrush}" Style="{StaticResource MetricValue}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center"/>
@@ -179,13 +179,13 @@
                         <!-- HDR verification passes, each kicker-labeled so the diagnostics read as
                              distinct results rather than one prose wall. -->
                         <StackPanel Visibility="{Binding IsPqTrackingDetailVisible, Converter={StaticResource BoolToVis}}" Margin="0,10,0,0">
-                            <TextBlock Text="HDR PQ TRACKING" Style="{StaticResource FieldLabel}" Margin="0,0,0,3"/>
+                            <TextBlock Text="{loc:Tr calibration.hdr.pq.tracking}" Style="{StaticResource FieldLabel}" Margin="0,0,0,3"/>
                             <TextBlock Text="{Binding PqTrackingDetailText}"
                                        FontSize="12" Foreground="{DynamicResource ThemeTextDim}" TextWrapping="Wrap"/>
                         </StackPanel>
 
                         <StackPanel Visibility="{Binding IsColoredHdrDetailVisible, Converter={StaticResource BoolToVis}}" Margin="0,10,0,0">
-                            <TextBlock Text="COLORED HDR" Style="{StaticResource FieldLabel}" Margin="0,0,0,3"/>
+                            <TextBlock Text="{loc:Tr calibration.colored.hdr}" Style="{StaticResource FieldLabel}" Margin="0,0,0,3"/>
                             <TextBlock Text="{Binding ColoredHdrDetailText}"
                                        FontSize="12" Foreground="{DynamicResource ThemeTextDim}" TextWrapping="Wrap"/>
                         </StackPanel>
@@ -213,7 +213,7 @@
                 <!-- Display Characteristics -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>
-                        <TextBlock Text="Display Characteristics" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="{loc:Tr calibration.display.characteristics}" Style="{StaticResource SectionHeader}"/>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -229,49 +229,49 @@
 
                             <!-- Peak Luminance -->
                             <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
-                                <TextBlock Text="Peak Luminance" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.peak.luminance}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding PeakLuminanceText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <!-- Black Level -->
                             <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,12">
-                                <TextBlock Text="Black Level" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.black.level}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding BlackLevelText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <!-- Contrast Ratio -->
                             <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,12">
-                                <TextBlock Text="Contrast Ratio" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.contrast.ratio}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding ContrastRatioText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <!-- Measured Gamma -->
                             <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,12">
-                                <TextBlock Text="Measured Gamma" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.measured.gamma}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding MeasuredGammaText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <!-- White Point CCT -->
                             <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,12">
-                                <TextBlock Text="White Point CCT" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.white.point.cct}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding WhitePointCctText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <!-- White Point Duv -->
                             <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,12">
-                                <TextBlock Text="White Point Duv" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.white.point.duv}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding WhitePointDuvText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <!-- Gamut Coverage -->
                             <StackPanel Grid.Row="3" Grid.Column="0">
-                                <TextBlock Text="sRGB Coverage" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.srgb.coverage}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding SrgbCoverageText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <!-- Target -->
                             <StackPanel Grid.Row="3" Grid.Column="1">
-                                <TextBlock Text="Calibration Target" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.calibration.target}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding TargetText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
                         </Grid>
@@ -283,7 +283,7 @@
                 <Border Style="{StaticResource CardBorder}"
                         Visibility="{Binding AreChartsVisible, Converter={StaticResource BoolToVis}}">
                     <StackPanel>
-                        <TextBlock Text="Tone Response &amp; Gamut" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="{loc:Tr calibration.tone.response.amp.gamut}" Style="{StaticResource SectionHeader}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -295,28 +295,28 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,4,8,12">
-                                <TextBlock Text="Per-channel tone response (measured vs target)" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.per.channel.tone.response.measured.vs.target}" Style="{StaticResource MetricLabel}"/>
                                 <Border Background="{DynamicResource ThemeSurface}" CornerRadius="0" Height="200">
                                     <Canvas x:Name="ToneCanvas"/>
                                 </Border>
                             </StackPanel>
 
                             <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,4,0,12">
-                                <TextBlock Text="Gamma tracking" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.gamma.tracking}" Style="{StaticResource MetricLabel}"/>
                                 <Border Background="{DynamicResource ThemeSurface}" CornerRadius="0" Height="200">
                                     <Canvas x:Name="GammaCanvas"/>
                                 </Border>
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,4,8,0">
-                                <TextBlock Text="Grayscale RGB balance" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.grayscale.rgb.balance}" Style="{StaticResource MetricLabel}"/>
                                 <Border Background="{DynamicResource ThemeSurface}" CornerRadius="0" Height="200">
                                     <Canvas x:Name="BalanceCanvas"/>
                                 </Border>
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,4,0,0">
-                                <TextBlock Text="Gamut + white point (CIE xy)" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.gamut.white.point.cie.xy}" Style="{StaticResource MetricLabel}"/>
                                 <Border Background="{DynamicResource ThemeSurface}" CornerRadius="0" Height="200">
                                     <Canvas x:Name="GamutCanvas"/>
                                 </Border>
@@ -331,8 +331,8 @@
                 <Border Style="{StaticResource CardBorder}"
                         Visibility="{Binding IsChartsNoteVisible, Converter={StaticResource BoolToVis}}">
                     <StackPanel>
-                        <TextBlock Text="Tone Response &amp; Gamut" Style="{StaticResource SectionHeader}"/>
-                        <TextBlock Text="Charts are generated at calibration time and aren't stored in saved reports."
+                        <TextBlock Text="{loc:Tr calibration.tone.response.amp.gamut}" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="{loc:Tr calibration.charts.are.generated.at.calibration.time.and.aren.t}"
                                    FontSize="12" Foreground="{DynamicResource ThemeTextDim}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
@@ -342,7 +342,7 @@
                 <Border Style="{StaticResource CardBorder}"
                         Visibility="{Binding HasDetailedResults, Converter={StaticResource BoolToVis}}">
                     <StackPanel>
-                        <TextBlock Text="Detailed Verification" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="{loc:Tr calibration.detailed.verification}" Style="{StaticResource SectionHeader}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -350,14 +350,14 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" Margin="0,4,8,12">
-                                <TextBlock Text="ΔE distribution" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.e.distribution}" Style="{StaticResource MetricLabel}"/>
                                 <Border Background="{DynamicResource ThemeSurface}" CornerRadius="0" Height="200">
                                     <Canvas x:Name="HistogramCanvas"/>
                                 </Border>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Margin="8,4,0,12">
-                                <TextBlock Text="Per-patch ΔE (measurement order, hover for names)" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.per.patch.e.measurement.order.hover.for.names}" Style="{StaticResource MetricLabel}"/>
                                 <Border Background="{DynamicResource ThemeSurface}" CornerRadius="0" Height="200">
                                     <Canvas x:Name="PerPatchCanvas"/>
                                 </Border>
@@ -390,12 +390,12 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                <TextBlock Text="Worst 10 patches" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.worst.10.patches}" Style="{StaticResource MetricLabel}"/>
                                 <ItemsControl ItemsSource="{Binding WorstPatches}" ItemTemplate="{StaticResource PatchRowTemplate}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Margin="8,0,0,0">
-                                <TextBlock Text="Best 10 patches" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.best.10.patches}" Style="{StaticResource MetricLabel}"/>
                                 <ItemsControl ItemsSource="{Binding BestPatches}" ItemTemplate="{StaticResource PatchRowTemplate}"/>
                             </StackPanel>
                         </Grid>
@@ -405,7 +405,7 @@
                 <!-- Primaries Comparison -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>
-                        <TextBlock Text="Color Primaries" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="{loc:Tr calibration.color.primaries}" Style="{StaticResource SectionHeader}"/>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -424,8 +424,8 @@
 
                             <!-- Headers -->
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="" Style="{StaticResource MetricLabel}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Measured" Style="{StaticResource MetricLabel}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Target" Style="{StaticResource MetricLabel}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Tr calibration.measured}" Style="{StaticResource MetricLabel}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Tr calibration.target}" Style="{StaticResource MetricLabel}"/>
                             <TextBlock Grid.Row="0" Grid.Column="3" Text="Error" Style="{StaticResource MetricLabel}"/>
 
                             <!-- Red -->
@@ -458,7 +458,7 @@
                 <!-- Calibration Info -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>
-                        <TextBlock Text="Calibration Details" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="{loc:Tr calibration.calibration.details}" Style="{StaticResource SectionHeader}"/>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -473,27 +473,27 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
-                                <TextBlock Text="Patches Measured" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.patches.measured}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding PatchCountText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,12">
-                                <TextBlock Text="Measurement Time" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.measurement.time}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding MeasurementTimeText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,12">
-                                <TextBlock Text="Colorimeter" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.colorimeter}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding ColorimeterText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,12">
-                                <TextBlock Text="LUT Size" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.lut.size}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding LutSizeText}" Style="{StaticResource MetricValue}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-                                <TextBlock Text="Profile Location" Style="{StaticResource MetricLabel}"/>
+                                <TextBlock Text="{loc:Tr calibration.profile.location}" Style="{StaticResource MetricLabel}"/>
                                 <TextBlock Text="{Binding ProfilePathText}" Style="{StaticResource MetricValue}" TextWrapping="Wrap" FontSize="11"/>
                             </StackPanel>
 
@@ -505,7 +505,7 @@
                                     Background="{DynamicResource ThemeBg}"
                                     Visibility="{Binding IsMeasurementValidationVisible, Converter={StaticResource BoolToVis}}">
                                 <StackPanel>
-                                    <TextBlock Text="Measurement Integrity" Style="{StaticResource MetricLabel}"/>
+                                    <TextBlock Text="{loc:Tr calibration.measurement.integrity}" Style="{StaticResource MetricLabel}"/>
                                     <TextBlock Text="{Binding MeasurementValidationText}"
                                                Foreground="{Binding MeasurementValidationBrush}"
                                                TextWrapping="Wrap"
@@ -519,7 +519,7 @@
                 <!-- Recommendations -->
                 <Border Style="{StaticResource CardBorder}" x:Name="RecommendationsPanel">
                     <StackPanel>
-                        <TextBlock Text="Recommendations" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="{loc:Tr calibration.recommendations}" Style="{StaticResource SectionHeader}"/>
                         <ItemsControl ItemsSource="{Binding Recommendations}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -550,7 +550,7 @@
 
                 <CheckBox Grid.Row="0"
                           x:Name="DetailedVerifyCheck"
-                          Content="Detailed verification"
+                          Content="{loc:Tr calibration.detailed.verification}"
                           IsChecked="{Binding IsDetailedVerifyChecked}"
                           IsEnabled="{Binding IsVerifyEnabled}"
                           ToolTip="Extends the verify sweep to a 21-step grayscale, R/G/B saturation ramps and the ColorChecker memory colors (39 patches), adding a ΔE distribution, per-patch chart, worst/best patch lists and a category breakdown to the report. Takes several times longer than the standard verify."
@@ -564,15 +564,15 @@
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,3">
                     <!-- Export menu: report (PDF) or LUT -->
                     <Button x:Name="ExportMenuButton"
-                            Content="Export ▾"
-                            ToolTip="Export the report as a PDF, or the correction LUT."
+                            Content="{loc:Tr calibration.export}"
+                            ToolTip="{loc:Tr calibration.export.the.report.as.a.pdf.or.the.correction.lut}"
                             Style="{StaticResource BrutBtnSecondary}"
                             Margin="0,0,10,0"
                             Click="ExportMenu_Click">
                         <Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem x:Name="ExportReportMenuItem" Header="Export report (print / PDF)…" Click="ExportReportButton_Click"/>
-                                <MenuItem x:Name="ExportLutMenuItem" Header="Export LUT…" Click="ExportButton_Click"/>
+                                <MenuItem x:Name="ExportReportMenuItem" Header="{loc:Tr calibration.export.report.print.pdf}" Click="ExportReportButton_Click"/>
+                                <MenuItem x:Name="ExportLutMenuItem" Header="{loc:Tr calibration.export.lut}" Click="ExportButton_Click"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
@@ -595,18 +595,18 @@
                     <!-- Refine menu: one coordinated HDR matrix+tone solve (HDR + profile
                          applied) and white point tools. Item state is set in code-behind. -->
                     <Button x:Name="RefineMenuButton"
-                            Content="Refine ▾"
+                            Content="{loc:Tr calibration.refine}"
                             ToolTip="Closed-loop HDR tone + color refinement, or white point tools. Includes guided probe positioning."
                             Style="{StaticResource BrutBtnSecondary}"
                             Margin="0,0,10,0"
                             Click="RefineMenu_Click">
                         <Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem x:Name="RefineHdrMenuItem" Header="HDR tone + color"
+                                <MenuItem x:Name="RefineHdrMenuItem" Header="{loc:Tr calibration.hdr.tone.color}"
                                           ToolTip="Measures PQ and colored HDR stimuli through one installed state, then jointly refines the MHC2 tone curves and gamut matrix."
                                           Click="RefineHdrJointButton_Click"/>
                                 <Separator/>
-                                <MenuItem x:Name="WhiteToolsMenuItem" Header="White point tools…"
+                                <MenuItem x:Name="WhiteToolsMenuItem" Header="{loc:Tr calibration.white.point.tools}"
                                           ToolTip="Re-anchor white with a quick measurement (drift fix), or trim the target white by eye against a reference display."
                                           Click="WhiteToolsButton_Click"/>
                             </ContextMenu>
@@ -615,7 +615,7 @@
 
                     <!-- HDR only: tone-mapping characterization (roadmap 2.3). -->
                     <Button x:Name="CharacterizeHdrButton"
-                            Content="Characterize HDR"
+                            Content="{loc:Tr calibration.characterize.hdr}"
                             Visibility="Collapsed"
                             IsEnabled="False"
                             ToolTip="Measures a dense near-peak PQ ladder plus white windows from 1% to full-frame to find the panel's TRUE tone-mapping knee, peak and ABL behavior versus its claimed metadata, and suggests HGIG game-calibration values. Includes guided probe positioning."

@@ -1,4 +1,5 @@
 using System;
+using Gloam.Localization.Wpf;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
@@ -127,7 +128,7 @@ namespace Gloam.Features.Calibration
             var row = new TableRow();
 
             var titleCell = new TableCell { Padding = new Thickness(0) };
-            titleCell.Blocks.Add(new Paragraph(new Run("Display Calibration Report"))
+            titleCell.Blocks.Add(new Paragraph(new Run(Loc.Get("calibration.display.calibration.report")))
             {
                 FontSize = 24,
                 FontWeight = FontWeights.Bold,
@@ -190,15 +191,15 @@ namespace Gloam.Features.Calibration
 
         private static void AddAccuracySection(FlowDocument doc, CalibrationReportViewModel vm)
         {
-            doc.Blocks.Add(SectionHeading("Accuracy (Delta E 2000)"));
+            doc.Blocks.Add(SectionHeading(Loc.Get("calibration.accuracy.delta.e.2000")));
 
             var table = BareTable(new[] { 2.0, 1.0, 1.0 });
             var group = table.RowGroups[0];
-            group.Rows.Add(HeaderRow("Metric", "Native", "After correction"));
-            group.Rows.Add(MetricRow("Average dE", vm.AvgDeltaEText, vm.AfterAvgText));
-            group.Rows.Add(MetricRow("Maximum dE", vm.MaxDeltaEText, vm.AfterMaxText));
-            group.Rows.Add(MetricRow("Grayscale dE", vm.GrayscaleDeltaEText, vm.AfterGrayscaleText));
-            group.Rows.Add(MetricRow("Primary dE", vm.PrimaryDeltaEText, vm.AfterPrimaryText));
+            group.Rows.Add(HeaderRow(Loc.Get("calibration.metric"), Loc.Get("calibration.native"), Loc.Get("calibration.after.correction")));
+            group.Rows.Add(MetricRow(Loc.Get("calibration.average.de"), vm.AvgDeltaEText, vm.AfterAvgText));
+            group.Rows.Add(MetricRow(Loc.Get("calibration.maximum.de"), vm.MaxDeltaEText, vm.AfterMaxText));
+            group.Rows.Add(MetricRow(Loc.Get("calibration.grayscale.de"), vm.GrayscaleDeltaEText, vm.AfterGrayscaleText));
+            group.Rows.Add(MetricRow(Loc.Get("calibration.primary.de"), vm.PrimaryDeltaEText, vm.AfterPrimaryText));
             doc.Blocks.Add(table);
 
             doc.Blocks.Add(new Paragraph(new Run(vm.SummaryText))
@@ -231,18 +232,18 @@ namespace Gloam.Features.Calibration
 
         private static void AddCharacteristicsSection(FlowDocument doc, CalibrationReportViewModel vm)
         {
-            doc.Blocks.Add(SectionHeading("Display Characteristics"));
+            doc.Blocks.Add(SectionHeading(Loc.Get("calibration.display.characteristics")));
 
             var pairs = new (string Label, string Value)[]
             {
-                ("Peak Luminance", vm.PeakLuminanceText),
-                ("Black Level", vm.BlackLevelText),
-                ("Contrast Ratio", vm.ContrastRatioText),
-                ("Measured Gamma", vm.MeasuredGammaText),
-                ("White Point CCT", vm.WhitePointCctText),
-                ("White Point Duv", vm.WhitePointDuvText),
-                ("sRGB Coverage", vm.SrgbCoverageText),
-                ("Calibration Target", vm.TargetText),
+                (Loc.Get("calibration.peak.luminance"), vm.PeakLuminanceText),
+                (Loc.Get("calibration.black.level"), vm.BlackLevelText),
+                (Loc.Get("calibration.contrast.ratio"), vm.ContrastRatioText),
+                (Loc.Get("calibration.measured.gamma"), vm.MeasuredGammaText),
+                (Loc.Get("calibration.white.point.cct"), vm.WhitePointCctText),
+                (Loc.Get("calibration.white.point.duv"), vm.WhitePointDuvText),
+                (Loc.Get("calibration.srgb.coverage"), vm.SrgbCoverageText),
+                (Loc.Get("calibration.calibration.target"), vm.TargetText),
             };
 
             // Two label/value pairs per row keeps this section compact.
@@ -262,11 +263,11 @@ namespace Gloam.Features.Calibration
 
         private static void AddPrimariesSection(FlowDocument doc, CalibrationReportViewModel vm)
         {
-            doc.Blocks.Add(SectionHeading("Color Primaries"));
+            doc.Blocks.Add(SectionHeading(Loc.Get("calibration.color.primaries")));
 
             var table = BareTable(new[] { 1.0, 1.4, 1.4, 1.0 });
             var group = table.RowGroups[0];
-            group.Rows.Add(HeaderRow("Channel", "Measured (x, y)", "Target (x, y)", "Error"));
+            group.Rows.Add(HeaderRow(Loc.Get("calibration.channel"), Loc.Get("calibration.measured.x.y"), Loc.Get("calibration.target.x.y"), "Error"));
 
             void Primary(string name, string measured, string target, string error)
             {
@@ -289,11 +290,11 @@ namespace Gloam.Features.Calibration
             FlowDocument doc, IReadOnlyList<ChartFigure>? charts, bool isHistorical)
         {
             // No KeepWithNext: a figure table may follow (see SectionHeading remarks).
-            doc.Blocks.Add(SectionHeading("Measurement Charts", keepWithNext: false));
+            doc.Blocks.Add(SectionHeading(Loc.Get("calibration.measurement.charts"), keepWithNext: false));
 
             if (charts == null || charts.Count == 0)
             {
-                doc.Blocks.Add(new Paragraph(new Run("Charts are only generated at calibration time."))
+                doc.Blocks.Add(new Paragraph(new Run(Loc.Get("calibration.charts.are.only.generated.at.calibration.time")))
                 {
                     FontSize = 11,
                     FontStyle = FontStyles.Italic,
@@ -357,7 +358,7 @@ namespace Gloam.Features.Calibration
         {
             // No KeepWithNext on this heading: figure rows (BlockUIContainers) follow, and
             // keep chains around images are a known PTS pagination hazard.
-            doc.Blocks.Add(SectionHeading("Detailed Verification", keepWithNext: false));
+            doc.Blocks.Add(SectionHeading(Loc.Get("calibration.detailed.verification"), keepWithNext: false));
 
             // Two-up figure grid, same layout as the main charts section.
             if (detailed.Charts.Count > 0)
@@ -370,9 +371,9 @@ namespace Gloam.Features.Calibration
             });
 
             if (detailed.WorstPatches.Count > 0)
-                AddPatchTable(doc, "Worst patches", detailed.WorstPatches);
+                AddPatchTable(doc, Loc.Get("calibration.worst.patches"), detailed.WorstPatches);
             if (detailed.BestPatches.Count > 0)
-                AddPatchTable(doc, "Best patches", detailed.BestPatches);
+                AddPatchTable(doc, Loc.Get("calibration.best.patches"), detailed.BestPatches);
         }
 
         /// <summary>One ranked patch table (worst or best) with its small heading.</summary>
@@ -410,7 +411,7 @@ namespace Gloam.Features.Calibration
 
         private static void AddDetailsSection(FlowDocument doc, CalibrationReportViewModel vm)
         {
-            doc.Blocks.Add(SectionHeading("Calibration Details"));
+            doc.Blocks.Add(SectionHeading(Loc.Get("calibration.calibration.details")));
 
             var table = BareTable(new[] { 1.0, 2.6 });
             var group = table.RowGroups[0];
@@ -423,11 +424,11 @@ namespace Gloam.Features.Calibration
                 group.Rows.Add(row);
             }
 
-            Detail("Patches measured", vm.PatchCountText);
-            Detail("Colorimeter", vm.ColorimeterText);
-            Detail("Correction LUT", vm.LutSizeText);
-            Detail("Target", vm.TargetText);
-            Detail("Profile path", vm.ProfilePathText);
+            Detail(Loc.Get("calibration.patches.measured"), vm.PatchCountText);
+            Detail(Loc.Get("calibration.colorimeter"), vm.ColorimeterText);
+            Detail(Loc.Get("calibration.correction.lut"), vm.LutSizeText);
+            Detail(Loc.Get("calibration.target"), vm.TargetText);
+            Detail(Loc.Get("calibration.profile.path"), vm.ProfilePathText);
             doc.Blocks.Add(table);
         }
 
@@ -435,7 +436,7 @@ namespace Gloam.Features.Calibration
         {
             if (vm.Recommendations.Count == 0) return;
 
-            doc.Blocks.Add(SectionHeading("Recommendations"));
+            doc.Blocks.Add(SectionHeading(Loc.Get("calibration.recommendations")));
 
             var list = new List
             {
