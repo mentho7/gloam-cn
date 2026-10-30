@@ -158,7 +158,7 @@ namespace Gloam.Features.Calibration
             }
             catch (Exception ex)
             {
-                SetStatus($"Could not list profiles: {ex.Message}");
+                SetStatus(Loc.Format("calibration.listProfilesFailed", ("message", ex.Message)));
             }
         }
 
@@ -246,7 +246,7 @@ namespace Gloam.Features.Calibration
             {
                 SetStatus(rows.Count == 1
                     ? Loc.Format("calibration.profileDeactivated", ("name", rows[0].Name))
-                    : $"Deactivated {rows.Count} profiles (files kept in the color store)." +
+                    : Loc.Format("calibration.profilesDeactivated", ("count", rows.Count)) +
                       (touchedActive ? " No previous Windows profile was recorded to restore." : ""));
             }
             Refresh();
@@ -292,11 +292,11 @@ namespace Gloam.Features.Calibration
                 if (CalibrationProfileInstaller.RestoreDefaultProfile(_monitor, previous, hdrMode))
                 {
                     _settings?.ClearMhc2PreviousColorProfile(_monitor.MonitorDevicePath);
-                    previousMessage = $"Restored previous Windows color profile: {previous}";
+                    previousMessage = Loc.Format("calibration.restoredWindowsProfile", ("previous", previous));
                 }
                 else
                 {
-                    previousMessage = $"Gloam profile disabled, but Windows refused to restore previous profile: {previous}";
+                    previousMessage = Loc.Format("calibration.restoreRefused", ("previous", previous));
                 }
             }
 
@@ -309,7 +309,7 @@ namespace Gloam.Features.Calibration
             if (CalibrationProfileInstaller.RestoreDefaultProfile(_monitor, displaced, hdrMode: true))
             {
                 _settings?.ClearDisplacedAdvancedColorProfile(_monitor.MonitorDevicePath);
-                displacedMessage = $"Restored previous advanced color profile: {displaced}";
+                displacedMessage = Loc.Format("calibration.restoredAdvancedProfile", ("displaced", displaced));
             }
             else
             {

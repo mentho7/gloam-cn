@@ -434,7 +434,7 @@ namespace Gloam.Features.NightMode
             {
                 Log.DebugRateLimited(
                     "night-schedule-overlay",
-                    $"Night schedule overlay update was skipped: {ex.Message}",
+                    Loc.Format("nightmode.overlaySkipped", ("message", ex.Message)),
                     TimeSpan.FromMinutes(10));
             }
         }
@@ -679,7 +679,7 @@ namespace Gloam.Features.NightMode
             };
             content.Children.Add(new TextBlock
             {
-                Text = $"Delete the schedule point at {displayTime} ({kelvin}K)?",
+                Text = Loc.Format("nightmode.deletePointConfirm", ("time", displayTime), ("kelvin", kelvin)),
                 Foreground = ThemeBrush("ThemeText"),
                 FontFamily = (FontFamily)Application.Current.Resources["BodyFont"],
                 FontSize = 13,

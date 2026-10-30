@@ -321,7 +321,7 @@ namespace Gloam.Features.Calibration
         // is least certain, so it reaches the same accuracy as a fixed grid in far fewer
         // patches. The time is a budget-based UPPER bound — it usually stops early.
         public string AdaptivePresetLabel =>
-            $"Adaptive (recommended) — up to {PatchSetGenerator.GetApproximatePatchCount(CalibrationPreset.Adaptive)} patches";
+            Loc.Format("calibration.adaptiveUpTo", ("count", PatchSetGenerator.GetApproximatePatchCount(CalibrationPreset.Adaptive)));
         public string AdaptivePresetDetail =>
             $"up to {FormatEstimatedTime(PatchSetGenerator.GetApproximatePatchCount(CalibrationPreset.Adaptive))}, usually finishes early - Excellent accuracy";
         public string QuickPresetLabel => PresetLabel("Quick", CalibrationPreset.Quick);
@@ -357,8 +357,8 @@ namespace Gloam.Features.Calibration
         {
             var time = TimeSpan.FromSeconds(patchCount * 3);
             return time.TotalMinutes >= 60
-                ? $"~{time.Hours}h {time.Minutes}m"
-                : $"~{time.Minutes} minutes";
+                ? Loc.Format("calibration.durationHours", ("hours", time.Hours), ("minutes", time.Minutes))
+                : Loc.Format("calibration.durationMinutes", ("minutes", time.Minutes));
         }
 
         private void RefreshPresetLabels()
@@ -464,7 +464,7 @@ namespace Gloam.Features.Calibration
             }
             else if (choice.IsTechnologyMatch)
             {
-                MeterCalibrationText = $"Meter calibration: {row} (spotread -y {choice.Selector}).";
+                MeterCalibrationText = Loc.Format("calibration.meterSimple", ("meter", row), ("selector", choice.Selector));
             }
             else
             {
@@ -759,7 +759,7 @@ namespace Gloam.Features.Calibration
             }
 
             if (detectedDisplayType is { } detected && detected != displayType)
-                items.Add(("WARN", $"Panel detection suggests {DisplayTypeLabel(detected)}, but {DisplayTypeLabel(displayType)} is selected."));
+                items.Add(("WARN", Loc.Format("calibration.displayTypeMismatch", ("detected", DisplayTypeLabel(detected)), ("selected", DisplayTypeLabel(displayType)))));
 
             bool correctionRecommended = displayType is DisplayType.Oled or DisplayType.LcdWideGamut ||
                                          detectedDisplayType is DisplayType.Oled or DisplayType.LcdWideGamut;
@@ -781,7 +781,7 @@ namespace Gloam.Features.Calibration
                 items.Add(("INFO", Loc.Get("calibration.warm.the.display.for.at.least.30.minutes.and.avoid")));
 
             if (!string.IsNullOrEmpty(monitorProfile?.Mhc2ProfileName))
-                items.Add(("INFO", $"Existing Gloam profile '{monitorProfile.Mhc2ProfileName}' will be bypassed while measuring native response."));
+                items.Add(("INFO", Loc.Format("calibration.profileBypassed", ("name", monitorProfile.Mhc2ProfileName))));
 
             return items;
         }
@@ -789,7 +789,7 @@ namespace Gloam.Features.Calibration
         private static string? ValidateCorrectionChoice(string path)
         {
             if (!File.Exists(path))
-                return $"The selected meter correction file no longer exists: {System.IO.Path.GetFileName(path)}.";
+                return Loc.Format("calibration.correctionMissing", ("file", System.IO.Path.GetFileName(path)));
 
             string ext = System.IO.Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
             if (ext is not ("ccss" or "ccmx"))
@@ -800,11 +800,11 @@ namespace Gloam.Features.Calibration
                 var result = CgatsValidator.Validate(File.ReadAllText(path), ext);
                 return result.IsValid
                     ? null
-                    : $"The selected meter correction file is not valid ({result.Error}).";
+                    : Loc.Format("calibration.correctionInvalid", ("error", result.Error));
             }
             catch (Exception ex)
             {
-                return $"The selected meter correction file could not be read ({ex.Message}).";
+                return Loc.Format("calibration.correctionUnreadable", ("error", ex.Message));
             }
         }
 
@@ -972,7 +972,7 @@ namespace Gloam.Features.Calibration
                 // Show that we found ArgyllCMS and log the version info
                 StatusText = Loc.Get("calibration.searching.for.colorimeter");
                 string binDirName = System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(argyllBinPath) ?? argyllBinPath);
-                StatusDetailText = $"Using: {binDirName}";
+                StatusDetailText = Loc.Format("calibration.usingBinary", ("path", binDirName));
                 Log.Info($"CalibrationSetupViewModel: Using ArgyllCMS from {argyllBinPath}");
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -989,7 +989,7 @@ namespace Gloam.Features.Calibration
             catch (Exception ex)
             {
                 if (_closed) return;
-                StatusText = $"Error: {ex.Message}";
+                StatusText = Loc.Format("calibration.errorWithMessage", ("message", ex.Message));
                 StatusBrush = ErrorBrush;
                 StatusDetailText = Loc.Get("calibration.check.console.for.details");
                 Log.Info($"Colorimeter initialization error: {ex}");
@@ -1054,7 +1054,7 @@ namespace Gloam.Features.Calibration
             {
                 if (!_closed)
                 {
-                    StatusText = $"Error: {ex.Message}";
+                    StatusText = Loc.Format("calibration.errorWithMessage", ("message", ex.Message));
                     StatusBrush = ErrorBrush;
                     StatusDetailText = Loc.Get("calibration.check.colorimeter.connection.and.usb.drivers.then.click");
                     Log.Info($"Colorimeter detection failed: {ex}");

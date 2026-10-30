@@ -81,10 +81,35 @@ public static partial class LocalizationSourceAudit
 
         var hardcoded = new List<HardcodedString>();
         string[] lines = SplitLines(code);
+        int logDepth = 0;
 
         for (int i = 0; i < lines.Length; i++)
         {
             string line = lines[i];
+
+            // Log calls are frequently wrapped over several lines, with the message literal on a
+            // continuation line that mentions neither "Log" nor the method name. Line-local checks
+            // then counted developer-facing text as translatable - "TrayViewModel: update {v}
+            // downloaded..." was reported as user-visible copy. Track the call instead: when a line
+            // opens a log call that it does not close, keep skipping until the parentheses balance.
+            if (logDepth > 0)
+            {
+                logDepth += Count(line, '(') - Count(line, ')');
+                if (logDepth > 0)
+                    continue;
+            }
+            else if (LogCall().IsMatch(line))
+            {
+                int depth = Count(line, '(') - Count(line, ')');
+                if (depth > 0)
+                {
+                    logDepth = depth;
+                    continue;
+                }
+
+                continue;
+            }
+
             if (IsNonUserFacingLine(line))
                 continue;
 
@@ -164,9 +189,25 @@ public static partial class LocalizationSourceAudit
         return hasSpace || value.Length >= 6;
     }
 
+    private static int Count(string text, char needle)
+    {
+        int total = 0;
+        foreach (char c in text)
+        {
+            if (c == needle)
+                total++;
+        }
+
+        return total;
+    }
+
     private static bool IsNonUserFacingLine(string line)
     {
-        if (line.Contains("Log.", StringComparison.Ordinal) ||
+        // Log calls carry developer-facing text: it goes to a file and into crash reports, where a
+        // translated sentence would be actively unhelpful. Matching the call rather than the string
+        // means a log line is excluded however the logger field happens to be named; the previous
+        // check only recognised the literal "Log." and let "_log.Warn(...)" through.
+        if (LogCall().IsMatch(line) ||
             line.Contains("Debug.", StringComparison.Ordinal) ||
             line.Contains("Trace.", StringComparison.Ordinal) ||
             line.Contains("nameof(", StringComparison.Ordinal))
@@ -190,6 +231,10 @@ public static partial class LocalizationSourceAudit
     /// <summary>Matches a text-bearing XAML attribute with a non-binding literal value.</summary>
     [GeneratedRegex(@"(?<attr>Text|Content|Header|Title|ToolTip|Watermark)\s*=\s*""(?<value>[^""{}]*)""", RegexOptions.CultureInvariant)]
     private static partial Regex XamlTextAttribute();
+
+    /// <summary>Matches a logger call: <c>Log.Warn(</c>, <c>_log.Error(</c>, <c>Logger.Info(</c>.</summary>
+    [GeneratedRegex(@"\b(?:Log|_log|_logger|Logger|Diag|Diagnostics)\s*\.\s*\w+\s*\(", RegexOptions.CultureInvariant)]
+    private static partial Regex LogCall();
 
     /// <summary>Matches a #RGB / #RRGGBB colour literal.</summary>
     [GeneratedRegex(@"^#[0-9A-Fa-f]{3,8}$", RegexOptions.CultureInvariant)]

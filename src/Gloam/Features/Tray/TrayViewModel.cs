@@ -228,7 +228,7 @@ namespace Gloam.Features.Tray
                 _toastService?.Show(
                     Loc.Get("tray.time.for.a.trust.check"),
                     lastCheckUtc is { } last
-                        ? $"The last 20-second display check was {(DateTime.UtcNow - last).TotalDays:F0} days ago."
+                        ? Loc.Format("tray.lastCheckDays", ("days", (DateTime.UtcNow - last).TotalDays.ToString("F0")))
                         : Loc.Get("tray.run.a.20.second.display.check.to.start.tracking"),
                     ToastKind.Info, Loc.Get("tray.run.check"), OpenTrustCheck);
             }
@@ -353,8 +353,8 @@ namespace Gloam.Features.Tray
 
             string? fromVersion = _updateService.UpdatedFromVersion;
             string message = string.IsNullOrWhiteSpace(fromVersion)
-                ? $"Gloam is now running version {toVersion}."
-                : $"Updated from version {fromVersion} to {toVersion}.";
+                ? Loc.Format("tray.updatedTo", ("version", toVersion))
+                : Loc.Format("tray.updatedFrom", ("from", fromVersion), ("to", toVersion));
 
             if (ShowNotification(Loc.Get("tray.gloam.updated"), message, ToastKind.Success))
                 _updateService.MarkUpdatedNotified(toVersion);
@@ -367,7 +367,7 @@ namespace Gloam.Features.Tray
 
             // Warning kind: "you are on an outdated version" is an address-me notice in the
             // toast design language (amber stripe), not a neutral status blip.
-            if (ShowNotification(Loc.Get("tray.update.available"), $"Version {version} is available. Downloading in the background.", ToastKind.Warning))
+            if (ShowNotification(Loc.Get("tray.update.available"), Loc.Format("tray.updateAvailableDownloading", ("version", version)), ToastKind.Warning))
                 _updateService.MarkUpdateAvailableNotified(version);
         }
 
@@ -377,8 +377,8 @@ namespace Gloam.Features.Tray
             if (!_updateService.ShouldNotifyUpdateReady(version)) return;
 
             string message = _updateScheduled
-                ? $"Version {version} is downloaded and will install when Gloam restarts."
-                : $"Version {version} is downloaded. Gloam will retry install scheduling on exit.";
+                ? Loc.Format("tray.updateReadyInstall", ("version", version))
+                : Loc.Format("tray.updateReadyRetry", ("version", version));
 
             bool shown = false;
             if (info != null)
@@ -912,7 +912,7 @@ namespace Gloam.Features.Tray
                 string path = new DiagnosticsBundle().Create(outputDir, activeMonitors, _settingsManager, includeReports);
                 Log.Info($"TrayViewModel: diagnostics bundle exported to {path}");
 
-                string message = $"Saved to {path}";
+                string message = Loc.Format("tray.savedTo", ("path", path));
                 if (_toastService != null)
                     _toastService.Show(Loc.Get("tray.diagnostics.exported"), message, ToastKind.Success);
                 else

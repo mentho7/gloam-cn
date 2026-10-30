@@ -134,7 +134,7 @@ namespace Gloam.Features.Calibration
             }
             catch (Exception ex)
             {
-                _status.Text = $"Could not list saved reports: {ex.Message}";
+                _status.Text = Loc.Format("calibration.listReportsFailed", ("message", ex.Message));
             }
         }
 
@@ -209,7 +209,7 @@ namespace Gloam.Features.Calibration
             }
             catch (Exception ex)
             {
-                _status.Text = $"Could not delete the report: {ex.Message}";
+                _status.Text = Loc.Format("calibration.deleteReportFailed", ("message", ex.Message));
             }
         }
     }

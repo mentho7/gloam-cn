@@ -137,7 +137,7 @@ as are bindings, pack URIs, geometry data and short symbol runs.
 
 ## Migrating the remaining strings
 
-Status: **the interface is translated.** 669 keys in both catalogs cover the tray menu, the
+Status: **the interface is translated.** 696 keys in both catalogs cover the tray menu, the
 dashboard (first screen and its collapsible panels), Settings, the Game Lab window, the generic
 dialogs, and the calibration flow up to and including the report window's chrome.
 
@@ -149,7 +149,7 @@ What is deliberately still English:
 | Strings built by concatenation at runtime | They need a `Loc.Format` template with named arguments, not a lookup. Listed per file in the baseline. |
 | Developer-facing text | Log lines, analyzer pragmas, resource keys, colours, automation ids. Excluded from the audit, since none of them can be translated. |
 
-The ratchet now reads 657 candidate strings, down from 1540 before the migration began. That number is a
+The ratchet now reads 617 candidate strings, down from 1540 before the migration began. That number is a
 trend line, not a to-do list: it counts literals the audit cannot classify, and roughly half of what
 remains is inside the two report files above.
 
