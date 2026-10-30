@@ -10,8 +10,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Gloam.Core;
-using Gloam.Services;
-using Gloam.ViewModels;
 using Velopack;
 using Xunit;
 

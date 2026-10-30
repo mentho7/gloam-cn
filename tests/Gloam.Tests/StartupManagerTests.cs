@@ -1,4 +1,3 @@
-using Gloam.Services;
 using Xunit;
 
 namespace Gloam.Tests

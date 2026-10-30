@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using Gloam.Core;
 using Gloam.Interop;
-using Gloam.ViewModels;
 using Xunit;
 
 namespace Gloam.Tests

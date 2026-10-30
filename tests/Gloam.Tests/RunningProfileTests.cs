@@ -3,7 +3,6 @@ using System.IO;
 using System.Text.Json;
 using Gloam.Core;
 using Gloam.Interop;
-using Gloam.ViewModels;
 using Xunit;
 
 namespace Gloam.Tests

@@ -29,6 +29,21 @@
     <ProjectReference Include="..\..\src\Gloam\Gloam.csproj" />
   </ItemGroup>
 
+  <!-- Mirrors the UI assembly's module visibility policy: tests may name any feature type
+       without repeating a using directive per file. -->
+  <ItemGroup>
+    <Using Include="Gloam.Controls" />
+    <Using Include="Gloam.Features.Calibration" />
+    <Using Include="Gloam.Features.Dashboard" />
+    <Using Include="Gloam.Features.GameLab" />
+    <Using Include="Gloam.Features.NightMode" />
+    <Using Include="Gloam.Features.Settings" />
+    <Using Include="Gloam.Features.Tray" />
+    <Using Include="Gloam.Infrastructure.Dialogs" />
+    <Using Include="Gloam.Infrastructure.Platform" />
+    <Using Include="Gloam.Infrastructure.Theming" />
+  </ItemGroup>
+
   <!-- Golden-sample regression fixtures: recorded real-panel measurement sets replayed
        through the live pipeline (see GoldenReplayTests). -->
   <ItemGroup>

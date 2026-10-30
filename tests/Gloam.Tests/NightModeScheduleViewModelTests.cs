@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using Gloam.Core;
-using Gloam.ViewModels;
 using Xunit;
 
 namespace Gloam.Tests

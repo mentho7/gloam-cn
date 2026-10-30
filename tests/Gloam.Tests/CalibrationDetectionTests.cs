@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Gloam.Core;
 using Gloam.Core.Calibration;
-using Gloam.ViewModels;
 using Xunit;
 
 namespace Gloam.Tests;

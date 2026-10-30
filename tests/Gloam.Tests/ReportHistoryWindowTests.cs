@@ -28,7 +28,7 @@ public class ReportHistoryWindowTests
                     var children = Descendants(window).ToList();
                     var list = children.OfType<ListView>().Single();
                     var open = children.OfType<Button>().Single(b => Equals(b.Content, "Open"));
-                    var delete = children.OfType<Button>().Single(b => Equals(b.Content, "Delete…"));
+                    var delete = children.OfType<Button>().Single(b => Equals(b.Content, "Deleteâ€¦"));
                     Assert.Equal(SelectionMode.Single, list.SelectionMode);
                     Assert.False(open.IsEnabled);
                     Assert.False(delete.IsEnabled);

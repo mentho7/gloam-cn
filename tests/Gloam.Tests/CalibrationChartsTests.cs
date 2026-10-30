@@ -5,7 +5,6 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using Gloam.Services;
 using Xunit;
 
 namespace Gloam.Tests

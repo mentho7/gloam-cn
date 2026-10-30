@@ -7,8 +7,6 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 using Gloam.Core.Calibration;
-using Gloam.Services;
-using Gloam.ViewModels;
 using Xunit;
 
 namespace Gloam.Tests
