@@ -137,18 +137,31 @@ as are bindings, pack URIs, geometry data and short symbol runs.
 
 ## Migrating the remaining strings
 
-Roughly 420 XAML attributes and the user-visible half of ~1,500 C# literals are still English. The
-intended order is by visibility, not by file:
+Status: **the tray menu is done** (all menu items, labels and the common toasts). Everything else
+is still English. The ratchet baseline records 1631 remaining strings across 64 files; check the
+per-file numbers in `tests/Gloam.Tests/Fixtures/localization/hardcoded-baseline.json`.
 
-1. **Tray menu** (`Features/Tray/TrayViewModel`) — the primary surface; strings are built in code.
-2. **Dashboard** — largest XAML surface, and where new users land.
-3. **Dialogs** (`Infrastructure/Dialogs`) — small, high-visibility, mostly one-liners.
-4. **Calibration** — largest C#, but rarely the first thing a user opens.
+Note that the baseline counts *candidates*, not confirmed user-visible text: it skips log lines and
+dotted identifiers, but a file with 40 entries may hold a handful of developer-facing strings. Treat
+it as a trend line, not a to-do list.
+
+Intended order, by visibility rather than by file:
+
+1. ~~Tray menu~~ — done.
+2. **Dashboard** — largest surface and where a new user lands (~80 candidates).
+3. **Dialogs** (`Infrastructure/Dialogs`) — small, mostly one-liners passed in as parameters.
+4. **Calibration** — largest C#, but rarely the first thing opened.
 5. **Game Lab, Settings, Night mode** — as they are touched for other reasons.
 
 Per string: add the key to `en-US.json` and `zh-Hans.json`, replace the literal, then tighten the
-baseline for that file. Do not lower the baseline for a file before its strings are actually in the
-catalogs — the ratchet is the only thing keeping the half-migrated files from growing back.
+baseline for that file.
+
+### Making a switch take effect
+
+`{loc:Tr}` bindings update themselves. Anything that resolves a string **once** into a plain
+property — the tray menu's `ActionViewModel.Header`, for example — does not, and needs a
+`CultureChanged` handler that rebuilds it. `TrayViewModel` does this; treat it as the template for
+the remaining surfaces.
 
 ### Strings that should not move
 

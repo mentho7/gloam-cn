@@ -114,6 +114,12 @@ public static partial class LocalizationSourceAudit
         if (value.StartsWith('{') || value.StartsWith("pack://", StringComparison.Ordinal))
             return false;
 
+        // A catalog key, not prose. Without this the audit counts every key a migration *adds*
+        // (Loc.Get("tray.openDashboard")) as hard-coded text, so migrating a file would raise its
+        // score and the ratchet would punish exactly the work it exists to encourage.
+        if (DottedIdentifier().IsMatch(value))
+            return false;
+
         // Format or path-ish noise.
         if (value.Contains("://", StringComparison.Ordinal) ||
             value.StartsWith("M ", StringComparison.Ordinal) ||   // geometry data
@@ -164,6 +170,13 @@ public static partial class LocalizationSourceAudit
     /// <summary>Matches a text-bearing XAML attribute with a non-binding literal value.</summary>
     [GeneratedRegex(@"(?<attr>Text|Content|Header|Title|ToolTip|Watermark)\s*=\s*""(?<value>[^""{}]*)""", RegexOptions.CultureInvariant)]
     private static partial Regex XamlTextAttribute();
+
+    /// <summary>
+    /// Matches a lowercase dotted identifier: a catalog key (<c>tray.openDashboard</c>) or a file
+    /// name (<c>settings.json</c>). Neither is user-facing prose.
+    /// </summary>
+    [GeneratedRegex(@"^[a-z][a-zA-Z0-9]*(\.[a-zA-Z0-9]+)+$", RegexOptions.CultureInvariant)]
+    private static partial Regex DottedIdentifier();
 
     /// <summary>Matches a plain C# string literal without interpolation holes.</summary>
     [GeneratedRegex(@"""(?<value>[^""\\\r\n]{2,})""", RegexOptions.CultureInvariant)]

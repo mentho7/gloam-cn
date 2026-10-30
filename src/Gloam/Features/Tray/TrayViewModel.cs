@@ -31,6 +31,8 @@ namespace Gloam.Features.Tray
         private readonly NightModeService _nightModeService;
         private readonly GammaApplyService _applyService;
         private readonly UpdateService _updateService;
+        // All user-visible text in this view model goes through the catalog; see docs/localization.md.
+        private readonly ILocalizer _loc;
         private readonly IToastService? _toastService;
         private readonly DispatcherTimer _updateCheckTimer;
 
@@ -63,7 +65,7 @@ namespace Gloam.Features.Tray
         public ICommand GameLabCommand { get; }
         public ICommand ToggleGamerModeCommand { get; }
         public string AppVersion => _updateService.DisplayVersion;
-        public string TrayToolTipText => $"Gloam {AppVersion}";
+        public string TrayToolTipText => _loc.Format("tray.tooltip", ("version", AppVersion));
 
         public TrayViewModel(
             MonitorManager monitorManager,
@@ -77,8 +79,12 @@ namespace Gloam.Features.Tray
             IToastService? toastService = null,
             MelanopicMonitorService? melanopicService = null,
             HotkeyManager? hotkeyManager = null,
-            AdvancedColorProfileMigrationService? profileModeService = null)
+            AdvancedColorProfileMigrationService? profileModeService = null,
+            ILocalizer? localizer = null)
         {
+            // Optional so tests can construct this without a container. At runtime the container
+            // supplies the process localizer, which is the same instance LocalizedStrings binds to.
+            _loc = localizer ?? LocalizedStrings.Default.Localizer;
             // Dependencies are constructed by the DI container (App.ConfigureServices)
             // and must all be assigned before starting any service: NightModeService and
             // AppDetectionService both fire their events synchronously from Start(),
@@ -96,6 +102,11 @@ namespace Gloam.Features.Tray
             _updateService = updateService;
             _toastService = toastService;
             _melanopicService = melanopicService;
+
+            // The menu is built from resolved strings, not bindings, so a language switch has to
+            // rebuild it. Without this the tray would keep the previous language until the next
+            // monitor refresh - the one surface a user is most likely to be looking at.
+            _loc.CultureChanged += OnLocalizationChanged;
             _gamerModeCoordinator = new GamerModeCoordinator(
                 _settingsManager,
                 _applyService,
@@ -502,7 +513,7 @@ namespace Gloam.Features.Tray
                 bool nowDisabled = (_applyService.NightModeManuallyDisabled = !_applyService.NightModeManuallyDisabled);
                 ApplyAll(); // Re-apply all calibrations with night mode toggled
                 _toastService?.Show("Gloam",
-                    nowDisabled ? "Night warmth disabled - day mode" : "Night warmth enabled",
+                    nowDisabled ? _loc.Get("tray.nightMode.disabled") : _loc.Get("tray.nightMode.enabled"),
                     nowDisabled ? ToastKind.Info : ToastKind.Success);
                 return;
             }
@@ -524,7 +535,7 @@ namespace Gloam.Features.Tray
                 {
                     // #18: previously this dropped the apply silently. Tell the user why
                     // nothing changed instead.
-                    _toastService?.Show("Gloam", "No monitor under cursor", ToastKind.Warning);
+                    _toastService?.Show("Gloam", _loc.Get("tray.noMonitorUnderCursor"), ToastKind.Warning);
                 }
             }
         }
@@ -665,9 +676,12 @@ namespace Gloam.Features.Tray
             });
         }
 
+        private void OnLocalizationChanged(object? sender, CultureChangedEventArgs e)
+            => OnUiThread(RefreshMonitors);
+
         private string GamerModeLabel() => _gamerModeCoordinator.Enabled
-            ? "Pause Game Mode"
-            : "Resume Game Mode";
+            ? _loc.Get("tray.gamerMode.pause")
+            : _loc.Get("tray.gamerMode.resume");
 
         private void ToggleGamerMode()
         {
@@ -675,14 +689,14 @@ namespace Gloam.Features.Tray
             if (!_gamerModeCoordinator.TrySetEnabled(enabled))
             {
                 _toastService?.Show(
-                    "Game Mode was not changed",
-                    "Gloam could not save settings. Your previous Game Mode state is still active.",
+                    _loc.Get("tray.gameMode.failedTitle"),
+                    _loc.Get("tray.gameMode.failedBody"),
                     ToastKind.Error);
                 return;
             }
             _toastService?.Show(
-                "Game Mode",
-                enabled ? "Saved game profiles are active." : "All game profiles are paused.",
+                _loc.Get("tray.gameMode.title"),
+                enabled ? _loc.Get("tray.gameMode.active") : _loc.Get("tray.gameMode.paused"),
                 enabled ? ToastKind.Success : ToastKind.Info);
         }
 
@@ -786,8 +800,8 @@ namespace Gloam.Features.Tray
         private ActionViewModel? _startupItem;
         private ActionViewModel? _gameModeItem;
 
-        private static string StartupLabel()
-            => StartupManager.IsStartupEnabled ? "✓ Start with Windows" : "Start with Windows";
+        private string StartupLabel()
+            => StartupManager.IsStartupEnabled ? _loc.Get("tray.startup.on") : _loc.Get("tray.startup.off");
 
         private void ToggleStartup()
         {
@@ -931,6 +945,7 @@ namespace Gloam.Features.Tray
             _applyService.Dispose();
             _nightModeService.Dispose();
             _appDetectionService.Dispose();
+            _loc.CultureChanged -= OnLocalizationChanged;
             GC.SuppressFinalize(this);
         }
 
@@ -952,15 +967,15 @@ namespace Gloam.Features.Tray
 
             if (monitors.Count == 0)
             {
-                TrayItems.Add(new ActionViewModel("No Monitors Found", RefreshCommand));
+                TrayItems.Add(new ActionViewModel(_loc.Get("tray.noMonitors"), RefreshCommand));
             }
             else
             {
-                TrayItems.Add(new ActionViewModel("Open Dashboard...", DashboardCommand));
-                TrayItems.Add(new ActionViewModel("Calibrate Display...", CalibrateCommand));
-                TrayItems.Add(new ActionViewModel("Trust Check...", TrustCheckCommand));
-                TrayItems.Add(new ActionViewModel("Match Displays...", MatchDisplaysCommand));
-                TrayItems.Add(new ActionViewModel("Open Game Lab    Win+Shift+G", GameLabCommand));
+                TrayItems.Add(new ActionViewModel(_loc.Get("tray.openDashboard"), DashboardCommand));
+                TrayItems.Add(new ActionViewModel(_loc.Get("tray.calibrate"), CalibrateCommand));
+                TrayItems.Add(new ActionViewModel(_loc.Get("tray.trustCheck"), TrustCheckCommand));
+                TrayItems.Add(new ActionViewModel(_loc.Get("tray.matchDisplays"), MatchDisplaysCommand));
+                TrayItems.Add(new ActionViewModel(_loc.Get("tray.gameLab"), GameLabCommand));
                 _gameModeItem = new ActionViewModel(GamerModeLabel(), ToggleGamerModeCommand, staysOpenOnClick: true);
                 TrayItems.Add(_gameModeItem);
                 TrayItems.Add(new ActionViewModel("───────────", null));
@@ -1001,9 +1016,9 @@ namespace Gloam.Features.Tray
             // Startup toggle with checkmark
             _startupItem = new ActionViewModel(StartupLabel(), StartupCommand, staysOpenOnClick: true);
             TrayItems.Add(_startupItem);
-            TrayItems.Add(new ActionViewModel("Export Diagnostics", ExportDiagnosticsCommand));
-            TrayItems.Add(new ActionViewModel("Refresh", RefreshCommand, staysOpenOnClick: true));
-            TrayItems.Add(new ActionViewModel("Exit", ExitCommand));
+            TrayItems.Add(new ActionViewModel(_loc.Get("tray.exportDiagnostics"), ExportDiagnosticsCommand));
+            TrayItems.Add(new ActionViewModel(_loc.Get("tray.refresh"), RefreshCommand, staysOpenOnClick: true));
+            TrayItems.Add(new ActionViewModel(_loc.Get("tray.exit"), ExitCommand));
         }
     }
 }

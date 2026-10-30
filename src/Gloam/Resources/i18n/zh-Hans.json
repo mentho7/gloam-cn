@@ -4,6 +4,31 @@
   "strings": {
     "settings.language.description": "切换后立即生效。尚未翻译的文本仍显示英文。",
     "settings.language.followSystem": "跟随 Windows",
-    "settings.language.heading": "界面语言"
+    "settings.language.heading": "界面语言",
+
+    "tray.tooltip": "Gloam {version}",
+    "tray.noMonitors": "未找到显示器",
+    "tray.openDashboard": "打开仪表盘…",
+    "tray.calibrate": "校准显示器…",
+    "tray.trustCheck": "可信度检查…",
+    "tray.matchDisplays": "显示器匹配…",
+    "tray.gameLab": "打开 Game Lab   Win+Shift+G",
+    "tray.gamerMode.pause": "暂停游戏模式",
+    "tray.gamerMode.resume": "恢复游戏模式",
+    "tray.startup.on": "✓ 随 Windows 启动",
+    "tray.startup.off": "随 Windows 启动",
+    "tray.exportDiagnostics": "导出诊断信息",
+    "tray.refresh": "刷新",
+    "tray.exit": "退出",
+
+    "tray.nightMode.enabled": "夜间暖色已开启",
+    "tray.nightMode.disabled": "夜间暖色已关闭 · 日间模式",
+    "tray.noMonitorUnderCursor": "光标下没有显示器",
+
+    "tray.gameMode.title": "游戏模式",
+    "tray.gameMode.active": "已保存的游戏配置已生效。",
+    "tray.gameMode.paused": "所有游戏配置已暂停。",
+    "tray.gameMode.failedTitle": "游戏模式未更改",
+    "tray.gameMode.failedBody": "Gloam 无法保存设置，之前的游戏模式状态仍然生效。"
   }
 }

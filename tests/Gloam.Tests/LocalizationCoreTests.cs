@@ -408,6 +408,35 @@ public class LocalizationCoreTests
     }
 
     [Fact]
+    public void The_audit_does_not_count_catalog_keys_as_hard_coded_text()
+    {
+        // Regression: counting key literals made every migration *raise* the file's hard-coded
+        // score, so the ratchet punished the work it exists to encourage.
+        const string code = "var a = _loc.Get(\"tray.openDashboard\"); var b = \"Open Dashboard\";";
+
+        SourceAuditResult result = LocalizationSourceAudit.AuditCSharp(code, "Tray.cs");
+
+        var found = Assert.Single(result.Hardcoded);
+        Assert.Equal("Open Dashboard", found.Text);
+    }
+
+    [Fact]
+    public void Tray_menu_text_resolves_in_both_shipped_languages()
+    {
+        Localizer localizer = new(
+            StringCatalogSet.Load(new EmbeddedCatalogSource(typeof(Gloam.Shell.App).Assembly, ShippedCatalogs.ResourcePrefix)),
+            new LocalizationOptions { SourceCulture = CultureInfo.GetCultureInfo("en-US") },
+            CultureInfo.GetCultureInfo("en-US"));
+
+        Assert.Equal("Exit", localizer.Get("tray.exit"));
+
+        localizer.SetCulture(CultureInfo.GetCultureInfo("zh-Hans"));
+        Assert.Equal("退出", localizer.Get("tray.exit"));
+        Assert.Equal("Gloam 1.10.0", localizer.Format("tray.tooltip", ("version", "1.10.0")));
+        Assert.True(localizer.MissingKeys.IsEmpty, "every tray key must exist in the catalog");
+    }
+
+    [Fact]
     public void The_shipped_catalogs_pass_validation()
     {
         // The catalogs that actually ship must be clean; this is what keeps a partially

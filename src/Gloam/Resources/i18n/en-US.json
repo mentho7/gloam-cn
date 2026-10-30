@@ -4,6 +4,31 @@
   "strings": {
     "settings.language.description": "Applies immediately. Text that has not been translated yet stays in English.",
     "settings.language.followSystem": "Follow Windows",
-    "settings.language.heading": "Interface language"
+    "settings.language.heading": "Interface language",
+
+    "tray.tooltip": "Gloam {version}",
+    "tray.noMonitors": "No monitors found",
+    "tray.openDashboard": "Open Dashboard…",
+    "tray.calibrate": "Calibrate Display…",
+    "tray.trustCheck": "Trust Check…",
+    "tray.matchDisplays": "Match Displays…",
+    "tray.gameLab": "Open Game Lab   Win+Shift+G",
+    "tray.gamerMode.pause": "Pause Game Mode",
+    "tray.gamerMode.resume": "Resume Game Mode",
+    "tray.startup.on": "✓ Start with Windows",
+    "tray.startup.off": "Start with Windows",
+    "tray.exportDiagnostics": "Export Diagnostics",
+    "tray.refresh": "Refresh",
+    "tray.exit": "Exit",
+
+    "tray.nightMode.enabled": "Night warmth enabled",
+    "tray.nightMode.disabled": "Night warmth disabled - day mode",
+    "tray.noMonitorUnderCursor": "No monitor under cursor",
+
+    "tray.gameMode.title": "Game Mode",
+    "tray.gameMode.active": "Saved game profiles are active.",
+    "tray.gameMode.paused": "All game profiles are paused.",
+    "tray.gameMode.failedTitle": "Game Mode was not changed",
+    "tray.gameMode.failedBody": "Gloam could not save settings. Your previous Game Mode state is still active."
   }
 }
