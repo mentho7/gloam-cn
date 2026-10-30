@@ -105,7 +105,10 @@ namespace Gloam.Features.Dashboard
         public ICommand DismissGameDiscoveryCommand { get; }
         public ICommand ApplyGamerLibraryPresetCommand { get; }
 
-        public IReadOnlyList<NightModeAlgorithmOption> AvailableNightModeAlgorithms { get; } = NightModeAlgorithmOption.DefaultOptions;
+        // Computed, not cached: the option labels are localized, so a captured list would keep
+        // the previous language forever.
+        public IReadOnlyList<NightModeAlgorithmOption> AvailableNightModeAlgorithms
+            => NightModeAlgorithmOption.DefaultOptions;
 
         public NightModeAlgorithm SelectedNightModeAlgorithm
         {
@@ -226,6 +229,12 @@ namespace Gloam.Features.Dashboard
         {
             // Optional so existing tests keep constructing this without a container.
             _loc = localizer ?? LocalizedStrings.Default.Localizer;
+
+            // Localized properties below are plain getters resolved on read. Without this they
+            // keep the value from whichever language was active when the binding last refreshed,
+            // which is how an English window ends up showing Chinese. An empty property name tells
+            // WPF "every property changed", so all of them re-resolve at once.
+            _loc.CultureChanged += OnLanguageChanged;
             _monitorManager = monitorManager;
             SettingsManager = settingsManager;
             _nightModeService = nightModeService;
@@ -1038,8 +1047,7 @@ namespace Gloam.Features.Dashboard
             GamerMode.DiscoveredGames.Clear();
             GamerMode.DiscoverySearchText = string.Empty;
             GamerMode.ResetLargeAddConfirmation();
-            GamerMode.DiscoveryStatus =
-                "Reads Steam, Epic, GOG, and Xbox library records. Nothing is added automatically.";
+            GamerMode.DiscoveryStatus = _loc.Get("gamelab.discoveryNotePassive");
         }
 
         private void RemoveGamerProfile(GamerProfileEditorItem? profile)
@@ -1257,9 +1265,13 @@ namespace Gloam.Features.Dashboard
             // comparing list contents would force a swap on every programmatic refresh.
         }
 
+        private void OnLanguageChanged(object? sender, CultureChangedEventArgs e)
+            => OnPropertyChanged(string.Empty);
+
         public void Dispose()
         {
             if (_isDisposed) return;
+            _loc.CultureChanged -= OnLanguageChanged;
             if (_gamerAutoSaveTimer.IsEnabled)
                 SaveGamerProfiles();
             _isDisposed = true;

@@ -63,6 +63,18 @@
     "night.profile.accurate": "Accurate (CIE 1931)",
     "night.profile.classic": "Classic (warm)",
     "gamelab.waitingForGame": "Waiting for a saved game",
-    "gamelab.switchToGame": "Switch to a game and its look will turn on automatically."
+    "gamelab.switchToGame": "Switch to a game and its look will turn on automatically.",
+    "dashboard.nightModeControls": "Night mode controls",
+    "dashboard.gameLab.addRunningGame": "Add a running game instead",
+    "dashboard.gameLab.yourGames": "YOUR GAMES",
+    "dashboard.gameLab.setLibraryLook": "SET LIBRARY LOOK",
+    "dashboard.gameLab.chooseLook": "Choose a look…",
+    "dashboard.gameLab.apply": "Apply",
+    "dashboard.gameLab.noGames": "No games added yet",
+    "dashboard.gameLab.noGamesHint": "Run the scanner above, or launch a game and add it from the running-game list.",
+    "dashboard.gameLab.footerHint": "Esc closes · Win+Shift+F4 enters safe mode.",
+    "gamelab.discoveryNote": "Reads Steam, Epic, GOG, and Xbox library records. Gloam never opens or modifies a game.",
+    "gamelab.discoveryNotePassive": "Reads Steam, Epic, GOG, and Xbox library records. Nothing is added automatically.",
+    "gamelab.editorStatus": "Changes save automatically and update the active game."
   }
 }

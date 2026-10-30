@@ -158,10 +158,38 @@ baseline for that file.
 
 ### Making a switch take effect
 
-`{loc:Tr}` bindings update themselves. Anything that resolves a string **once** into a plain
-property — the tray menu's `ActionViewModel.Header`, for example — does not, and needs a
-`CultureChanged` handler that rebuilds it. `TrayViewModel` does this; treat it as the template for
-the remaining surfaces.
+There are three kinds of text, and only the first updates itself:
+
+| Where the string lives | What happens on a switch |
+| --- | --- |
+| `{loc:Tr key}` in XAML | Updates automatically — the binding source raises `PropertyChanged("Item[]")` |
+| A `Loc.Get(key)` inside a getter on a view model | **Keeps the old language** unless the view model re-notifies |
+| A value captured once into a field or a `static readonly` list | **Keeps the old language** unless it is rebuilt |
+
+The second row is the subtle one, and it produces the worst symptom: an English window showing
+Chinese in a few controls, because the XAML half updated and the bound half did not. Every view model
+with localized getters must do this:
+
+```csharp
+_loc.CultureChanged += (_, _) => OnPropertyChanged(string.Empty);
+```
+
+An empty property name means "every property changed", so all bindings re-resolve at once.
+Unsubscribe in `Dispose` — the localizer outlives the window, so a subscription left behind keeps a
+closed view model alive.
+
+For the third row, prefer a computed property over a cached one:
+
+```csharp
+// Wrong: captures the labels from whichever language was active at first use.
+public IReadOnlyList<Option> Options { get; } = BuildOptions();
+
+// Right: re-read on demand, so a switch is picked up by the re-notification above.
+public IReadOnlyList<Option> Options => BuildOptions();
+```
+
+`TrayViewModel` is the reference for text built into a menu rather than bound (it rebuilds the menu);
+`DashboardViewModel` is the reference for bound getters.
 
 ### Strings that should not move
 

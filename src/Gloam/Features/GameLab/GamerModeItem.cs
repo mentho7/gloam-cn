@@ -27,10 +27,9 @@ namespace Gloam.Features.GameLab
         private string _activeSessionSummary;
         private string _activeSessionDetails;
         private bool _hasActiveSession;
-        private string _editorStatus = "Changes save automatically and update the active game.";
+        private string _editorStatus;
         private bool _isScanningForGames;
-        private string _discoveryStatus =
-            "Reads Steam, Epic, GOG, and Xbox library records. Gloam never opens or modifies a game.";
+        private string _discoveryStatus;
         private string _profileSearchText = string.Empty;
         private string _discoverySearchText = string.Empty;
         private GamerProfileEditorItem? _selectedProfile;
@@ -46,6 +45,12 @@ namespace Gloam.Features.GameLab
             ILocalizer loc = LocalizedStrings.Default.Localizer;
             _activeSessionSummary = loc.Get("gamelab.waitingForGame");
             _activeSessionDetails = loc.Get("gamelab.switchToGame");
+            _editorStatus = loc.Get("gamelab.editorStatus");
+            _discoveryStatus = loc.Get("gamelab.discoveryNote");
+
+            // Same reason as DashboardViewModel: these are resolved getters, so a language switch
+            // has to invalidate every binding or the card keeps the old language.
+            loc.CultureChanged += (_, _) => OnPropertyChanged(string.Empty);
 
             Profiles.CollectionChanged += OnProfilesChanged;
             DiscoveredGames.CollectionChanged += OnDiscoveredGamesChanged;

@@ -63,6 +63,18 @@
     "night.profile.accurate": "精确（CIE 1931）",
     "night.profile.classic": "经典（暖色）",
     "gamelab.waitingForGame": "等待已保存的游戏",
-    "gamelab.switchToGame": "切换到游戏后，观感会自动应用。"
+    "gamelab.switchToGame": "切换到游戏后，观感会自动应用。",
+    "dashboard.nightModeControls": "夜间模式控制",
+    "dashboard.gameLab.addRunningGame": "改为添加正在运行的游戏",
+    "dashboard.gameLab.yourGames": "你的游戏",
+    "dashboard.gameLab.setLibraryLook": "设置游戏库观感",
+    "dashboard.gameLab.chooseLook": "选择观感…",
+    "dashboard.gameLab.apply": "应用",
+    "dashboard.gameLab.noGames": "尚未添加游戏",
+    "dashboard.gameLab.noGamesHint": "先运行上方的扫描，或启动游戏后从正在运行的列表中添加。",
+    "dashboard.gameLab.footerHint": "Esc 关闭 · Win+Shift+F4 进入安全模式。",
+    "gamelab.discoveryNote": "读取 Steam、Epic、GOG 与 Xbox 的游戏库记录。Gloam 不会打开或修改任何游戏。",
+    "gamelab.discoveryNotePassive": "读取 Steam、Epic、GOG 与 Xbox 的游戏库记录。不会自动添加任何内容。",
+    "gamelab.editorStatus": "更改会自动保存，并同步到当前游戏。"
   }
 }

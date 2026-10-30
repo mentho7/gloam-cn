@@ -525,7 +525,7 @@
                                         </StackPanel>
                                     </Border>
 
-                                    <Expander Header="Add a running game instead" Margin="0,0,0,18"
+                                    <Expander Header="{loc:Tr dashboard.gameLab.addRunningGame}" Margin="0,0,0,18"
                                               IsExpanded="{Binding IsAddRunningGameExpanded, Mode=TwoWay}"
                                               Foreground="{DynamicResource ThemeText}">
                                         <Grid Margin="0,8,0,0">
@@ -574,18 +574,18 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <TextBlock Text="YOUR GAMES" Style="{StaticResource Kicker}"/>
+                                            <TextBlock Text="{loc:Tr dashboard.gameLab.yourGames}" Style="{StaticResource Kicker}"/>
                                             <TextBlock Text="{Binding GamerMode.ProfileCountText}" Style="{StaticResource FieldLabel}"
                                                        Margin="10,0,0,0" VerticalAlignment="Center"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="SET LIBRARY LOOK" Style="{StaticResource FieldLabel}"
+                                        <TextBlock Grid.Column="1" Text="{loc:Tr dashboard.gameLab.setLibraryLook}" Style="{StaticResource FieldLabel}"
                                                    Margin="0,0,8,0" VerticalAlignment="Center"/>
                                         <Grid Grid.Column="2">
                                             <ComboBox x:Name="LibraryPresetPicker" Margin="0" Height="30"
                                                       ItemsSource="{Binding GamerMode.AvailableLibraryPresets}"
                                                       SelectedItem="{Binding GamerMode.SelectedLibraryPreset, Mode=TwoWay}"
                                                       ToolTip="Apply one look to the whole library, or only to games with detected or confirmed HDR"/>
-                                            <TextBlock Text="Choose a look…" Margin="9,0,28,0"
+                                            <TextBlock Text="{loc:Tr dashboard.gameLab.chooseLook}" Margin="9,0,28,0"
                                                        VerticalAlignment="Center" IsHitTestVisible="False"
                                                        Foreground="{DynamicResource ThemeTextDim}" FontSize="10">
                                                 <TextBlock.Style>
@@ -600,7 +600,7 @@
                                                 </TextBlock.Style>
                                             </TextBlock>
                                         </Grid>
-                                        <Button x:Name="ApplyLibraryPresetButton" Grid.Column="3" Content="Apply" Margin="7,0,0,0" Padding="13,6"
+                                        <Button x:Name="ApplyLibraryPresetButton" Grid.Column="3" Content="{loc:Tr dashboard.gameLab.apply}" Margin="7,0,0,0" Padding="13,6"
                                                 Command="{Binding ApplyGamerLibraryPresetCommand}"
                                                 IsEnabled="{Binding GamerMode.HasSelectedLibraryPreset}"/>
                                     </Grid>
@@ -618,9 +618,9 @@
                                             </Style>
                                         </Border.Style>
                                         <StackPanel HorizontalAlignment="Center">
-                                            <TextBlock Text="No games added yet" FontFamily="{StaticResource DisplayFont}"
+                                            <TextBlock Text="{loc:Tr dashboard.gameLab.noGames}" FontFamily="{StaticResource DisplayFont}"
                                                        FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                            <TextBlock Text="Run the scanner above, or launch a game and add it from the running-game list."
+                                            <TextBlock Text="{loc:Tr dashboard.gameLab.noGamesHint}"
                                                        Foreground="{DynamicResource ThemeTextDim}" FontSize="11"
                                                        TextAlignment="Center" Margin="0,5,0,0"/>
                                         </StackPanel>
@@ -974,7 +974,7 @@
                                         <TextBlock Text="{Binding GamerMode.EditorStatus}"
                                                    FontFamily="{StaticResource MonoFont}" FontSize="10"
                                                    Foreground="{DynamicResource ThemeTextDim}"/>
-                                        <TextBlock Text="Esc closes · Win+Shift+F4 enters safe mode."
+                                        <TextBlock Text="{loc:Tr dashboard.gameLab.footerHint}"
                                                    HorizontalAlignment="Right" FontSize="10"
                                                    Foreground="{DynamicResource ThemeTextDim}"/>
                                     </Grid>
@@ -987,7 +987,7 @@
                                   IsExpanded="{Binding IsNightModeControlsExpanded, Mode=TwoWay}"
                                   Foreground="{DynamicResource ThemeText}">
                             <Expander.Header>
-                                <TextBlock Text="Night mode controls"
+                                <TextBlock Text="{loc:Tr dashboard.nightModeControls}"
                                            FontFamily="{StaticResource DisplayFont}" FontWeight="Bold" FontSize="14"
                                            Foreground="{DynamicResource ThemeText}"/>
                             </Expander.Header>
