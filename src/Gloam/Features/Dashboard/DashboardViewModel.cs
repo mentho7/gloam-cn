@@ -164,13 +164,17 @@ namespace Gloam.Features.Dashboard
             }
         }
 
-        public string GamerModeStateTitle => IsGamerModeEnabled ? "GAME MODE · ON" : "GAME MODE · PAUSED";
+        public string GamerModeStateTitle => IsGamerModeEnabled
+            ? _loc.Get("dashboard.gameMode.on")
+            : _loc.Get("dashboard.gameMode.paused");
 
         public string GamerModeStateDetails => IsGamerModeEnabled
-            ? "Saved looks activate on focus, or while running when enabled in a profile."
-            : "All game profiles are bypassed. Your settings stay saved.";
+            ? _loc.Get("dashboard.gameMode.detailsOn")
+            : _loc.Get("dashboard.gameMode.detailsPaused");
 
-        public string GamerModeToggleLabel => IsGamerModeEnabled ? "Pause all profiles" : "Resume game mode";
+        public string GamerModeToggleLabel => IsGamerModeEnabled
+            ? _loc.Get("dashboard.gameMode.pauseAll")
+            : _loc.Get("dashboard.gameMode.resume");
 
         public bool IsGameLabSectionExpanded
         {
@@ -208,6 +212,8 @@ namespace Gloam.Features.Dashboard
             set => SetSectionExpanded("GameLab.ProfileAdvanced", value, nameof(IsGameProfileAdvancedExpanded));
         }
 
+        private readonly ILocalizer _loc;
+
         public DashboardViewModel(
             MonitorManager monitorManager,
             SettingsManager settingsManager,
@@ -215,8 +221,11 @@ namespace Gloam.Features.Dashboard
             UpdateService updateService,
             ApplyCalibrationRequest applyCallback,
             GammaApplyService? gamerApplyService = null,
-            GamerModeCoordinator? gamerModeCoordinator = null)
+            GamerModeCoordinator? gamerModeCoordinator = null,
+            ILocalizer? localizer = null)
         {
+            // Optional so existing tests keep constructing this without a container.
+            _loc = localizer ?? LocalizedStrings.Default.Localizer;
             _monitorManager = monitorManager;
             SettingsManager = settingsManager;
             _nightModeService = nightModeService;
@@ -382,9 +391,9 @@ namespace Gloam.Features.Dashboard
 
         public string NightModeModeLabel => NightModeModeIndex switch
         {
-            0 => "Night Mode: Off",
-            1 => "Night Mode: Auto",
-            _ => "Night Mode: Manual"
+            0 => _loc.Get("dashboard.nightMode.off"),
+            1 => _loc.Get("dashboard.nightMode.auto"),
+            _ => _loc.Get("dashboard.nightMode.manual")
         };
 
         private void OnNightModeModeChanged()

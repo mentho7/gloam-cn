@@ -6,11 +6,12 @@ namespace Gloam.Localization.Wpf;
 /// <summary>One entry in the language picker.</summary>
 public sealed class LanguageOption
 {
-    internal LanguageOption(string? tag, string displayName, bool followsSystem)
+    internal LanguageOption(string? tag, string displayName, bool followsSystem, string shortLabel)
     {
         Tag = tag;
         DisplayName = displayName;
         FollowsSystem = followsSystem;
+        ShortLabel = shortLabel;
     }
 
     /// <summary>Culture tag to persist, or <c>null</c> for "follow Windows".</summary>
@@ -21,6 +22,12 @@ public sealed class LanguageOption
 
     /// <summary>True for the "follow Windows" entry.</summary>
     public bool FollowsSystem { get; }
+
+    /// <summary>
+    /// Two-letter code for compact controls ("EN", "ZH"). Used by the title-bar toggle, where a
+    /// native name like "中文(简体中文)" cannot fit. Empty for the follow-system entry.
+    /// </summary>
+    public string ShortLabel { get; }
 
     public override string ToString() => DisplayName;
 }
@@ -80,6 +87,41 @@ public sealed class LanguageService
             ? _options[0]
             : FindFor(_localizer.Culture) ?? _selected;
     }
+
+    /// <summary>
+    /// The language a <see cref="Toggle"/> click would select, or <c>null</c> when only one
+    /// language ships. Used by the title-bar button to label itself with its target.
+    /// </summary>
+    public LanguageOption? NextOption()
+    {
+        List<LanguageOption> concrete = ConcreteOptions();
+        if (concrete.Count < 2)
+            return null;
+
+        int current = concrete.IndexOf(_selected);
+        if (current < 0)
+        {
+            // "Follow Windows" is selected: the resolved culture is what the user is looking at,
+            // so the next click should move away from that, not from an arbitrary entry.
+            LanguageOption? resolved = FindFor(_localizer.Culture);
+            current = resolved is null ? -1 : concrete.IndexOf(resolved);
+        }
+
+        return concrete[(current + 1) % concrete.Count];
+    }
+
+    /// <summary>
+    /// Switches to the next shipped language. Cycles rather than flipping, so adding a third
+    /// catalog needs no change here.
+    /// </summary>
+    public void Toggle()
+    {
+        if (NextOption() is { } next)
+            Select(next);
+    }
+
+    private List<LanguageOption> ConcreteOptions()
+        => _options.Where(o => !o.FollowsSystem && !string.IsNullOrEmpty(o.ShortLabel)).ToList();
 
     /// <summary>Applies and persists <paramref name="option"/>.</summary>
     public void Select(LanguageOption option)
@@ -145,13 +187,14 @@ public sealed class LanguageService
     {
         var options = new List<LanguageOption>
         {
-            new(null, _localizer.Get(_followSystemLabelKey), followsSystem: true),
+            new(null, _localizer.Get(_followSystemLabelKey), followsSystem: true, shortLabel: string.Empty),
         };
 
         foreach (CultureInfo culture in _localizer.AvailableCultures)
         {
             string name = string.IsNullOrWhiteSpace(culture.NativeName) ? culture.Name : culture.NativeName;
-            options.Add(new LanguageOption(culture.Name, name, followsSystem: false));
+            string shortLabel = culture.TwoLetterISOLanguageName.ToUpperInvariant();
+            options.Add(new LanguageOption(culture.Name, name, followsSystem: false, shortLabel));
         }
 
         _options = options;

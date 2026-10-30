@@ -427,15 +427,27 @@ namespace Gloam.Features.NightMode
     /// </summary>
     public class NightModeAlgorithmOption
     {
-        public static IReadOnlyList<NightModeAlgorithmOption> DefaultOptions { get; } = new List<NightModeAlgorithmOption>
+        /// <summary>
+        /// Rebuilt per access rather than cached: a static list would keep the labels from the
+        /// language that was active when the type was first touched, so the combo would stay in
+        /// the old language after a switch. Four items; the allocation is not worth caching.
+        /// </summary>
+        public static IReadOnlyList<NightModeAlgorithmOption> DefaultOptions
         {
-            // "default", not "recommended": Ultra Night may become the recommended mode once
-            // its melanopic tuning is complete — don't bake a ranking into the label.
-            new(NightModeAlgorithm.Perceptual, "Perceptual (default)"),
-            new(NightModeAlgorithm.UltraNight, "Ultra Night (amber)"),
-            new(NightModeAlgorithm.AccurateCIE1931, "Accurate (CIE 1931)"),
-            new(NightModeAlgorithm.Standard, "Classic (warm)"),
-        };
+            get
+            {
+                ILocalizer loc = LocalizedStrings.Default.Localizer;
+                // "default", not "recommended": Ultra Night may become the recommended mode once
+                // its melanopic tuning is complete — don't bake a ranking into the label.
+                return new List<NightModeAlgorithmOption>
+                {
+                    new(NightModeAlgorithm.Perceptual, loc.Get("night.profile.perceptual")),
+                    new(NightModeAlgorithm.UltraNight, loc.Get("night.profile.ultra")),
+                    new(NightModeAlgorithm.AccurateCIE1931, loc.Get("night.profile.accurate")),
+                    new(NightModeAlgorithm.Standard, loc.Get("night.profile.classic")),
+                };
+            }
+        }
 
         public NightModeAlgorithmOption(NightModeAlgorithm value, string label)
         {

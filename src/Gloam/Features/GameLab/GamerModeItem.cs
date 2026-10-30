@@ -24,8 +24,8 @@ namespace Gloam.Features.GameLab
             new(StringComparer.OrdinalIgnoreCase);
 
         private string _newAppText = string.Empty;
-        private string _activeSessionSummary = "Waiting for a saved game";
-        private string _activeSessionDetails = "Switch to a game and its look will turn on automatically.";
+        private string _activeSessionSummary;
+        private string _activeSessionDetails;
         private bool _hasActiveSession;
         private string _editorStatus = "Changes save automatically and update the active game.";
         private bool _isScanningForGames;
@@ -41,6 +41,12 @@ namespace Gloam.Features.GameLab
 
         public GamerModeItem()
         {
+            // Leaf view model built by DashboardViewModel rather than the container, so it reads
+            // the published localizer instead of taking one. At runtime that is the same instance.
+            ILocalizer loc = LocalizedStrings.Default.Localizer;
+            _activeSessionSummary = loc.Get("gamelab.waitingForGame");
+            _activeSessionDetails = loc.Get("gamelab.switchToGame");
+
             Profiles.CollectionChanged += OnProfilesChanged;
             DiscoveredGames.CollectionChanged += OnDiscoveredGamesChanged;
         }
@@ -217,8 +223,9 @@ namespace Gloam.Features.GameLab
             HasActiveSession = sessions.Count > 0;
             if (sessions.Count == 0)
             {
-                ActiveSessionSummary = "Waiting for a saved game";
-                ActiveSessionDetails = "Switch to a game and its look will turn on automatically.";
+                ILocalizer loc = LocalizedStrings.Default.Localizer;
+                ActiveSessionSummary = loc.Get("gamelab.waitingForGame");
+                ActiveSessionDetails = loc.Get("gamelab.switchToGame");
                 return;
             }
 

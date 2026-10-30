@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:Gloam.Controls"
+        xmlns:loc="clr-namespace:Gloam.Localization.Wpf;assembly=Gloam.Localization.Wpf"
         xmlns:vm="clr-namespace:Gloam.Features.Dashboard"
         xmlns:local="clr-namespace:Gloam.Features.NightMode"
         Title="Gloam - Dashboard"
@@ -99,19 +100,19 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
-                            <TextBlock Text="Gamma mode" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="{loc:Tr dashboard.gammaMode}" Style="{StaticResource FieldLabel}"/>
                             <TextBlock Text="{Binding CurrentGamma}" Style="{StaticResource MonoValue}" Margin="0,1,0,10"/>
 
-                            <TextBlock Text="Brightness" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="{loc:Tr dashboard.brightness}" Style="{StaticResource FieldLabel}"/>
                             <ProgressBar Value="{Binding CurrentBrightness}" Height="6" Margin="0,3,0,3"/>
                             <TextBlock Text="{Binding CurrentBrightness, StringFormat={}{0}%}" Style="{StaticResource MonoValue}" Margin="0,0,0,10"/>
 
-                            <TextBlock Text="Color temp" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="{loc:Tr dashboard.colorTemp}" Style="{StaticResource FieldLabel}"/>
                             <TextBlock Text="{Binding CurrentTemperatureText}" Style="{StaticResource MonoValue}" Margin="0,1,0,0"/>
                         </StackPanel>
 
                         <!-- Actions -->
-                        <Button Grid.Row="2" Content="Configure"
+                        <Button Grid.Row="2" Content="{loc:Tr dashboard.configure}"
                                 Command="{Binding DataContext.ConfigureMonitorCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                 CommandParameter="{Binding}">
                             <Button.Style>
@@ -137,7 +138,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Night mode auto-disable" FontFamily="{StaticResource DisplayFont}"
+                        <TextBlock Text="{loc:Tr dashboard.autoDisable.title}" FontFamily="{StaticResource DisplayFont}"
                                    FontSize="14" FontWeight="Bold" Margin="0,0,0,10" Foreground="{DynamicResource ThemeText}"/>
 
                         <Grid Grid.Row="1">
@@ -147,7 +148,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="Disable night mode for" Style="{StaticResource FieldLabel}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{loc:Tr dashboard.autoDisable.label}" Style="{StaticResource FieldLabel}" Margin="0,0,0,8"/>
 
                             <!-- Add New (ComboBox) -->
                             <Grid Grid.Row="1" Margin="0,0,0,12">
@@ -169,7 +170,7 @@
                                         </Style>
                                     </ComboBox.Resources>
                                 </ComboBox>
-                                <TextBlock Text="Select or type an app..." Margin="9,0,30,0"
+                                <TextBlock Text="{loc:Tr dashboard.autoDisable.placeholder}" Margin="9,0,30,0"
                                            VerticalAlignment="Center" IsHitTestVisible="False"
                                            Foreground="{DynamicResource ThemeTextDim}">
                                     <TextBlock.Style>
@@ -184,7 +185,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
 
-                                <Button x:Name="AddExcludedAppButton" Grid.Column="1" Content="Add" Padding="14,6"
+                                <Button x:Name="AddExcludedAppButton" Grid.Column="1" Content="{loc:Tr dashboard.autoDisable.add}" Padding="14,6"
                                         AutomationProperties.AutomationId="AddExcludedApp"
                                         Command="{Binding DataContext.AddExcludedAppCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                         CommandParameter="{Binding}"/>
@@ -259,18 +260,20 @@
                         <TextBlock Text="GLOAM" FontFamily="{StaticResource DisplayFont}" FontWeight="ExtraBold"
                                    FontSize="16" Foreground="{DynamicResource ThemeText}" VerticalAlignment="Center"/>
                         <Border Width="1" Height="16" Background="{DynamicResource ThemeTextDim}" Opacity="0.5" Margin="12,0"/>
-                        <TextBlock x:Name="WindowSectionTitle" Text="Dashboard" FontFamily="{StaticResource DisplayFont}" FontWeight="Bold"
+                        <TextBlock x:Name="WindowSectionTitle" Text="{loc:Tr chrome.section.dashboard}" FontFamily="{StaticResource DisplayFont}" FontWeight="Bold"
                                    FontSize="12" Foreground="{DynamicResource ThemeTextDim}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="AppVersionLabel" Text="{Binding AppVersion}" FontFamily="{StaticResource DisplayFont}"
                                    FontSize="11" Foreground="{DynamicResource ThemeTextDim}" Opacity="0.7"
-                                   VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="App version"/>
+                                   VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="{loc:Tr chrome.appVersion}"/>
                     </StackPanel>
 
                     <!-- Window controls -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <controls:LanguageToggleButton Style="{StaticResource BrutLanguageButton}"
+                                                       Height="32" Margin="0,0,6,0" VerticalAlignment="Center"/>
                         <Button x:Name="ThemeToggleButton" Content="&#x25D0;" Width="32" Height="32"
                                 Style="{StaticResource BrutIconButton}" FontSize="16"
-                                ToolTip="Toggle light / dark" Click="ThemeToggle_Click"/>
+                                ToolTip="{loc:Tr chrome.toggleTheme}" Click="ThemeToggle_Click"/>
                         <Button Content="&#x2715;" Width="32" Height="32"
                                 Style="{StaticResource BrutIconButton}" FontSize="14"
                                 Click="Close_Click"/>
@@ -294,15 +297,15 @@
 
                     <!-- Heading with kicker -->
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Displays" Style="{StaticResource Kicker}" Margin="0,0,0,4"/>
-                        <TextBlock Text="Active monitors" FontFamily="{StaticResource DisplayFont}"
+                        <TextBlock Text="{loc:Tr dashboard.displays}" Style="{StaticResource Kicker}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{loc:Tr dashboard.activeMonitors}" FontFamily="{StaticResource DisplayFont}"
                                    FontWeight="ExtraBold" FontSize="26" Foreground="{DynamicResource ThemeText}"/>
                     </StackPanel>
 
                     <!-- Controls -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
-                            <TextBlock Text="Night profile" Style="{StaticResource FieldLabel}"
+                            <TextBlock Text="{loc:Tr dashboard.nightProfile}" Style="{StaticResource FieldLabel}"
                                        VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox Width="210" Height="36"
                                       ItemsSource="{Binding AvailableNightModeAlgorithms}"
@@ -312,7 +315,7 @@
                                       ToolTip="{Binding SelectedNightModeAlgorithmDescription}"/>
                         </StackPanel>
 
-                        <Button Content="Refresh" Command="{Binding RefreshCommand}" Height="36" Margin="0,0,10,0"/>
+                        <Button Content="{loc:Tr dashboard.refresh}" Command="{Binding RefreshCommand}" Height="36" Margin="0,0,10,0"/>
 
                         <Button Content="{Binding NightModeModeLabel}" Command="{Binding CycleNightModeCommand}"
                                 Padding="16,9" Height="36" MinWidth="166"/>
@@ -335,7 +338,7 @@
                                   IsExpanded="{Binding IsGameLabSectionExpanded, Mode=TwoWay}"
                                   Foreground="{DynamicResource ThemeText}">
                             <Expander.Header>
-                                <TextBlock Text="Game Lab" FontFamily="{StaticResource DisplayFont}"
+                                <TextBlock Text="{loc:Tr dashboard.gameLab.title}" FontFamily="{StaticResource DisplayFont}"
                                            FontWeight="Bold" FontSize="14" Foreground="{DynamicResource ThemeText}"/>
                             </Expander.Header>
                             <Border BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1"
@@ -352,7 +355,7 @@
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
                                             <TextBlock Text="{Binding GamerModeStateTitle}" Style="{StaticResource Kicker}"/>
-                                            <TextBlock Text="Your games. Your display. The right look every time."
+                                            <TextBlock Text="{loc:Tr dashboard.gameLab.headline}"
                                                        FontFamily="{StaticResource DisplayFont}" FontSize="21" FontWeight="ExtraBold"
                                                        Foreground="{DynamicResource ThemeText}" Margin="0,5,0,4"/>
                                             <TextBlock Text="{Binding GamerModeStateDetails}"
@@ -377,7 +380,7 @@
                                             </Grid.ColumnDefinitions>
                                             <Border Background="{DynamicResource ThemeAccent}"/>
                                             <StackPanel Grid.Column="1" Margin="14,11">
-                                            <TextBlock Text="PLAYING NOW" Style="{StaticResource Kicker}"/>
+                                            <TextBlock Text="{loc:Tr dashboard.gameLab.playingNow}" Style="{StaticResource Kicker}"/>
                                             <TextBlock Text="{Binding GamerMode.ActiveSessionSummary}"
                                                        FontFamily="{StaticResource DisplayFont}" FontSize="15" FontWeight="Bold"
                                                        Foreground="{DynamicResource ThemeText}" Margin="0,4,0,4"/>
@@ -395,11 +398,11 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="ADD YOUR GAMES" Style="{StaticResource Kicker}"/>
-                                            <TextBlock Text="Find games already installed by your launchers. You choose what gets added."
+                                            <TextBlock Text="{loc:Tr dashboard.gameLab.addGames}" Style="{StaticResource Kicker}"/>
+                                            <TextBlock Text="{loc:Tr dashboard.gameLab.addGamesHint}"
                                                        Foreground="{DynamicResource ThemeTextDim}" FontSize="11" Margin="0,3,0,0"/>
                                         </StackPanel>
-                                        <Button Grid.Column="1" Content="Find installed games"
+                                        <Button Grid.Column="1" Content="{loc:Tr dashboard.gameLab.findGames}"
                                                 Command="{Binding ScanForGamesCommand}" Margin="16,0,0,0"
                                                 AutomationProperties.AutomationId="ScanForGames">
                                             <Button.Style>

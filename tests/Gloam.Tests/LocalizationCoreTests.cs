@@ -421,6 +421,17 @@ public class LocalizationCoreTests
     }
 
     [Fact]
+    public void The_audit_ignores_template_argument_names()
+    {
+        // ("language", value) is plumbing. Counting it flagged every localized Format call.
+        const string code = "return loc.Format(\"chrome.switchTo\", (\"language\", name));";
+
+        SourceAuditResult result = LocalizationSourceAudit.AuditCSharp(code, "Chrome.cs");
+
+        Assert.Empty(result.Hardcoded);
+    }
+
+    [Fact]
     public void Tray_menu_text_resolves_in_both_shipped_languages()
     {
         Localizer localizer = new(

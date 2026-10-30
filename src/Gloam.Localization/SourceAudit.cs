@@ -128,6 +128,13 @@ public static partial class LocalizationSourceAudit
             return false;
         }
 
+        // A bare lowercase word is an identifier, not a label: the first element of a
+        // ("language", value) template argument, a JSON property, a setting name. UI labels in
+        // this codebase are capitalised ("Refresh"), so requiring a capital or a space keeps the
+        // real ones and drops the plumbing.
+        if (LowercaseWord().IsMatch(value))
+            return false;
+
         bool hasLetter = false;
         bool hasSpace = false;
         foreach (char c in value)
@@ -170,6 +177,10 @@ public static partial class LocalizationSourceAudit
     /// <summary>Matches a text-bearing XAML attribute with a non-binding literal value.</summary>
     [GeneratedRegex(@"(?<attr>Text|Content|Header|Title|ToolTip|Watermark)\s*=\s*""(?<value>[^""{}]*)""", RegexOptions.CultureInvariant)]
     private static partial Regex XamlTextAttribute();
+
+    /// <summary>Matches a single lowercase word: an identifier or argument name, never a label.</summary>
+    [GeneratedRegex(@"^[a-z][a-zA-Z0-9]*$", RegexOptions.CultureInvariant)]
+    private static partial Regex LowercaseWord();
 
     /// <summary>
     /// Matches a lowercase dotted identifier: a catalog key (<c>tray.openDashboard</c>) or a file
