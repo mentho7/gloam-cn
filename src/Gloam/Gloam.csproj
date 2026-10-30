@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net11.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <!-- Brand, project name, assembly, and namespace are all Gloam. AssemblyName and
          RootNamespace are stated explicitly anyway: Gloam.exe and the /Gloam;component/
          pack URIs are runtime identity, so they must not drift if the project file is

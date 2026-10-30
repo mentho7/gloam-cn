@@ -56,41 +56,27 @@ is what you want at a real module boundary.
 
 ## Toolchain
 
-**Target framework: `net11.0` / `net11.0-windows` everywhere.** The project previously targeted
-`net8.0`, which reaches end of support on 2026-11-10. .NET 11 is an STS release: fine for an
-actively maintained desktop app, but it means the next forced move is .NET 13, not .NET 12 — worth
-diarising.
+**Target framework: `net10.0` / `net10.0-windows` everywhere.** .NET 10 is the current LTS,
+supported to 2028-11-14. The project sat on `net8.0` past its end-of-support date (2026-11-10)
+before this was fixed, so the rule from here is: move to the next **LTS**, not the next release.
+LTS lands every two years (10, then 12), and an app that only ever jumps LTS never has to make the
+move under pressure.
 
-**`global.json` sets an SDK floor, not a pin.** The floor is `11.0.100-rc.3` because SemVer orders
-that *below* `11.0.100`, so asking for `11.0.100` while only the RC is installed fails SDK
-resolution even with `allowPrerelease`. Raise the floor to `11.0.100` and drop `allowPrerelease`
-once GA is the norm.
+**`global.json` sets an SDK floor, not a pin, and stays inside the 10.0 feature band.** With
+`rollForward: latestFeature`, an installed SDK 11 or 12 is *refused* rather than used, so the
+compiler cannot drift away from what CI runs. This is deliberate: a build that quietly changes
+because someone installed a newer SDK is the failure mode the next point exists to prevent.
 
-**`AnalysisLevel` is pinned to `11.0-recommended`.** It used to be `latest-recommended`, which
+**`AnalysisLevel` is pinned to `10.0-recommended`.** It used to be `latest-recommended`, which
 means the analyzer rule set followed whichever SDK happened to be installed. An SDK upgrade then
-changed the build's pass/fail behaviour: a routine bump produced 48 new diagnostics, and because
-`GloamStrictBuild` treats warnings as errors, that was a red build for a change nobody made.
-Bumping the pin is now a deliberate change, made in the same commit that fixes what the new rules
-report.
+changed the build's pass/fail behaviour: the .NET 11 attempt produced 48 new diagnostics, and
+because `GloamStrictBuild` treats warnings as errors, that was a red build for a change nobody
+made. Bumping the pin is now a deliberate change, made in the same commit that fixes what the new
+rules report.
 
-## Toolchain
-
-**Target framework: `net11.0` / `net11.0-windows` everywhere.** The project previously targeted
-`net8.0`, which reaches end of support on 2026-11-10. .NET 11 is an STS release: fine for an
-actively maintained desktop app, but it means the next forced move is .NET 13, not .NET 12 — worth
-diarising.
-
-**`global.json` sets an SDK floor, not a pin.** The floor is `11.0.100-rc.3` because SemVer orders
-that *below* `11.0.100`, so asking for `11.0.100` while only the RC is installed fails SDK
-resolution even with `allowPrerelease`. Raise the floor to `11.0.100` and drop `allowPrerelease`
-once GA is the norm.
-
-**`AnalysisLevel` is pinned to `11.0-recommended`.** It used to be `latest-recommended`, which
-means the analyzer rule set followed whichever SDK happened to be installed. An SDK upgrade then
-changed the build's pass/fail behaviour: a routine bump produced 48 new diagnostics, and because
-`GloamStrictBuild` treats warnings as errors, that was a red build for a change nobody made.
-Bumping the pin is now a deliberate change, made in the same commit that fixes what the new rules
-report.
+**Line endings are declared in `.gitattributes`, not left to `core.autocrlf`.** The repo previously
+had neither, while `.editorconfig` asked for `end_of_line = lf` — so the actual behaviour depended
+on each clone's global git config.
 
 ## Rules worth keeping
 

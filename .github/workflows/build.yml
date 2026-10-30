@@ -38,9 +38,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          # .NET 11 GA lands 2026-11-10; until then CI needs the exact RC that global.json's
-          # floor accepts. Switch to "11.0.x" at GA and drop allowPrerelease from global.json.
-          dotnet-version: 11.0.100-rc.3
+          dotnet-version: 10.0.x
 
       - name: Restore
         run: dotnet restore src/Gloam.sln
@@ -88,9 +86,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          # .NET 11 GA lands 2026-11-10; until then CI needs the exact RC that global.json's
-          # floor accepts. Switch to "11.0.x" at GA and drop allowPrerelease from global.json.
-          dotnet-version: 11.0.100-rc.3
+          dotnet-version: 10.0.x
 
       - name: Derive version
         id: ver
