@@ -347,34 +347,24 @@ namespace Gloam.Core
             lock (_policyLock)
             {
                 _activeGamerSessions.TryGetValue(monitor.HMonitor, out gamerSession);
+                if (gamerSession != null)
+                    gamerSession = gamerSession with { Profile = gamerSession.Profile.Clone() };
                 nightModeBlocked = _blockedMonitors.Contains(monitor.HMonitor);
             }
 
-            // Explicit Settings-window previews own the wire temporarily. The persistent
-            // gamer session returns on the next normal ApplyAll; this prevents a foreground
-            // game from making monitor controls appear broken.
-            bool explicitPreview = manualCalibration != null || nightKelvinOverride.HasValue;
-            if (explicitPreview) gamerSession = null;
-
-            int currentKelvin = nightKelvinOverride ?? _nightModeService.CurrentNightKelvin;
-            if (nightModeBlocked) currentKelvin = 6500;
-
-            GammaMode effectiveMode = mode;
+            // Capture policy inputs once at the request boundary. The resolver never reads
+            // settings, timers or hardware, and preview/game/hotkey precedence is testable.
+            var policy = GammaApplyPolicy.Resolve(new GammaApplyPolicy.Input(
+                mode, manualCalibration != null, nightKelvinOverride,
+                _nightModeService.CurrentNightKelvin, nightModeBlocked, NightModeManuallyDisabled,
+                gamerSession?.Profile, gamerSession?.LockedKelvin ?? 6500));
+            if (!policy.UseGameProfile) gamerSession = null;
+            int currentKelvin = policy.Kelvin;
+            GammaMode effectiveMode = policy.Mode;
+            bool nightModeActive = policy.NightModeActive;
             NightModeSettings nightSettings = nightModeSettingsOverride ?? _settingsManager.NightMode;
-            if (gamerSession != null)
-            {
-                currentKelvin = ResolveGamerKelvin(gamerSession, currentKelvin);
-                if (gamerSession.Profile.OverrideGamma)
-                    effectiveMode = gamerSession.Profile.GammaMode;
-                if (gamerSession.Profile.NightPolicy == GamerNightPolicy.NightOps)
-                    nightSettings = BuildNightOpsSettings(nightSettings, gamerSession.Profile);
-            }
-
-            // The global hotkey is the final authority and can always recover neutral output,
-            // including from a Night Ops game profile.
-            if (NightModeManuallyDisabled) currentKelvin = 6500;
-
-            bool nightModeActive = nightKelvinOverride.HasValue || currentKelvin < 6450;
+            if (gamerSession?.Profile.NightPolicy == GamerNightPolicy.NightOps)
+                nightSettings = BuildNightOpsSettings(nightSettings, gamerSession.Profile);
 
             // Composition with a native MHC2 calibration: the profile corrects the PANEL
             // (gamut, white point, tone tracking) at the compositor, which makes the display

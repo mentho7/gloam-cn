@@ -7,6 +7,10 @@ Git 基线：`27063342e427b485dd1427dbb22cf66f13d494c4`
 
 本文面向接手开发和日常维护，基于当前工作区源码、项目文件、测试与构建配置做静态分析。未执行构建、测试、安装、发布或真实显示器校准；下述测试说明表示已有验证机制，不表示本次验证已通过。
 
+## 2026-10-31 维护更新
+
+本分析的原始快照保留如下；后续维护分支 `codex/architecture-maintenance` 已将报告不确定度计算提取为 `ReportUncertaintyCalculator`，将请求优先级提取为 `GammaApplyPolicy`，并通过 `LocationDetectionService` 使用 HTTPS 定位及完整坐标校验。工程清单已同步，历史任务文件已添加时间边界。`HdrPatchRenderer` 经依赖检查保留在 UI：它拥有原生窗口并依赖 WPF 本地化适配，迁移前需先解除该依赖。以下风险表描述分析时的状态，最新处理情况见本段及 `docs/architecture-maintenance.md`。
+
 ## 1. 总体判断
 
 Gloam 是 C# / .NET 10 的 Windows WPF 托盘应用，主要处理 Windows HDR 模式下 SDR 内容的 gamma 校正，同时提供夜间模式、按应用/游戏生效的画面策略，以及色度计校准。

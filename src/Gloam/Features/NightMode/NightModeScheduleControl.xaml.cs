@@ -108,27 +108,13 @@ namespace Gloam.Features.NightMode
         {
             try
             {
-                using var client = new System.Net.Http.HttpClient();
-                client.Timeout = TimeSpan.FromSeconds(5);
-                var response = await client.GetStringAsync("http://ip-api.com/json/?fields=lat,lon");
-
-                var latMatch = System.Text.RegularExpressions.Regex.Match(response, "\"lat\":([\\d.-]+)");
-                var lonMatch = System.Text.RegularExpressions.Regex.Match(response, "\"lon\":([\\d.-]+)");
-
-                if (latMatch.Success && lonMatch.Success)
+                var location = await LocationDetectionService.DetectAsync();
+                if (location is { } coordinates)
                 {
-                    // The API response is invariant-format JSON; culture-aware parsing
-                    // misreads "40.67" on comma-decimal locales.
-                    if (double.TryParse(latMatch.Groups[1].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double lat))
-                    {
-                        Vm.Latitude = lat;
-                        Vm.LatitudeText = lat.ToString("F2");
-                    }
-                    if (double.TryParse(lonMatch.Groups[1].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double lon))
-                    {
-                        Vm.Longitude = lon;
-                        Vm.LongitudeText = lon.ToString("F2");
-                    }
+                    Vm.Latitude = coordinates.Latitude;
+                    Vm.Longitude = coordinates.Longitude;
+                    Vm.LatitudeText = coordinates.Latitude.ToString("F2");
+                    Vm.LongitudeText = coordinates.Longitude.ToString("F2");
 
                     _settings.Latitude = Vm.Latitude;
                     _settings.Longitude = Vm.Longitude;
@@ -142,7 +128,7 @@ namespace Gloam.Features.NightMode
                 }
                 else
                 {
-                    Log.Error($"NightModeScheduleControl.Detect_Click: unexpected ip-api response: {response}");
+                    Log.Error("NightModeScheduleControl.Detect_Click: location unavailable or invalid.");
                 }
             }
             catch (Exception ex)

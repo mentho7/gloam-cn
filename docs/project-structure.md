@@ -1,6 +1,6 @@
 # Project structure
 
-Gloam is five projects plus tests. The layout is organised by feature, and the build is the
+Gloam is seven source projects plus one test project. The layout is organised by feature, and the build is the
 contract that keeps the boundaries honest.
 
 ```
@@ -9,6 +9,8 @@ src/
   Gloam.Core/             Domain: gamma, night mode, calibration, settings, colour math
   Gloam.Localization/     Translation engine (no WPF, no Windows)
   Gloam.Localization.Wpf/ XAML adapter: markup extension, binding source, font policy
+  Gloam.Cli/              Headless LUT and color diagnostics
+  Gloam.DebugMonitors/    Windows monitor diagnostics
   Gloam/                  UI
     Shell/                App, Program, MainWindow — composition root only
     Features/
@@ -92,8 +94,12 @@ silently breaks its theme at runtime and no compiler complains. Use
 **`Themes/` and `Fonts/` stay at the project root.** Their pack URIs, and the font family names the
 theme publishes, are runtime identity.
 
-**Domain code does not live in the UI project.** `HdrPatchRenderer` is the current exception and is
-a candidate to move into `Gloam.Core`; it arrived in the UI project before there was a rule.
+**Domain calculations do not live in the UI project.** Report uncertainty is computed by
+`Gloam.Core/Calibration/ReportUncertaintyCalculator`. `HdrPatchRenderer` intentionally remains
+in the calibration UI feature: it owns a Win32 presentation window and uses localized window
+titles and errors through the WPF localization adapter. Moving it to Core as-is would reverse
+the dependency boundary. A future reusable renderer should accept presentation text from its
+caller and retain explicit window/thread ownership; moving the file alone is not sufficient.
 
 ## Adding a feature
 

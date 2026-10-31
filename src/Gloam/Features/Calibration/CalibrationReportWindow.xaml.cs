@@ -434,40 +434,12 @@ namespace Gloam.Features.Calibration
         private UncertaintyBudget.Result? ComputeUncertainty(
             IEnumerable<MeasurementResult> gradedMeasurements, CalibrationTarget target)
         {
-            if (_measurements == null || _measurements.Count == 0) return null;
             try
             {
-                var noiseModel = LuminanceNoiseModel.FromMeasurements(_measurements);
-
-                // Drift term: prefer the run's PERSISTED pre-compensation peak drift
-                // (CalibrationResult.PeakWhiteDriftFraction). _measurements have ALREADY been
-                // drift-normalized by the orchestrator, so re-analyzing them here is
-                // idempotent-to-zero and would silently drop the drift-residual term for
-                // every compensated run. Fall back to re-analysis only when the persisted
-                // fraction is unavailable (e.g. a historical report re-opened from a saved
-                // profile) — there the measurements are whatever the profile carried.
-                double? peakDrift;
-                bool driftApplied;
-                if (_peakWhiteDriftFraction is double persistedPeak)
-                {
-                    peakDrift = persistedPeak;
-                    driftApplied = _driftCompensationApplied;
-                }
-                else
-                {
-                    var drift = DriftCompensator.Compensate(_measurements);
-                    peakDrift = drift.MaxWhiteDriftFraction;
-                    driftApplied = drift.Applied;
-                }
-
                 bool hasCorrection = !string.IsNullOrEmpty(_applyContext?.SettingsManager?
                     .GetMonitorProfile(_applyContext.Monitor.MonitorDevicePath)?.MeterCorrectionPath);
-                var instrument = UncertaintyBudget.ClassifyInstrument(_profile?.ColorimeterModel, hasCorrection);
-
-                var context = new UncertaintyBudget.Context(
-                    instrument, noiseModel, peakDrift, driftApplied);
-                CalibrationVerifier.ComputeMetrics(gradedMeasurements, target, context, out var uncertainty);
-                return uncertainty;
+                return ReportUncertaintyCalculator.Compute(_measurements, gradedMeasurements, target,
+                    _peakWhiteDriftFraction, _driftCompensationApplied, _profile?.ColorimeterModel, hasCorrection);
             }
             catch (Exception ex)
             {
