@@ -31,11 +31,11 @@
 
             <!-- Monitor Template -->
             <DataTemplate DataType="{x:Type vm:DashboardItem}">
-                <Border Style="{StaticResource MonitorCard}">
+                <Border Style="{StaticResource MonitorCard}" Height="Auto" MinHeight="340">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
@@ -100,6 +100,10 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
+                            <TextBlock Text="{loc:Tr output.heading}" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="{Binding OutputSummary}" TextWrapping="Wrap" Margin="0,4,0,10"
+                                       ToolTip="{loc:Tr output.receiptHelp}"/>
+                            <TextBlock Text="{loc:Tr output.saved}" Style="{StaticResource FieldLabel}" Margin="0,0,0,6"/>
                             <TextBlock Text="{loc:Tr dashboard.gammaMode}" Style="{StaticResource FieldLabel}"/>
                             <TextBlock Text="{Binding CurrentGamma}" Style="{StaticResource MonoValue}" Margin="0,1,0,10"/>
 

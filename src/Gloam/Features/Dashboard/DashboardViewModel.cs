@@ -337,7 +337,7 @@ namespace Gloam.Features.Dashboard
             _bypassPollTimer.Tick += (_, _) =>
             {
                 bool any = _cachedMonitors?.Any(m => CalibrationStateManager.IsDeviceInBypass(m)) ?? false;
-                if (any != _lastBypassState)
+                if (any != _lastBypassState || _gamerApplyService != null)
                 {
                     _lastBypassState = any;
                     Refresh();
@@ -585,6 +585,7 @@ namespace Gloam.Features.Dashboard
                     FriendlyName = m.FriendlyName,
                     BadgeText = isHdr ? "HDR" : "SDR",
                     BadgeColor = isHdr ? HdrBadgeBrush : SdrBadgeBrush,
+                    OutputSummary = FormatOutputState(_gamerApplyService?.OutputStates.Get(m.DeviceName)),
                     CurrentGamma = gamma,
                     CurrentBrightness = brightness,
                     CurrentTemperatureText = tempText,
@@ -608,6 +609,30 @@ namespace Gloam.Features.Dashboard
         /// keeps that item's generated container (and therefore an open ComboBox popup)
         /// alive across night-mode blend refreshes.
         /// </summary>
+        internal static string FormatOutputState(DisplayOutputState? state)
+        {
+            if (state == null) return Loc.Get("output.unknown");
+            string status = state.Status switch
+            {
+                OutputApplyStatus.Applied => Loc.Get("output.applied"),
+                OutputApplyStatus.Unchanged => Loc.Get("output.unchanged"),
+                OutputApplyStatus.Bypassed => Loc.Get("output.bypassed"),
+                OutputApplyStatus.Cancelled => Loc.Get("output.cancelled"),
+                OutputApplyStatus.Failed => Loc.Get("output.failed"),
+                _ => Loc.Get("output.pending")
+            };
+            string source = state.Source switch
+            {
+                OutputPolicySource.Preview => Loc.Get("output.preview"),
+                OutputPolicySource.Game => Loc.Get("output.game"),
+                OutputPolicySource.ManualDaylight => Loc.Get("output.manual"),
+                OutputPolicySource.ApplicationExclusion => Loc.Get("output.exclusion"),
+                OutputPolicySource.NightSchedule => Loc.Get("output.schedule"),
+                _ => Loc.Get("output.display")
+            };
+            return $"{status} · {source}\n{state.Gamma} · {state.Kelvin} K";
+        }
+
         internal static void SyncDashboardItems(
             ObservableCollection<object> items,
             IReadOnlyList<DashboardItem> refreshedItems,

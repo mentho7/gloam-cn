@@ -15,6 +15,9 @@ namespace Gloam.Features.Dashboard
         private string _currentTemperatureText = "";
         private bool _isCalibrating;
 
+        private string _outputSummary = "";
+        public string OutputSummary { get => _outputSummary; set => SetProperty(ref _outputSummary, value); }
+
         public MonitorInfo Model
         {
             get => _model;
@@ -70,6 +73,7 @@ namespace Gloam.Features.Dashboard
         internal void UpdateFrom(DashboardItem updated)
         {
             Model = updated.Model;
+            OutputSummary = updated.OutputSummary;
             FriendlyName = updated.FriendlyName;
             BadgeText = updated.BadgeText;
             BadgeColor = updated.BadgeColor;
