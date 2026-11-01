@@ -11,6 +11,9 @@ namespace Gloam.Features.Calibration
     /// </summary>
     public class CalibrationViewModel : ObservableObject
     {
+        private CalibrationWorkflowStage _workflowStage = CalibrationWorkflowStage.Preparing;
+        public CalibrationWorkflowStage WorkflowStage { get => _workflowStage; set => SetProperty(ref _workflowStage, value); }
+
         private static Brush Frozen(byte r, byte g, byte b)
         {
             var brush = new SolidColorBrush(Color.FromRgb(r, g, b));

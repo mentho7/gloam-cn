@@ -59,6 +59,8 @@ namespace Gloam.Tests
                     AppPaths.UseDataDirectoriesForCurrentProcess(
                         Path.Combine(root, "data"), Path.Combine(root, "roaming"));
 
+                    CaptureOne(output, "en-US", "report", UiFixtures.BuildReport);
+                    CaptureOne(output, "zh-Hans", "report", UiFixtures.BuildReport);
                     CaptureOne(output, "en-US", "dashboard", UiFixtures.BuildDashboard);
                     CaptureOne(output, "zh-Hans", "dashboard", UiFixtures.BuildDashboard);
                     CaptureOne(output, "en-US", "settings", UiFixtures.BuildSettings);

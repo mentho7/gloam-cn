@@ -22,6 +22,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Gloam;component/Themes/Brutalist.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Gloam;component/Themes/CalibrationWorkflow.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
@@ -224,6 +225,8 @@
             <!-- Setup Options -->
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="24,16">
                 <StackPanel>
+                    <TextBlock Text="{loc:Tr workflow.steps}" Foreground="{StaticResource TextDim}" TextWrapping="Wrap"/>
+                    <TextBlock Style="{StaticResource CalibrationWorkflowStatus}"/>
                     <!-- Display Mode Selection -->
                     <TextBlock Text="{loc:Tr calibration.display.mode}" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
                     <RadioButton Style="{StaticResource ModernRadioButton}"
@@ -409,12 +412,15 @@
                         </Grid.RowDefinitions>
 
                         <!-- Progress Bar -->
-                        <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+                            <TextBlock Style="{StaticResource CalibrationWorkflowStatus}"/>
+                            <Grid>
                             <ProgressBar Style="{StaticResource CalibrationProgressBar}"
                                          Minimum="0" Maximum="100" Value="{Binding ProgressPercent, Mode=OneWay}"/>
                             <TextBlock Text="{Binding ProgressPercentText}" HorizontalAlignment="Center"
                                        VerticalAlignment="Center" FontWeight="Bold" FontSize="11"/>
-                        </Grid>
+                            </Grid>
+                        </StackPanel>
 
                         <!-- Patch Info -->
                         <Grid Grid.Row="1" Margin="0,0,0,4">

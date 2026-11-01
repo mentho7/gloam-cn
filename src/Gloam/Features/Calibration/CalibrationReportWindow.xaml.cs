@@ -228,6 +228,7 @@ namespace Gloam.Features.Calibration
             _peakWhiteDriftFraction = peakWhiteDriftFraction;
             _driftCompensationApplied = driftCompensationApplied;
             _isHistorical = metrics == null && measurements == null;
+            Vm.WorkflowStage = _isHistorical ? CalibrationWorkflowStage.Historical : CalibrationWorkflowStage.Measured;
 
             PopulateReport();
 
@@ -1348,6 +1349,7 @@ namespace Gloam.Features.Calibration
             Vm.IsApplyEnabled = false;
             try
             {
+                Vm.WorkflowStage = CalibrationWorkflowStage.Installing;
                 Vm.StatusText = "Applying profile…";
                 MonitorInfo? installMonitor = ResolveCurrentMonitor(ctx.Monitor);
                 string? currentDefaultProfile = installMonitor != null
@@ -1382,6 +1384,7 @@ namespace Gloam.Features.Calibration
                         cancelLabel: Loc.Get("calibration.cancel"));
                     if (!continueInstall)
                     {
+                        Vm.WorkflowStage = CalibrationWorkflowStage.Cancelled;
                         Vm.StatusText = "Apply cancelled.";
                         return;
                     }
@@ -1405,6 +1408,7 @@ namespace Gloam.Features.Calibration
 
                 if (result.Success)
                 {
+                    Vm.WorkflowStage = CalibrationWorkflowStage.Installed;
                     _profileApplied = true;
                     _installedProfileName = result.ProfileName;
                     _profileEnabled = true;
@@ -1442,6 +1446,8 @@ namespace Gloam.Features.Calibration
             }
             finally
             {
+                if (Vm.WorkflowStage == CalibrationWorkflowStage.Installing)
+                    Vm.WorkflowStage = CalibrationWorkflowStage.Failed;
                 Vm.IsApplyEnabled = !_measurementInstallBlocked;
                 UpdateRefineButtonState();
             }
@@ -2735,6 +2741,7 @@ namespace Gloam.Features.Calibration
             if (_applyContext?.Colorimeter is not { } colorimeter || _applyContext is not { } ctx)
                 return;
 
+            Vm.WorkflowStage = CalibrationWorkflowStage.Verifying;
             _lastReportSnapshotSaved = false;
             ProbeOperationScope? probe = null;
             using var verifyCts = new System.Threading.CancellationTokenSource();
@@ -2816,6 +2823,8 @@ namespace Gloam.Features.Calibration
                     persistedVerifyMeasurements.AddRange(coloredHdr.Readings);
                 _verifyMeasurements = persistedVerifyMeasurements;
 
+                Vm.WorkflowStage = coordinated.Activation?.ShouldWarn == true
+                    ? CalibrationWorkflowStage.Review : CalibrationWorkflowStage.Verified;
                 var after = coordinated.Metrics;
                 var activation = coordinated.Activation;
                 Vm.AfterAvgText = $"{after.AverageDeltaE:F2}";
@@ -2931,10 +2940,12 @@ namespace Gloam.Features.Calibration
             }
             catch (OperationCanceledException)
             {
+                Vm.WorkflowStage = CalibrationWorkflowStage.Cancelled;
                 Vm.StatusText = "Verification cancelled. Use Re-verify to run it again.";
             }
             catch (Exception ex)
             {
+                Vm.WorkflowStage = CalibrationWorkflowStage.Failed;
                 // Tear the patch window down BEFORE the modal dialog: on a single monitor the
                 // topmost patch window would otherwise render over (and hide) the error.
                 if (probe != null)

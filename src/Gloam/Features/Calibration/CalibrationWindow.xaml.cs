@@ -1114,6 +1114,7 @@ namespace Gloam.Features.Calibration
             _sessionCoordinator.PhaseChanged += Orchestrator_PhaseChanged;
 
             // Start calibration
+            Vm.WorkflowStage = CalibrationWorkflowStage.Measuring;
             _isCalibrationRunning = true;
             _isPaused = false;
             _isCancelled = false;
@@ -1155,6 +1156,7 @@ namespace Gloam.Features.Calibration
                     new Progress<CalibrationSessionCoordinator.ArtifactProgress>(progress =>
                         Dispatcher.Invoke(() =>
                         {
+                            Vm.WorkflowStage = CalibrationWorkflowStage.Generating;
                             Vm.PhaseText = progress.Phase;
                             Vm.ProgressPercent = progress.Percent;
                             Vm.SetProgressLabel(progress.Label);
@@ -1523,6 +1525,7 @@ namespace Gloam.Features.Calibration
         /// </summary>
         private void ReturnToSetup()
         {
+            Vm.WorkflowStage = CalibrationWorkflowStage.Preparing;
             if (_bypassApplied && _stateManager != null)
             {
                 try
@@ -1904,6 +1907,7 @@ namespace Gloam.Features.Calibration
 
         private void ShowCompletion(bool success, string message)
         {
+            Vm.WorkflowStage = success ? CalibrationWorkflowStage.Measured : CalibrationWorkflowStage.Failed;
             Vm.IsCompletionVisible = true;
             Vm.IsPauseOverlayVisible = false;
 

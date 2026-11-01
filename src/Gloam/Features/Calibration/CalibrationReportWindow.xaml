@@ -21,6 +21,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Gloam;component/Themes/Brutalist.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Gloam;component/Themes/CalibrationWorkflow.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
@@ -127,6 +128,8 @@
             <!-- Export Report does NOT print this dark UI: ReportPrintBuilder rebuilds the
                  report as a light, printer-friendly FlowDocument from the same view model. -->
             <StackPanel x:Name="ReportContent">
+                <TextBlock Text="{loc:Tr workflow.steps}" Foreground="{DynamicResource ThemeTextDim}" TextWrapping="Wrap"/>
+                <TextBlock x:Name="WorkflowStatus" Style="{StaticResource CalibrationWorkflowStatus}"/>
                 <!-- Summary Section: before/after accuracy table -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>
@@ -207,6 +210,23 @@
                             <TextBlock FontSize="12" Foreground="{DynamicResource ThemeText}" TextWrapping="Wrap"
                                        Text="Final step: trust your eyes. Instruments and eyes weigh light spectra differently, so two display technologies can measure identical yet look slightly different side by side (observer metamerism). If this display does not quite match your reference, nudge the Tint/Temperature trims in the monitor dashboard while comparing a gray image. Small trims are a normal part of professional workflows; they ride on top of this profile and never affect the measurements above."/>
                         </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Recommendations -->
+                <Border Style="{StaticResource CardBorder}" x:Name="RecommendationsPanel">
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr calibration.recommendations}" Style="{StaticResource SectionHeader}"/>
+                        <ItemsControl ItemsSource="{Binding Recommendations}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                                        <TextBlock Text="*" Foreground="{DynamicResource ThemeAccent}" FontWeight="Bold" Margin="0,0,8,0"/>
+                                        <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="{DynamicResource ThemeTextDim}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
 
@@ -402,6 +422,8 @@
                     </StackPanel>
                 </Border>
 
+                <Expander Header="{loc:Tr calibration.calibration.details}" IsExpanded="False" Margin="0,8,0,8">
+                    <StackPanel>
                 <!-- Primaries Comparison -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>
@@ -516,22 +538,8 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Recommendations -->
-                <Border Style="{StaticResource CardBorder}" x:Name="RecommendationsPanel">
-                    <StackPanel>
-                        <TextBlock Text="{loc:Tr calibration.recommendations}" Style="{StaticResource SectionHeader}"/>
-                        <ItemsControl ItemsSource="{Binding Recommendations}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Margin="0,4">
-                                        <TextBlock Text="*" Foreground="{DynamicResource ThemeAccent}" FontWeight="Bold" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="{DynamicResource ThemeTextDim}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
                     </StackPanel>
-                </Border>
+                </Expander>
             </StackPanel>
         </ScrollViewer>
 

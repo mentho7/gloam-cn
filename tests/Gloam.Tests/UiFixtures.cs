@@ -18,6 +18,11 @@ namespace Gloam.Tests;
 /// </remarks>
 internal static class UiFixtures
 {
+    internal static Window BuildReport() => new CalibrationReportWindow(new Gloam.Core.Calibration.CalibrationProfile
+    {
+        MonitorName = "Example display", MonitorDevicePath = "fixture", Target = Gloam.Core.Calibration.StandardTargets.SrgbGamma22
+    }) { ShowInTaskbar = false, Left = -20000, Top = -20000 };
+
     internal static Window BuildDashboard()
     {
         var settings = new SettingsManager();

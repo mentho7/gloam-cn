@@ -1,5 +1,7 @@
 # Release runbook
 
+中文构建勘测、GitHub 仓库管理与首版发布指南：[Windows 打包与首次发布](docs/windows-build-and-first-release.zh-CN.md)。
+
 Gloam ships as a signed, self-updating Windows app built with [Velopack](https://velopack.io)
 and code-signed by [Azure Trusted Signing](https://learn.microsoft.com/azure/trusted-signing/).
 Releases are cut by **pushing a `vX.Y.Z` tag**; CI builds, signs, and publishes a GitHub
