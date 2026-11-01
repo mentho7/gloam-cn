@@ -7,19 +7,38 @@ from regressing.
 
 English (en-US) and Simplified Chinese (zh-Hans) ship today.
 
-## Why not .resx
+## Resource format
 
-WPF's built-in story is `ResourceManager` plus `.resx`. It was rejected for three reasons:
+Gloam uses JSON catalogs for readable diffs and external translation overrides. `.resx` with
+`ResourceManager` is also viable; live switching depends on binding notifications, not the file
+format. In particular, the one-time evaluation of `x:Static` is not a limitation of `.resx` itself.
 
-- **Resx is a build artifact.** A translator cannot fix a string, drop a file in place and see it;
-  every change needs a rebuild and a release.
-- **Switching language means rebuilding the visual tree.** `x:Static` resolves once, at load time.
-  A language change would tear down and recreate every window, losing scroll position, open
-  dialogs and in-flight calibration state.
-- **The diff is XML noise.** Nobody reviews a `.resx` change line by line.
+External catalogs are loaded when the localizer is constructed. There is no file watcher:
+editing an external JSON file does not automatically reload the running catalog.
 
-The layer here is JSON catalogs plus a binding source, which is reviewable, hot-loadable and
-switchable in place.
+## Typed access and refresh ownership
+
+Night mode now uses `INightModeText` and `CatalogNightModeText`. The interface accepts the
+domain enum; the adapter owns resource keys, while all translated content remains in the JSON
+catalogs. The schedule editor and Dashboard share this vocabulary. Other existing feature
+strings still use `Loc.Get` / `ILocalizer`; this is a feature-scoped migration, not a wholesale
+rewrite or a generated API for every catalog key.
+
+`LanguageRefreshSubscription` centralizes UI-thread delivery, unsubscription, and suppression
+of already-queued callbacks after disposal. Schedule controls reactivate on Loaded and release
+the subscription on Unloaded. Dashboard and Game Lab release it with their owner. New consumers
+must explicitly own and dispose their subscription; this helper is not a global automatic scan
+of every view model.
+
+Selectable options retain their enum identity and expose translated getters. On a language
+change, notify the option's Label property and any dependent description. Do not replace the
+list to refresh its labels: this can disturb selection or trigger settings writes. Use an explicit
+ComboBox ItemTemplate binding Label, so both popup items and the collapsed selection listen for
+property changes rather than relying on a one-time ToString result.
+
+`NightModeLocalizationTests` covers round trips on existing bindings, the actual schedule
+control's collapsed selector, stable selection with no settings writes, Game Lab preset labels,
+typed strategy injection, supported algorithm coverage, unload/reload and worker-thread delivery.
 
 ## Layers
 
@@ -181,13 +200,15 @@ An empty property name means "every property changed", so all bindings re-resolv
 Unsubscribe in `Dispose` — the localizer outlives the window, so a subscription left behind keeps a
 closed view model alive.
 
-For the third row, prefer a computed property over a cached one:
+For isolated strings, prefer a computed property over a captured translation. For selectable
+lists, prefer stable option objects with localized getters and property notifications (above).
+Simply recomputing an inner factory does not help if the outer property captures its result:
 
 ```csharp
 // Wrong: captures the labels from whichever language was active at first use.
 public IReadOnlyList<Option> Options { get; } = BuildOptions();
 
-// Right: re-read on demand, so a switch is picked up by the re-notification above.
+// Re-reads on demand, but replacing selectable items can disturb selection.
 public IReadOnlyList<Option> Options => BuildOptions();
 ```
 
@@ -214,9 +235,9 @@ New XAML should use `{DynamicResource BodyFont}`, not `{StaticResource}`.
 - **Right-to-left is untested.** The layout is fixed LTR; adding Arabic or Hebrew needs `FlowDirection`
   work in the window chrome, not just a catalog.
 - **Text inside images and SVG brand marks is not translatable.**
-- **Number and date formatting follows `CultureInfo.CurrentCulture`**, which `LanguageService` sets
-  alongside the UI culture. A culture that should format numbers differently from its UI language
-  would need the two decoupled.
+- **Number and date formatting follows `CultureInfo.CurrentCulture`.** `LanguageService` currently
+  sets CurrentUICulture and DefaultThreadCurrentUICulture, not CurrentCulture. UI language and
+  regional numeric/date formatting can therefore differ.
 - **`MissingKeys` is not yet in the diagnostics export.** Wiring it into `DiagnosticsBundle` is the
   natural next step: it turns a user report into a list of keys that are actually missing on their
   machine.
