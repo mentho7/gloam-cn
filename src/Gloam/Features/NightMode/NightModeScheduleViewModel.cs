@@ -15,9 +15,37 @@ namespace Gloam.Features.NightMode
     /// with hit testing and canvas geometry); this holds the schedule rows, location
     /// text, ultra warm flag and drag overlay state the XAML binds to.
     /// </summary>
-    public class NightModeScheduleViewModel : ObservableObject
+    public class NightModeScheduleViewModel : ObservableObject, IDisposable
     {
         private NightModeSettings _settings = null!; // Set by Initialize
+        private readonly ILocalizer _localizer;
+        private LanguageRefreshSubscription? _languageSubscription;
+
+        public NightModeScheduleViewModel(ILocalizer? localizer = null)
+        {
+            _localizer = localizer ?? Loc.Instance;
+            AvailableAlgorithms = NightModeAlgorithmOption.CreateOptions(_localizer);
+            ActivateLocalization();
+        }
+
+        internal void ActivateLocalization()
+        {
+            _languageSubscription ??= new LanguageRefreshSubscription(_localizer, RefreshLanguage);
+            RefreshLanguage();
+        }
+
+        private void RefreshLanguage()
+        {
+            foreach (var option in AvailableAlgorithms) option.RefreshLanguage();
+            OnPropertyChanged(nameof(AlgorithmDescription));
+        }
+
+        public void Dispose()
+        {
+            _languageSubscription?.Dispose();
+            _languageSubscription = null;
+            GC.SuppressFinalize(this);
+        }
 
         /// <summary>Raised when an edit changed the settings (the control maps this to ScheduleChanged).</summary>
         public event Action? SettingsEdited;
@@ -64,7 +92,7 @@ namespace Gloam.Features.NightMode
         /// <summary>
         /// Rendering algorithms offered in the dashboard, ordered best-perceptual-first.
         /// </summary>
-        public IReadOnlyList<NightModeAlgorithmOption> AvailableAlgorithms { get; } = NightModeAlgorithmOption.DefaultOptions;
+        public IReadOnlyList<NightModeAlgorithmOption> AvailableAlgorithms { get; }
 
         private NightModeAlgorithm _algorithm = NightModeAlgorithm.Perceptual;
         public NightModeAlgorithm Algorithm
@@ -174,13 +202,13 @@ namespace Gloam.Features.NightMode
         public string AlgorithmDescription => _algorithm switch
         {
             NightModeAlgorithm.Perceptual =>
-                Loc.Get("nightmode.warm.white.point.eased.toward.neutral.partial.chromatic"),
+                _localizer.Get("nightmode.warm.white.point.eased.toward.neutral.partial.chromatic"),
             NightModeAlgorithm.AccurateCIE1931 =>
-                Loc.Get("nightmode.true.black.body.white.point.at.full.strength"),
+                _localizer.Get("nightmode.true.black.body.white.point.at.full.strength"),
             NightModeAlgorithm.Standard =>
-                Loc.Get("nightmode.classic.photo.style.warm.tint.tanner.helland.pair.with"),
+                _localizer.Get("nightmode.classic.photo.style.warm.tint.tanner.helland.pair.with"),
             NightModeAlgorithm.UltraNight =>
-                Loc.Get("nightmode.amber.red.for.maximum.circadian.protection.cuts.90.of"),
+                _localizer.Get("nightmode.amber.red.for.maximum.circadian.protection.cuts.90.of"),
             _ => string.Empty
         };
 
@@ -426,41 +454,32 @@ namespace Gloam.Features.NightMode
     /// A selectable night-mode rendering algorithm plus its display label, bound by the
     /// dashboard's algorithm ComboBox (SelectedValuePath = Value, DisplayMemberPath = Label).
     /// </summary>
-    public class NightModeAlgorithmOption
+    public class NightModeAlgorithmOption : ObservableObject
     {
-        /// <summary>
-        /// Rebuilt per access rather than cached: a static list would keep the labels from the
-        /// language that was active when the type was first touched, so the combo would stay in
-        /// the old language after a switch. Four items; the allocation is not worth caching.
-        /// </summary>
-        public static IReadOnlyList<NightModeAlgorithmOption> DefaultOptions
-        {
-            get
-            {
-                ILocalizer loc = LocalizedStrings.Default.Localizer;
-                // "default", not "recommended": Ultra Night may become the recommended mode once
-                // its melanopic tuning is complete — don't bake a ranking into the label.
-                return new List<NightModeAlgorithmOption>
-                {
-                    new(NightModeAlgorithm.Perceptual, loc.Get("night.profile.perceptual")),
-                    new(NightModeAlgorithm.UltraNight, loc.Get("night.profile.ultra")),
-                    new(NightModeAlgorithm.AccurateCIE1931, loc.Get("night.profile.accurate")),
-                    new(NightModeAlgorithm.Standard, loc.Get("night.profile.classic")),
-                };
-            }
-        }
+        private readonly ILocalizer _localizer;
+        private readonly string _labelKey;
 
-        public NightModeAlgorithmOption(NightModeAlgorithm value, string label)
+        public static IReadOnlyList<NightModeAlgorithmOption> DefaultOptions => CreateOptions(Loc.Instance);
+
+        internal static IReadOnlyList<NightModeAlgorithmOption> CreateOptions(ILocalizer localizer) =>
+            new List<NightModeAlgorithmOption>
+            {
+                new(NightModeAlgorithm.Perceptual, "night.profile.perceptual", localizer),
+                new(NightModeAlgorithm.UltraNight, "night.profile.ultra", localizer),
+                new(NightModeAlgorithm.AccurateCIE1931, "night.profile.accurate", localizer),
+                new(NightModeAlgorithm.Standard, "night.profile.classic", localizer),
+            };
+
+        private NightModeAlgorithmOption(NightModeAlgorithm value, string labelKey, ILocalizer localizer)
         {
             Value = value;
-            Label = label;
+            _labelKey = labelKey;
+            _localizer = localizer;
         }
 
         public NightModeAlgorithm Value { get; }
-        public string Label { get; }
-
-        // The Brutalist ComboBox template renders the collapsed selection box via ToString()
-        // rather than DisplayMemberPath, so without this it shows the type name until opened.
+        public string Label => _localizer.Get(_labelKey);
+        internal void RefreshLanguage() => OnPropertyChanged(nameof(Label));
         public override string ToString() => Label;
     }
 }

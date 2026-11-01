@@ -104,9 +104,12 @@
                            VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <ComboBox MinWidth="220" HorizontalAlignment="Left"
                           ItemsSource="{Binding AvailableAlgorithms}"
-                          DisplayMemberPath="Label"
                           SelectedValuePath="Value"
-                          SelectedValue="{Binding Algorithm}"/>
+                          SelectedValue="{Binding Algorithm}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate><TextBlock Text="{Binding Label}"/></DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </StackPanel>
             <TextBlock Text="{Binding AlgorithmDescription}" TextWrapping="Wrap"
                        Foreground="{DynamicResource ThemeTextDim}" FontFamily="{DynamicResource BodyFont}"

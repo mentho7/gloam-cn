@@ -52,6 +52,8 @@ namespace Gloam.Features.NightMode
         {
             InitializeComponent();
             DataContext = Vm;
+            Loaded += (_, _) => Vm.ActivateLocalization();
+            Unloaded += (_, _) => Vm.Dispose();
             Vm.SettingsEdited += NotifyChange;
             Vm.PointEdited += OnPointEdited;
 
