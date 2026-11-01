@@ -313,10 +313,13 @@
                                        VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox Width="210" Height="36"
                                       ItemsSource="{Binding AvailableNightModeAlgorithms}"
-                                      DisplayMemberPath="Label"
                                       SelectedValuePath="Value"
                                       SelectedValue="{Binding SelectedNightModeAlgorithm}"
-                                      ToolTip="{Binding SelectedNightModeAlgorithmDescription}"/>
+                                      ToolTip="{Binding SelectedNightModeAlgorithmDescription}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate><TextBlock Text="{Binding Label}"/></DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
 
                         <Button Content="{loc:Tr dashboard.refresh}" Command="{Binding RefreshCommand}" Height="36" Margin="0,0,10,0"/>
@@ -588,7 +591,9 @@
                                             <ComboBox x:Name="LibraryPresetPicker" Margin="0" Height="30"
                                                       ItemsSource="{Binding GamerMode.AvailableLibraryPresets}"
                                                       SelectedItem="{Binding GamerMode.SelectedLibraryPreset, Mode=TwoWay}"
-                                                      ToolTip="{loc:Tr dashboard.apply.one.look.to.the.whole.library.or.only.to.games}"/>
+                                                      ToolTip="{loc:Tr dashboard.apply.one.look.to.the.whole.library.or.only.to.games}">
+ <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}"/></DataTemplate></ComboBox.ItemTemplate>
+ </ComboBox>
                                             <TextBlock Text="{loc:Tr dashboard.gameLab.chooseLook}" Margin="9,0,28,0"
                                                        VerticalAlignment="Center" IsHitTestVisible="False"
                                                        Foreground="{DynamicResource ThemeTextDim}" FontSize="10">

@@ -106,10 +106,9 @@ namespace Gloam.Features.Dashboard
         public ICommand DismissGameDiscoveryCommand { get; }
         public ICommand ApplyGamerLibraryPresetCommand { get; }
 
-        // Computed, not cached: the option labels are localized, so a captured list would keep
-        // the previous language forever.
+        // Stable options keep selection identity; only their labels refresh.
         public IReadOnlyList<NightModeAlgorithmOption> AvailableNightModeAlgorithms
-            => NightModeAlgorithmOption.DefaultOptions;
+            { get; }
 
         public NightModeAlgorithm SelectedNightModeAlgorithm
         {
@@ -124,14 +123,8 @@ namespace Gloam.Features.Dashboard
             }
         }
 
-        public string SelectedNightModeAlgorithmDescription => SelectedNightModeAlgorithm switch
-        {
-            NightModeAlgorithm.Perceptual => Loc.Get("dashboard.balanced.color.preservation"),
-            NightModeAlgorithm.UltraNight => Loc.Get("dashboard.amber.red.maximum.protection"),
-            NightModeAlgorithm.AccurateCIE1931 => Loc.Get("dashboard.full.cie.white.point.shift"),
-            NightModeAlgorithm.Standard => Loc.Get("dashboard.classic.warm.tint"),
-            _ => string.Empty
-        };
+        public string SelectedNightModeAlgorithmDescription =>
+            _nightModeText.AlgorithmSummary(SelectedNightModeAlgorithm);
 
         /// <summary>
         /// Navigation request: the view opens SettingsWindow for the given monitor card.
@@ -217,6 +210,8 @@ namespace Gloam.Features.Dashboard
         }
 
         private readonly ILocalizer _loc;
+        private readonly INightModeText _nightModeText;
+        private readonly LanguageRefreshSubscription _languageSubscription;
 
         public DashboardViewModel(
             MonitorManager monitorManager,
@@ -235,7 +230,9 @@ namespace Gloam.Features.Dashboard
             // keep the value from whichever language was active when the binding last refreshed,
             // which is how an English window ends up showing Chinese. An empty property name tells
             // WPF "every property changed", so all of them re-resolve at once.
-            _loc.CultureChanged += OnLanguageChanged;
+            _nightModeText = new CatalogNightModeText(_loc);
+            AvailableNightModeAlgorithms = NightModeAlgorithmOption.CreateOptions(_nightModeText);
+            _languageSubscription = new LanguageRefreshSubscription(_loc, RefreshLanguage);
             _monitorManager = monitorManager;
             SettingsManager = settingsManager;
             _nightModeService = nightModeService;
@@ -1291,13 +1288,17 @@ namespace Gloam.Features.Dashboard
             // comparing list contents would force a swap on every programmatic refresh.
         }
 
-        private void OnLanguageChanged(object? sender, CultureChangedEventArgs e)
-            => OnPropertyChanged(string.Empty);
+        private void RefreshLanguage()
+        {
+            foreach (var option in AvailableNightModeAlgorithms) option.RefreshLanguage();
+            OnPropertyChanged(string.Empty);
+        }
 
         public void Dispose()
         {
             if (_isDisposed) return;
-            _loc.CultureChanged -= OnLanguageChanged;
+            _languageSubscription.Dispose();
+            GamerMode.Dispose();
             if (_gamerAutoSaveTimer.IsEnabled)
                 SaveGamerProfiles();
             _isDisposed = true;

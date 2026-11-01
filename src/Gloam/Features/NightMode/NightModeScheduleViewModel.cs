@@ -19,12 +19,14 @@ namespace Gloam.Features.NightMode
     {
         private NightModeSettings _settings = null!; // Set by Initialize
         private readonly ILocalizer _localizer;
+        private readonly INightModeText _text;
         private LanguageRefreshSubscription? _languageSubscription;
 
-        public NightModeScheduleViewModel(ILocalizer? localizer = null)
+        public NightModeScheduleViewModel(ILocalizer? localizer = null, INightModeText? text = null)
         {
             _localizer = localizer ?? Loc.Instance;
-            AvailableAlgorithms = NightModeAlgorithmOption.CreateOptions(_localizer);
+            _text = text ?? new CatalogNightModeText(_localizer);
+            AvailableAlgorithms = NightModeAlgorithmOption.CreateOptions(_text);
             ActivateLocalization();
         }
 
@@ -199,18 +201,7 @@ namespace Gloam.Features.NightMode
         }
 
         /// <summary>One-line explanation of the selected algorithm, shown under the selector.</summary>
-        public string AlgorithmDescription => _algorithm switch
-        {
-            NightModeAlgorithm.Perceptual =>
-                _localizer.Get("nightmode.warm.white.point.eased.toward.neutral.partial.chromatic"),
-            NightModeAlgorithm.AccurateCIE1931 =>
-                _localizer.Get("nightmode.true.black.body.white.point.at.full.strength"),
-            NightModeAlgorithm.Standard =>
-                _localizer.Get("nightmode.classic.photo.style.warm.tint.tanner.helland.pair.with"),
-            NightModeAlgorithm.UltraNight =>
-                _localizer.Get("nightmode.amber.red.for.maximum.circadian.protection.cuts.90.of"),
-            _ => string.Empty
-        };
+        public string AlgorithmDescription => _text.AlgorithmDescription(_algorithm);
 
         #region Drag overlay
 
@@ -456,29 +447,27 @@ namespace Gloam.Features.NightMode
     /// </summary>
     public class NightModeAlgorithmOption : ObservableObject
     {
-        private readonly ILocalizer _localizer;
-        private readonly string _labelKey;
+        private readonly INightModeText _text;
 
-        public static IReadOnlyList<NightModeAlgorithmOption> DefaultOptions => CreateOptions(Loc.Instance);
+        public static IReadOnlyList<NightModeAlgorithmOption> DefaultOptions => CreateOptions(new CatalogNightModeText(Loc.Instance));
 
-        internal static IReadOnlyList<NightModeAlgorithmOption> CreateOptions(ILocalizer localizer) =>
+        internal static IReadOnlyList<NightModeAlgorithmOption> CreateOptions(INightModeText text) =>
             new List<NightModeAlgorithmOption>
             {
-                new(NightModeAlgorithm.Perceptual, "night.profile.perceptual", localizer),
-                new(NightModeAlgorithm.UltraNight, "night.profile.ultra", localizer),
-                new(NightModeAlgorithm.AccurateCIE1931, "night.profile.accurate", localizer),
-                new(NightModeAlgorithm.Standard, "night.profile.classic", localizer),
+                new(NightModeAlgorithm.Perceptual, text),
+                new(NightModeAlgorithm.UltraNight, text),
+                new(NightModeAlgorithm.AccurateCIE1931, text),
+                new(NightModeAlgorithm.Standard, text),
             };
 
-        private NightModeAlgorithmOption(NightModeAlgorithm value, string labelKey, ILocalizer localizer)
+        private NightModeAlgorithmOption(NightModeAlgorithm value, INightModeText text)
         {
             Value = value;
-            _labelKey = labelKey;
-            _localizer = localizer;
+            _text = text;
         }
 
         public NightModeAlgorithm Value { get; }
-        public string Label => _localizer.Get(_labelKey);
+        public string Label => _text.AlgorithmLabel(Value);
         internal void RefreshLanguage() => OnPropertyChanged(nameof(Label));
         public override string ToString() => Label;
     }

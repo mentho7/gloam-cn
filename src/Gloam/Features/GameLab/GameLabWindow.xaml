@@ -170,7 +170,9 @@
                                 <ComboBox x:Name="GameLabLibraryPresetPicker" Height="30" Margin="0"
                                           ItemsSource="{Binding GamerMode.AvailableLibraryPresets}"
                                           SelectedItem="{Binding GamerMode.SelectedLibraryPreset, Mode=TwoWay}"
-                                          ToolTip="{loc:Tr gamelab.set.one.look.for.the.library.including.a.detected.hdr}"/>
+                                          ToolTip="{loc:Tr gamelab.set.one.look.for.the.library.including.a.detected.hdr}">
+ <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}"/></DataTemplate></ComboBox.ItemTemplate>
+ </ComboBox>
                                 <TextBlock Text="{loc:Tr gamelab.library.default}" Margin="9,0,28,0" VerticalAlignment="Center"
                                            IsHitTestVisible="False" Foreground="{DynamicResource ThemeTextDim}" FontSize="9">
                                     <TextBlock.Style>

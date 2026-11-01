@@ -12,9 +12,10 @@ using Gloam.Core;
 namespace Gloam.Features.GameLab
 {
     /// <summary>Long-lived dashboard state for Game Lab and the active session receipt.</summary>
-    public sealed class GamerModeItem : ObservableObject
+    public sealed class GamerModeItem : ObservableObject, IDisposable
     {
         private const int RecentProfileLimit = 5;
+        private readonly LanguageRefreshSubscription _languageSubscription;
         public ObservableCollection<GamerProfileEditorItem> Profiles { get; } = new();
         public ObservableCollection<string> RunningApps { get; } = new();
         public ObservableCollection<GamerDisplayOption> AvailableDisplays { get; } = new();
@@ -52,7 +53,7 @@ namespace Gloam.Features.GameLab
             // Re-notifying is not enough here: these values live in fields, so a stale field would
             // be re-read and the card would keep the previous language. The placeholder fields are
             // rewritten, then every binding is invalidated.
-            loc.CultureChanged += (_, _) =>
+            _languageSubscription = new LanguageRefreshSubscription(loc, () =>
             {
                 if (!HasActiveSession)
                 {
@@ -64,12 +65,15 @@ namespace Gloam.Features.GameLab
                 // new language is better than leaving one line in the old one.
                 _editorStatus = loc.Get("gamelab.editorStatus");
                 _discoveryStatus = loc.Get("gamelab.discoveryNote");
+                foreach (var option in AvailableLibraryPresets) option.RefreshLanguage();
                 OnPropertyChanged(string.Empty);
-            };
+            });
 
             Profiles.CollectionChanged += OnProfilesChanged;
             DiscoveredGames.CollectionChanged += OnDiscoveredGamesChanged;
         }
+
+        public void Dispose() => _languageSubscription.Dispose();
 
         public bool HasProfiles => Profiles.Count > 0;
         public string ProfileCountText => Profiles.Count == 1
@@ -88,10 +92,10 @@ namespace Gloam.Features.GameLab
             : Loc.Get("gamelab.view.all");
         public IReadOnlyList<GamerLibraryPresetOption> AvailableLibraryPresets { get; } =
         [
-            new(Loc.Get("gamelab.accurate.all.games"), GamerPictureIntent.Reference, false),
-            new(Loc.Get("gamelab.competitive.all.games"), GamerPictureIntent.CompetitiveClarity, false),
-            new(Loc.Get("gamelab.night.play.all.games"), GamerPictureIntent.NightOps, false),
-            new(Loc.Get("gamelab.hdr.cinema.detected.hdr.games"), GamerPictureIntent.CinematicHdr, true)
+            new("gamelab.accurate.all.games", GamerPictureIntent.Reference, false),
+            new("gamelab.competitive.all.games", GamerPictureIntent.CompetitiveClarity, false),
+            new("gamelab.night.play.all.games", GamerPictureIntent.NightOps, false),
+            new("gamelab.hdr.cinema.detected.hdr.games", GamerPictureIntent.CinematicHdr, true)
         ];
         public int SelectedDiscoveryCount => DiscoveredGames.Count(item => item.IsSelected && !item.AlreadyAdded);
         public string AddDiscoveredButtonLabel => _largeAddArmed
@@ -500,11 +504,12 @@ namespace Gloam.Features.GameLab
         public override string ToString() => Label;
     }
 
-    public sealed record GamerLibraryPresetOption(
-        string Label,
-        GamerPictureIntent Intent,
-        bool HdrCapableOnly)
+    public sealed class GamerLibraryPresetOption(string labelKey, GamerPictureIntent intent, bool hdrCapableOnly) : ObservableObject
     {
+        public string Label => Loc.Get(labelKey);
+        public GamerPictureIntent Intent { get; } = intent;
+        public bool HdrCapableOnly { get; } = hdrCapableOnly;
+        internal void RefreshLanguage() => OnPropertyChanged(nameof(Label));
         public override string ToString() => Label;
     }
 
