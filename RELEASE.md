@@ -83,7 +83,11 @@ update land silently.
 
 - [ ] Build green, full test suite passing.
 - [ ] Strict build clean: `dotnet build src/Gloam.sln -c Release -p:GloamStrictBuild=true`.
-- [ ] `<Version>` in `Gloam.csproj` matches the tag being pushed.
+      The `validate` job now sets `GloamStrictBuild=true`, so CI enforces this too — run it locally
+      first to see the diagnostics without waiting for a runner.
+- [ ] `<Version>` in `Gloam.csproj` matches the tag being pushed. Checked by
+      `scripts/Test-UpdateFeedConsistency.ps1`, which fails when `<Version>` and the newest
+      `docs/release-notes/vX.Y.Z.md` disagree.
 - [ ] Release notes written at `docs/release-notes/vX.Y.Z.md`.
 - [ ] **Colorimeter re-validation**, only when the release changes measured behavior
       (calibration math, LUT generation, drift handling, refinement). Verify the specific
@@ -105,3 +109,58 @@ update land silently.
 
 > Note: app data (settings, logs, calibration reports) lives under `%LocalAppData%\Gloam`, separate
 > from the Velopack install root `%LocalAppData%\GloamApp`, so it survives updates and uninstalls.
+
+## Bad release playbook
+
+Velopack only moves forward. Withdrawing a release removes it from the feed for people who have
+not installed yet, but a client already running the bad build sees only "is the feed version
+higher than mine?" — so nothing you do to the published release pulls that build back off a
+machine. The only exit is a **higher** version number.
+
+This is also why the client cannot save us: the updater verifies each package's checksum against
+the feed's own manifest (`Velopack.UpdateManager.VerifyPackageChecksumAsync`), which proves the
+download isn't corrupt, not that it is ours. There is no pinned-key check on the client (see
+P1-4 in `docs/reviews/defect-register-2026-11-02.zh-CN.md`). A bad package reaching the feed is
+therefore applied by every installed client on its next check.
+
+**Rules, in order of importance**
+
+1. **Never decrement and never re-tag.** Do not move, delete and re-push, or reuse the tag of a
+   released version. Version numbers must strictly increase; a reused tag breaks delta generation
+   and leaves clients that already cached the old entry with a version they will never leave.
+2. **Ship `X.Y.Z+1` immediately.** A one-line fix on top of the bad tag is almost always faster
+   and safer than trying to reconstruct the previous state.
+3. **Withdraw the bad release from the feed** so no new user installs it. Keep the *previous
+   good* release's assets — that Setup.exe and Portable zip are the escape hatch below.
+4. **Say so in the release notes**, in plain language: what broke, who is affected, whether
+   measured output changed, and what the user should do.
+
+**Cutting the hotfix**
+
+```bash
+# 1. Branch from the bad tag, not from main, so the fix carries no unrelated changes.
+git switch -c hotfix/X.Y.Z+1 <bad-tag>
+# 2. Apply the minimal fix, bump <Version> in Gloam.csproj to X.Y.Z+1, and write
+#    docs/release-notes/vX.Y.Z+1.md. Both are required: scripts/Test-UpdateFeedConsistency.ps1
+#    fails the build if <Version> and the newest notes disagree.
+# 3. Tag and push. CI signs and publishes; do not hand-upload assets.
+git tag vX.Y.Z+1
+git push origin vX.Y.Z+1
+```
+
+Clients pick the hotfix up on their next check — at startup, or within
+`UpdateService.SuccessfulCheckInterval` (15 minutes) for a long-running session. Users whose app
+crashes at startup never reach an update check: point them at the previous release's
+`GloamApp-win-Portable.zip`, which runs without installing and leaves `%LocalAppData%\Gloam`
+(settings, calibration profiles, reports) untouched.
+
+**Drill status (must be closed before the next release that touches the update path)**
+
+| Step | Status |
+|---|---|
+| Previous → bad → hotfix round trip on a test machine | **Not yet rehearsed.** `scripts/Test-VelopackInstalledUpdate.ps1` performs the install/update half, but it modifies the local install and needs explicit opt-in. |
+| Downgrade to the previous release via Setup.exe | **Unverified.** Velopack is forward-only; assume this does *not* work until a drill shows otherwise, and treat the Portable zip as the supported path. |
+| Rollback of the GitHub Release itself | **Unverified.** Deleting a published release may leave clients mid-update; withdraw by editing the release body and marking it superseded rather than deleting, unless a drill proves deletion safe. |
+
+> Until the drill is done, treat any change to `UpdateService`, the feed, or the packaging as
+> needing the drill in the same cycle. An unrehearsed rollback is not a rollback.
