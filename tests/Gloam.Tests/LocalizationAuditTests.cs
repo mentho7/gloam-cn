@@ -97,9 +97,6 @@ public partial class LocalizationAuditTests
     private static readonly HashSet<string> UntranslatableByDesign = new(StringComparer.Ordinal)
     {
         "tray.tooltip",              // brand + version number
-        "dashboard.gameLab.title",   // product feature name
-        "settings.gamma.v22",        // standard curve designation
-        "settings.gamma.v24",
         "calibration.ccfl.lcd",      // backlight technology
         "calibration.argyllcms",     // third-party tool name
         "calibration.dci.p3.d65",    // colour space + white point

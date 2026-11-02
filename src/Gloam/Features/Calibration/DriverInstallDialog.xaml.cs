@@ -66,7 +66,27 @@ namespace Gloam.Features.Calibration
             try
             {
                 // Launch the installer and wait for it to complete
-                bool success = await UsbDriverHelper.LaunchDriverInstallerAsync();
+                DriverInstallerLaunchOutcome outcome = await UsbDriverHelper.LaunchDriverInstallerAsync();
+
+                // A refused or missing installer must be reported, not papered over: claiming
+                // success here would send the user looking for a driver that was never installed.
+                switch (outcome)
+                {
+                    case DriverInstallerLaunchOutcome.InstallerNotFound:
+                        ShowResult(false, Loc.Get("calibration.driver.installer.not.found"),
+                            Loc.Get("calibration.the.argyllcms.usb.driver.installer.could.not.be.found"));
+                        return;
+
+                    case DriverInstallerLaunchOutcome.IntegrityCheckFailed:
+                        ShowResult(false, Loc.Get("calibration.driver.installer.integrity.failed"),
+                            Loc.Get("calibration.driver.installer.integrity.failed.detail"));
+                        return;
+
+                    case DriverInstallerLaunchOutcome.NotLaunched:
+                        ShowResult(false, Loc.Get("calibration.failed.to.launch.installer"),
+                            Loc.Get("calibration.if.the.installer.was.cancelled.or.failed.click.close"));
+                        return;
+                }
 
                 // We consider it successful if the installer ran (user may have installed or cancelled)
                 // The real test is whether calibration works afterward

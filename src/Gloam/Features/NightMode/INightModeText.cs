@@ -13,30 +13,45 @@ public interface INightModeText
 /// <summary>One resource-backed strategy for every catalog; translations stay in JSON.</summary>
 public sealed class CatalogNightModeText(ILocalizer localizer) : INightModeText
 {
-    public string AlgorithmLabel(NightModeAlgorithm algorithm) => algorithm switch
-    {
-        NightModeAlgorithm.Perceptual => localizer.Get("night.profile.perceptual"),
-        NightModeAlgorithm.UltraNight => localizer.Get("night.profile.ultra"),
-        NightModeAlgorithm.AccurateCIE1931 => localizer.Get("night.profile.accurate"),
-        NightModeAlgorithm.Standard => localizer.Get("night.profile.classic"),
-        _ => string.Empty,
-    };
+    /// <summary>
+    /// Fallback for an enum value this build does not know: a persisted profile written by a newer
+    /// version, or a hand-edited settings file. Rendering empty strings left three blank rows in
+    /// the UI with no exception and no log line, so the user could neither read nor diagnose the
+    /// setting; one visible "unknown" entry at least names the problem.
+    /// </summary>
+    private static readonly (string Label, string Description, string Summary) UnknownCatalog =
+        ("night.profile.unknown", "night.mode.unknown.description", "night.mode.unknown.summary");
 
-    public string AlgorithmDescription(NightModeAlgorithm algorithm) => algorithm switch
-    {
-        NightModeAlgorithm.Perceptual => localizer.Get("nightmode.warm.white.point.eased.toward.neutral.partial.chromatic"),
-        NightModeAlgorithm.AccurateCIE1931 => localizer.Get("nightmode.true.black.body.white.point.at.full.strength"),
-        NightModeAlgorithm.Standard => localizer.Get("nightmode.classic.photo.style.warm.tint.tanner.helland.pair.with"),
-        NightModeAlgorithm.UltraNight => localizer.Get("nightmode.amber.red.for.maximum.circadian.protection.cuts.90.of"),
-        _ => string.Empty,
-    };
+    public string AlgorithmLabel(NightModeAlgorithm algorithm) => localizer.Get(Catalog(algorithm).Label);
 
-    public string AlgorithmSummary(NightModeAlgorithm algorithm) => algorithm switch
-    {
-        NightModeAlgorithm.Perceptual => localizer.Get("dashboard.balanced.color.preservation"),
-        NightModeAlgorithm.UltraNight => localizer.Get("dashboard.amber.red.maximum.protection"),
-        NightModeAlgorithm.AccurateCIE1931 => localizer.Get("dashboard.full.cie.white.point.shift"),
-        NightModeAlgorithm.Standard => localizer.Get("dashboard.classic.warm.tint"),
-        _ => string.Empty,
-    };
+    public string AlgorithmDescription(NightModeAlgorithm algorithm) => localizer.Get(Catalog(algorithm).Description);
+
+    public string AlgorithmSummary(NightModeAlgorithm algorithm) => localizer.Get(Catalog(algorithm).Summary);
+
+    /// <summary>
+    /// Single key table for all three views of an algorithm. Kept as one switch so the fallback
+    /// case exists in exactly one place: three separate switches previously drifted apart and each
+    /// one degraded on its own.
+    /// </summary>
+    private (string Label, string Description, string Summary) Catalog(NightModeAlgorithm algorithm) =>
+        algorithm switch
+        {
+            NightModeAlgorithm.Perceptual => (
+                "night.profile.perceptual",
+                "nightmode.warm.white.point.eased.toward.neutral.partial.chromatic",
+                "dashboard.balanced.color.preservation"),
+            NightModeAlgorithm.UltraNight => (
+                "night.profile.ultra",
+                "nightmode.amber.red.for.maximum.circadian.protection.cuts.90.of",
+                "dashboard.amber.red.maximum.protection"),
+            NightModeAlgorithm.AccurateCIE1931 => (
+                "night.profile.accurate",
+                "nightmode.true.black.body.white.point.at.full.strength",
+                "dashboard.full.cie.white.point.shift"),
+            NightModeAlgorithm.Standard => (
+                "night.profile.classic",
+                "nightmode.classic.photo.style.warm.tint.tanner.helland.pair.with",
+                "dashboard.classic.warm.tint"),
+            _ => UnknownCatalog,
+        };
 }

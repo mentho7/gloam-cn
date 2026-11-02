@@ -109,7 +109,29 @@ public class NightModeLocalizationTests
             Assert.False(string.IsNullOrWhiteSpace(text.AlgorithmDescription(algorithm)));
             Assert.False(string.IsNullOrWhiteSpace(text.AlgorithmSummary(algorithm)));
         }
-        Assert.Equal(string.Empty, text.AlgorithmLabel((NightModeAlgorithm)999));
+        // An enum value this build does not know must still render something readable. It used to
+        // return three empty strings, which showed up as blank rows in the settings UI with no
+        // exception and no log line, so the bad setting could not even be diagnosed.
+        var unknown = (NightModeAlgorithm)999;
+        Assert.False(string.IsNullOrWhiteSpace(text.AlgorithmLabel(unknown)));
+        Assert.False(string.IsNullOrWhiteSpace(text.AlgorithmDescription(unknown)));
+        Assert.False(string.IsNullOrWhiteSpace(text.AlgorithmSummary(unknown)));
+        Assert.Empty(localizer.MissingKeys.Keys);
+    }
+
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("zh-Hans")]
+    public void Unknown_algorithm_falls_back_to_a_key_defined_in_the_catalog(string culture)
+    {
+        var localizer = CreateLocalizer();
+        localizer.SetCulture(CultureInfo.GetCultureInfo(culture));
+        INightModeText text = new CatalogNightModeText(localizer);
+        var unknown = (NightModeAlgorithm)999;
+
+        Assert.Equal(localizer.Get("night.profile.unknown"), text.AlgorithmLabel(unknown));
+        Assert.Equal(localizer.Get("night.mode.unknown.description"), text.AlgorithmDescription(unknown));
+        Assert.Equal(localizer.Get("night.mode.unknown.summary"), text.AlgorithmSummary(unknown));
         Assert.Empty(localizer.MissingKeys.Keys);
     }
 
