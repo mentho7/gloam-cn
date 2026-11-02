@@ -23,7 +23,7 @@
 | 4 | P1-2 严格构建 / P1-3 主干不跑 CI / P1-6 漏洞扫描不阻断 | **已修** | 严格构建 0 警告 0 错误；YAML 结构校验；扫描门禁本地演练 |
 | 5 | P1-4 客户端验签 | **取证完成，结论为否；钉扎不可实现** | 见 §三，需负责人决策 |
 | 6 | P1-5 无回滚 playbook | **已修** | `RELEASE.md`「Bad release playbook」 |
-| 7 | 人工严格构建 + 全量测试 | **已执行** | 1540/1540 通过，日志 `artifacts/validation/full-test.log` |
+| 7 | 人工严格构建 + 全量测试 | **已执行** | 1540/1540 通过，耗时 1m02s（复现：`dotnet test src/Gloam.sln -c Release -p:GloamStrictBuild=true`；日志落在 `artifacts/`，该目录被 `.gitignore` 覆盖，不入库） |
 | — | P1-7 枚举静默降级为空串 | **已修** | 兜底 key 入两份目录；新增 Theory 两文化断言 |
 
 ## 二、逐项变更
