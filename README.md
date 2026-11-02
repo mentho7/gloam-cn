@@ -1,5 +1,7 @@
 # Gloam
 
+English | [简体中文](README.zh-CN.md)
+
 Fix washed-out SDR content in Windows HDR mode. Per-monitor gamma correction, a perceptual night mode, and verified colorimeter calibration.
 
 [![Build](https://github.com/halideworks/gloam/actions/workflows/build.yml/badge.svg)](https://github.com/halideworks/gloam/actions/workflows/build.yml)
