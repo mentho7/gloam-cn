@@ -18,7 +18,7 @@ until enough people have installed it. New releases can briefly re-trigger it.
 **Do this:** click **More info**, confirm the publisher line reads the expected verified
 publisher, then click **Run anyway**. If the publisher line is missing or reads something
 else, stop. Do not run it, and tell us where you downloaded it from. Official builds come
-only from the [releases page](https://github.com/halideworks/gloam/releases).
+only from the [releases page](https://github.com/mentho7/gloam-cn/releases).
 
 ---
 
@@ -174,6 +174,6 @@ The bundle is text-only and is sanitized before it is written, but it does descr
 displays and your configuration. Look through it before attaching it to a public issue if
 that concerns you.
 
-Then [open an issue](https://github.com/halideworks/gloam/issues/new/choose) and attach it.
+Then [open an issue](https://github.com/mentho7/gloam-cn/issues/new/choose) and attach it.
 A report with a diagnostics bundle can usually be diagnosed; one without it usually turns
 into several rounds of questions that the bundle would have answered.
