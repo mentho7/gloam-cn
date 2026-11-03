@@ -1,166 +1,83 @@
-# Release runbook
+# 发布手册
 
-中文构建勘测、GitHub 仓库管理与首版发布指南：[Windows 打包与首次发布](docs/windows-build-and-first-release.zh-CN.md)。
+适用仓库：`github.com/mentho7/gloam-cn`。日常协作见 [维护规范](docs/maintenance.md)，发布历史见 [CHANGELOG.md](CHANGELOG.md)。
 
-Gloam ships as a signed, self-updating Windows app built with [Velopack](https://velopack.io)
-and code-signed by [Azure Trusted Signing](https://learn.microsoft.com/azure/trusted-signing/).
-Releases are cut by **pushing a `vX.Y.Z` tag**; CI builds, signs, and publishes a GitHub
-Release, and installed apps auto-update from it.
+## 当前状态
 
-## How a release flows
+2026-11-03 发布的 v1.13.0 在发布页明确标为**未签名**。仓库当前为私有，客户端更新服务不携带凭据，因此匿名下载和自动更新不能视为可用。现有 CI 设计为 Azure Trusted Signing 签名发布；配置存在不等于签名或升级验证通过。
 
-1. You push a tag `vX.Y.Z` to `main`.
-2. `.github/workflows/build.yml` runs on `windows-latest` in the **`release`** environment:
-   - `package.ps1 -Version X.Y.Z -PublishOnly` (self-contained multi-file publish + bundled ArgyllCMS).
-   - `azure/login` via OIDC (no stored secret), then `vpk pack --azureTrustedSignFile` signs the
-     installer + all bundled exes, then `vpk upload github` publishes the release.
-3. `GloamApp-win-Setup.exe` (auto-updating, per-user install) and
-   `GloamApp-win-Portable.zip` are attached to the release. Installed clients pick up the update on
-   next launch.
+[首次构建勘测](docs/windows-build-and-first-release.zh-CN.md) 仅供历史参考。签名与分发问题解决前，可以验证本地包，但不能把验证包称为正式签名发布。
 
-The version comes from the tag. `UpdateService.RepoUrl` and the CI upload target are both
-`github.com/mentho7/gloam-cn` - keep them identical.
+## Release notes
 
-## One-time setup (must exist before the first tag)
+发布准备 PR 同时更新项目 `<Version>`、`CHANGELOG.md` 和 `docs/release-notes/vX.Y.Z.zh-CN.md`（兼容既有 `vX.Y.Z.md`）。说明应包括：
 
-### GitHub repo (`mentho7/gloam-cn`)
-- **Settings -> Environments -> New environment: `release`** (no protection rules required; add a
-  required reviewer if you want a manual gate before each signed release).
-- **Settings -> Secrets and variables -> Actions -> Variables** (these are *Variables*, not Secrets):
+- 用户可见变化与关联 PR / Issue；
+- 升级步骤、兼容性、设置或数据迁移；
+- 校准数学与实测输出是否变化；涉及变化时记录真实硬件和前后结果；
+- 已知问题、验证命令和未执行的检查；
+- 实际签名状态、安装与自动升级验证结果。
 
-  | Variable | Value |
-  |---|---|
-  | `AZURE_SIGN_ENDPOINT` | `https://eus.codesigning.azure.net` (abbreviated region, e.g. `eus` = East US) |
-  | `AZURE_SIGN_ACCOUNT` | `gloam-sign` |
-  | `AZURE_SIGN_PROFILE` | `gloam-public-trust` |
-  | `AZURE_SUBSCRIPTION_ID` | *(subscription holding the signing account)* |
-  | `AZURE_CLIENT_ID` | *(the `gloam-github-signing` Entra app)* |
-  | `AZURE_TENANT_ID` | *(the directory/tenant)* |
+汇总文章如 `v1.11.0-v1.13.0.zh-CN.md` 不能替代单版本说明。版本号只接受无前导零的 `X.Y.Z`；预发布通道尚未实现，不推送 `vX.Y.Z-rc.1`。
 
-  > The three GUIDs are intentionally not stored in this repo. Set them here as Variables.
+## 一次性发布配置
 
-### Azure (one-time, already done)
-- Trusted Signing account `gloam-sign` (East US) + cert profile `gloam-public-trust` (Public Trust),
-  bound to a completed **individual** identity validation.
-- Entra app `gloam-github-signing` with:
-  - the **Artifact Signing Certificate Profile Signer** role on the `gloam-sign` account, and
-  - a **federated credential** (scenario: GitHub Actions, entity type **Environment**, org
-    `mentho7`, repo `gloam-cn`, environment `release`) -> subject
-    `repo:mentho7/gloam-cn:environment:release`, which the workflow's `release` environment matches.
+1. 确定用户能够访问的更新源，使 `UpdateService.RepoUrl`、一致性检查、下载链接和 CI 上传地址一致。私有仓库须先解决分发设计，不能嵌入令牌。
+2. 配置 `release` GitHub environment，限制可发布来源；有独立审查者时设置 required reviewers。分支和标签保护的可用性见维护规范。
+3. 使用本维护者自己的 Azure Trusted Signing 账户、证书及身份验证。配置 Actions variables：`AZURE_CLIENT_ID`、`AZURE_TENANT_ID`、`AZURE_SUBSCRIPTION_ID`、`AZURE_SIGN_ENDPOINT`、`AZURE_SIGN_ACCOUNT`、`AZURE_SIGN_PROFILE`。不要沿用上游账户名称或声称继承了权限。
+4. Azure 联合凭据 subject 对应 `repo:mentho7/gloam-cn:environment:release`，授予证书配置的签名角色。以实际 Azure 配置验证；不能用标签通配符替代 environment subject。
+5. 核对 `scripts/Test-SignedReleaseArtifacts.ps1` 的预期发布者与实际证书主体。签名验证失败即停止发布，不能以跳过验证恢复流水线。
 
-## Cutting a release
+## 发布流程
 
-1. Make sure `main` has everything you want shipped and the build is green.
-2. Pick the version `X.Y.Z`. Set `<Version>` in `Gloam.csproj` to match and commit it.
-   CI overrides it from the tag anyway, but keeping them in sync means a local
-   `.\package.ps1` with no arguments builds the same version the tag will.
-3. Write the release notes at `docs/release-notes/vX.Y.Z.md` (see below).
-4. Push `main`, then tag and push:
-   ```bash
-   git push origin main
-   git tag vX.Y.Z
+1. 从最新 `origin/main` 建立发布准备 PR，确定尚未使用且高于已发布版本的版本号。合入所有范围内变更；检查 CI 的 `validate` 与 `build` 成功。
+2. 在 Windows 桌面环境完成检查，保留结果和失败详情：
+
+   ```powershell
+   dotnet restore src/Gloam.sln
+   dotnet build src/Gloam.sln -c Release -p:GloamStrictBuild=true --no-restore
+   dotnet test src/Gloam.sln -c Release --no-restore
+   ./scripts/Test-UpdateFeedConsistency.ps1
+   ```
+
+   校准路径改动必须补实机验证；打包或更新路径改动必须验证安装、卸载和旧版升级。未执行项写明原因，不能用单测替代这些结果。
+3. 合并发布准备 PR，刷新远端；在干净工作区检查 `origin/main` 的提交和最终差异。用真实版本替换下面的占位符：
+
+   ```powershell
+   git fetch origin main --tags
+   git status --short
+   git log -1 origin/main
+   # 确认当前 HEAD 是准备发布的 origin/main 提交后执行：
+   ./scripts/Test-UpdateFeedConsistency.ps1 -ReleaseTag vX.Y.Z
+   git tag -a vX.Y.Z -m "Gloam X.Y.Z"
    git push origin vX.Y.Z
    ```
-5. Watch the Actions run. On success the GitHub Release is published with the Setup.exe + portable zip,
-   both signed and timestamped.
-6. Attach the notes to the published release:
-   ```bash
-   gh release edit vX.Y.Z --notes-file docs/release-notes/vX.Y.Z.md
+
+   只推送本次标签，不使用 `--tags`、`--mirror` 或强推。推送标签会触发公开发布动作，不是预览。
+4. `.github/workflows/build.yml` 先校验版本和说明，再测试、打包、签名并校验产物；`vpk upload github --publish` 会使 Release 生效。当前流程不提供等待人工确认的草稿阶段。
+5. 发布成功后立即附上经过审查的说明（`--repo` 避免误操作上游）：
+
+   ```powershell
+   gh release edit vX.Y.Z --repo mentho7/gloam-cn --notes-file docs/release-notes/vX.Y.Z.zh-CN.md
    ```
 
-### Release notes
+6. 检查 Release 的标签提交、Setup、Portable、更新包与索引是否齐全，下载产物并核对有效签名及时间戳。生成并附上 SHA-256 校验清单，记录实际发布结果，再关闭 milestone。
+7. 在测试机验证旧版升级。脚本会修改本机安装，仅在明确准备好测试环境时运行：
 
-`vpk upload github` publishes with an empty body, so notes are a separate step. Releases
-through v1.8.0 have no notes at all for this reason. Write them for someone deciding
-whether to care, not for someone reading the diff: what changed for them, what they need
-to do about it (usually nothing), and anything that changes measured behavior.
+   ```powershell
+   ./scripts/Test-VelopackInstalledUpdate.ps1 -OlderSetupPath ./older/GloamApp-win-Setup.exe -ExpectedVersion X.Y.Z -IUnderstandThisModifiesLocalInstall
+   ```
 
-State plainly when a change affects calibration math or measured output. That is the one
-category of change where a user may want to re-run a calibration rather than let the
-update land silently.
+签名和校验和不能代替功能验证。`%LOCALAPPDATA%\GloamApp` 是安装目录，`%LOCALAPPDATA%\Gloam` 是设置、日志及校准数据目录，必须保持分离。
 
-## Pre-release validation checklist
+## 本地验证包
 
-- [ ] Build green, full test suite passing.
-- [ ] Strict build clean: `dotnet build src/Gloam.sln -c Release -p:GloamStrictBuild=true`.
-      The `validate` job now sets `GloamStrictBuild=true`, so CI enforces this too — run it locally
-      first to see the diagnostics without waiting for a runner.
-- [ ] `<Version>` in `Gloam.csproj` matches the tag being pushed. Checked by
-      `scripts/Test-UpdateFeedConsistency.ps1`, which fails when `<Version>` and the newest
-      `docs/release-notes/vX.Y.Z.md` disagree.
-- [ ] Release notes written at `docs/release-notes/vX.Y.Z.md`.
-- [ ] **Colorimeter re-validation**, only when the release changes measured behavior
-      (calibration math, LUT generation, drift handling, refinement). Verify the specific
-      changed path on real hardware and record the before/after in the release notes.
-      Skip for releases that do not touch those paths, and say so rather than leaving the
-      box ambiguously unticked.
+`./package.ps1 -Version X.Y.Z` 生成未签名验证包，`-PublishOnly` 仅生成程序目录。使用独立输出目录避免混入旧产物；保留完整目录，不单独复制 `Gloam.exe`。本地验证包不上传覆盖已发布版本。
 
-## Verifying a signed release
+## 失败与紧急修复
 
-- The release assets show a valid Authenticode signature (publisher = your validated legal name) and a
-  trusted timestamp.
-- Running `Setup.exe` installs per-user to `%LocalAppData%\GloamApp` with no "Unknown Publisher" warning
-  (SmartScreen reputation still warms up over the first weeks/installs - expected).
-- An installed older build detects the new version, downloads it, and applies on restart.
-  For a local end-to-end check against the official GitHub/Velopack feed, run:
-  ```powershell
-  .\scripts\Test-VelopackInstalledUpdate.ps1 -OlderSetupPath .\path\to\older\GloamApp-win-Setup.exe -ExpectedVersion X.Y.Z -IUnderstandThisModifiesLocalInstall
-  ```
-
-> Note: app data (settings, logs, calibration reports) lives under `%LocalAppData%\Gloam`, separate
-> from the Velopack install root `%LocalAppData%\GloamApp`, so it survives updates and uninstalls.
-
-## Bad release playbook
-
-Velopack only moves forward. Withdrawing a release removes it from the feed for people who have
-not installed yet, but a client already running the bad build sees only "is the feed version
-higher than mine?" — so nothing you do to the published release pulls that build back off a
-machine. The only exit is a **higher** version number.
-
-This is also why the client cannot save us: the updater verifies each package's checksum against
-the feed's own manifest (`Velopack.UpdateManager.VerifyPackageChecksumAsync`), which proves the
-download isn't corrupt, not that it is ours. There is no pinned-key check on the client (see
-P1-4 above). A bad package reaching the feed is
-therefore applied by every installed client on its next check.
-
-**Rules, in order of importance**
-
-1. **Never decrement and never re-tag.** Do not move, delete and re-push, or reuse the tag of a
-   released version. Version numbers must strictly increase; a reused tag breaks delta generation
-   and leaves clients that already cached the old entry with a version they will never leave.
-2. **Ship `X.Y.Z+1` immediately.** A one-line fix on top of the bad tag is almost always faster
-   and safer than trying to reconstruct the previous state.
-3. **Withdraw the bad release from the feed** so no new user installs it. Keep the *previous
-   good* release's assets — that Setup.exe and Portable zip are the escape hatch below.
-4. **Say so in the release notes**, in plain language: what broke, who is affected, whether
-   measured output changed, and what the user should do.
-
-**Cutting the hotfix**
-
-```bash
-# 1. Branch from the bad tag, not from main, so the fix carries no unrelated changes.
-git switch -c hotfix/X.Y.Z+1 <bad-tag>
-# 2. Apply the minimal fix, bump <Version> in Gloam.csproj to X.Y.Z+1, and write
-#    docs/release-notes/vX.Y.Z+1.md. Both are required: scripts/Test-UpdateFeedConsistency.ps1
-#    fails the build if <Version> and the newest notes disagree.
-# 3. Tag and push. CI signs and publishes; do not hand-upload assets.
-git tag vX.Y.Z+1
-git push origin vX.Y.Z+1
-```
-
-Clients pick the hotfix up on their next check — at startup, or within
-`UpdateService.SuccessfulCheckInterval` (15 minutes) for a long-running session. Users whose app
-crashes at startup never reach an update check: point them at the previous release's
-`GloamApp-win-Portable.zip`, which runs without installing and leaves `%LocalAppData%\Gloam`
-(settings, calibration profiles, reports) untouched.
-
-**Drill status (must be closed before the next release that touches the update path)**
-
-| Step | Status |
-|---|---|
-| Previous → bad → hotfix round trip on a test machine | **Not yet rehearsed.** `scripts/Test-VelopackInstalledUpdate.ps1` performs the install/update half, but it modifies the local install and needs explicit opt-in. |
-| Downgrade to the previous release via Setup.exe | **Unverified.** Velopack is forward-only; assume this does *not* work until a drill shows otherwise, and treat the Portable zip as the supported path. |
-| Rollback of the GitHub Release itself | **Unverified.** Deleting a published release may leave clients mid-update; withdraw by editing the release body and marking it superseded rather than deleting, unless a drill proves deletion safe. |
-
-> Until the drill is done, treat any change to `UpdateService`, the feed, or the packaging as
-> needing the drill in the same cycle. An unrehearsed rollback is not a rollback.
+- 尚未发布成功：保留失败日志、检查远端是否已有部分 Release / 资产。涉及代码修复时使用新版本；不得移动已有标签或盲目使用 `--merge` 覆盖已经分发的内容。
+- 已分发坏版本：在发布说明标明影响范围与临时措施，立即准备更高的补丁版本。只改 Release 描述不能阻止客户端更新，也不能使已安装用户自动降级。
+- 默认从最新 `main` 创建修复分支，经 PR 和相同门禁合入再发版；若 main 含不能交付的功能，从已发布标签建立临时维护分支，以 PR 审查修复，并将修复同步回 main，记录例外。
+- 不删除、移动或复用已经发布的标签，不覆盖同版本二进制。更新客户端只向更高版本升级。旧便携包可作为临时使用路径，但数据兼容性必须先验证。
+- 真实更新事故处置演练尚未在本次维护中执行；不要承诺降级安装或删除 Release 能安全回滚。

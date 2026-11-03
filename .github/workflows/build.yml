@@ -27,7 +27,7 @@ permissions:
 #   AZURE_SIGN_ACCOUNT     Trusted Signing account name
 #   AZURE_SIGN_PROFILE     certificate profile name
 # The Entra app needs the "Trusted Signing Certificate Profile Signer" role on the account,
-# and a federated credential scoped to: repo:${{ github.repository }}:ref:refs/tags/v*
+# and a federated credential scoped to: repo:${{ github.repository }}:environment:release
 
 jobs:
   validate:
@@ -44,6 +44,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Release version and notes gate
+        shell: pwsh
+        run: |
+          ./scripts/Test-ReleaseVersionGate.ps1
+          if ($env:GITHUB_REF -like 'refs/tags/*') {
+            ./scripts/Test-UpdateFeedConsistency.ps1 -ReleaseTag $env:GITHUB_REF_NAME
+          } else {
+            ./scripts/Test-UpdateFeedConsistency.ps1
+          }
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -91,10 +101,6 @@ jobs:
           }
           Write-Host "No known vulnerable packages."
 
-      - name: Update feed consistency
-        shell: pwsh
-        run: ./scripts/Test-UpdateFeedConsistency.ps1
-
       - name: Upload validation artifacts
         if: always()
         uses: actions/upload-artifact@v7
@@ -132,8 +138,8 @@ jobs:
           $ref = "${{ github.ref }}"
           if ($ref -like 'refs/tags/v*') {
             $v = "${{ github.ref_name }}" -replace '^v',''
-            if ($v -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') {
-              throw "Release tag '${{ github.ref_name }}' must be semver: vX.Y.Z or vX.Y.Z-prerelease"
+            if ($v -notmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$') {
+              throw "Release tag must be a stable vX.Y.Z version; prerelease channels are not configured."
             }
           } else {
             # Non-release build (PR / manual): synthetic but valid semver.

@@ -56,7 +56,9 @@ Portable:
 
 Release notes, checksums and older versions: https://github.com/mentho7/gloam-cn/releases
 
-If SmartScreen says "Windows protected your PC", click **More info** and confirm the verified publisher. New signed apps can still show reputation warnings until enough users have installed them.
+The v1.13.0 release is **unsigned** and may show an unknown publisher. Verify its source and SHA-256 against the release page. A configured signing workflow is not proof that this release was signed.
+
+This repository is currently private: downloads require repository access, and anonymous client auto-updates are not available. See the [release runbook](../RELEASE.md) for distribution prerequisites.
 
 ## Use
 
@@ -161,6 +163,8 @@ dotnet run --project src/Gloam.Cli -- night 2200 --algorithm ultra --basis rec20
 ```
 
 Contributions are welcome. See [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+[Documentation](README.md) · [Maintenance policy](maintenance.md) · [Changelog](../CHANGELOG.md) · [Releases](../RELEASE.md)
 
 ## Files
 

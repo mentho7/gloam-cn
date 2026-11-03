@@ -57,7 +57,9 @@
 
 发布说明、校验和与旧版本见 https://github.com/mentho7/gloam-cn/releases
 
-若 SmartScreen 提示「Windows 已保护你的电脑」，点击 **更多信息** 并确认已验证的发布者。新签名的应用在积累到足够多安装量之前，仍可能显示信誉警告。
+v1.13.0 发布页标明安装包**未签名**，可能显示「未知发布者」。请核对发布页的来源和 SHA-256；不要将签名流水线的配置当作本版已签名的证明。
+
+当前仓库为私有：下载需要仓库访问权限，客户端匿名自动更新尚不可用。分发限制及后续配置见 [发布手册](RELEASE.md)。
 
 ## 使用
 
@@ -162,6 +164,8 @@ dotnet run --project src/Gloam.Cli -- night 2200 --algorithm ultra --basis rec20
 ```
 
 欢迎贡献。见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+[文档导航](docs/README.md) · [仓库维护规范](docs/maintenance.md) · [版本记录](CHANGELOG.md) · [发布手册](RELEASE.md)
 
 ## 文件位置
 

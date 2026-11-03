@@ -1,6 +1,7 @@
 param(
     [string]$ExpectedRepoUrl = "https://github.com/mentho7/gloam-cn",
-    [string]$ExpectedPackId = "GloamApp"
+    [string]$ExpectedPackId = "GloamApp",
+    [string]$ReleaseTag = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -53,9 +54,28 @@ if ($csproj -notmatch '<Version>([^<]+)</Version>') {
     $failures.Add("Gloam.csproj does not declare a <Version>.")
 } else {
     $projectVersion = $Matches[1].Trim()
+    $stableVersionPattern = '(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
+    if ($projectVersion -notmatch "^$stableVersionPattern`$") {
+        $failures.Add("Project version must be a stable X.Y.Z version without leading zeroes.")
+    }
+    if ($ReleaseTag) {
+        if ($ReleaseTag -cnotmatch "^v$stableVersionPattern`$") {
+            $failures.Add("Release tag '$ReleaseTag' must be vX.Y.Z; prerelease channels are not configured.")
+        } elseif ($ReleaseTag.Substring(1) -ne $projectVersion) {
+            $failures.Add("Release tag '$ReleaseTag' does not match project version '$projectVersion'.")
+        }
+    }
+    $exactNotes = @("docs/release-notes/v$projectVersion.md", "docs/release-notes/v$projectVersion.zh-CN.md")
+    if (-not ($exactNotes | Where-Object {
+        $path = Join-Path $repoRoot $_
+        (Test-Path -LiteralPath $path -PathType Leaf) -and
+            -not [string]::IsNullOrWhiteSpace((Get-Content -Raw -LiteralPath $path))
+    })) {
+        $failures.Add("Project version '$projectVersion' needs nonempty, single-version release notes.")
+    }
     $notesVersions = Get-ChildItem -LiteralPath (Join-Path $repoRoot "docs/release-notes") -Filter "v*.md" |
         ForEach-Object {
-            [regex]::Matches($_.Name, 'v(\d+\.\d+\.\d+)') | ForEach-Object { [version]$_.Groups[1].Value }
+            [regex]::Matches($_.Name, '^v(\d+\.\d+\.\d+)(?:\.zh-CN)?\.md$') | ForEach-Object { [version]$_.Groups[1].Value }
         }
 
     if (-not $notesVersions) {
