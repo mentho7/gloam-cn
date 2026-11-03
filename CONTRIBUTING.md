@@ -48,6 +48,14 @@ fails a pull request that adds a hard-coded string, so the rule is enforced rath
 
 Project layout and the composition rules are in [docs/project-structure.md](docs/project-structure.md).
 
+## Working with AI agents
+
+This repository is agent-friendly. [AGENTS.md](AGENTS.md) is the entry point: it records where
+issues live, which triage labels exist, and how domain documentation is laid out. If you use a
+coding agent, point it there first. The same conventions apply to human contributors, so keep
+them accurate when they change.
+
+
 ## Golden fixtures
 
 Gloam's color math is pinned by *golden fixtures*: real measurement recordings from real

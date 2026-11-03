@@ -120,7 +120,7 @@ machine. The only exit is a **higher** version number.
 This is also why the client cannot save us: the updater verifies each package's checksum against
 the feed's own manifest (`Velopack.UpdateManager.VerifyPackageChecksumAsync`), which proves the
 download isn't corrupt, not that it is ours. There is no pinned-key check on the client (see
-P1-4 in `docs/reviews/defect-register-2026-11-02.zh-CN.md`). A bad package reaching the feed is
+P1-4 above). A bad package reaching the feed is
 therefore applied by every installed client on its next check.
 
 **Rules, in order of importance**

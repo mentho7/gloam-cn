@@ -82,8 +82,7 @@ Compensating controls, which is what currently carries this risk:
 
 Closing the gap properly means either replacing the update mechanism or pinning keys in a
 library that supports it; until then this is an accepted, documented risk rather than a solved
-problem. Tracked as P1-4 in
-[docs/reviews/defect-register-2026-11-02.zh-CN.md](docs/reviews/defect-register-2026-11-02.zh-CN.md).
+problem. Tracked as P1-4 in the internal release checklist.
 
 ## Prior review
 
