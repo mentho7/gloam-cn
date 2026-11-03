@@ -2,6 +2,10 @@
 
 **中文** · [English](docs/README.en.md)
 
+本项目由 [mentho7](https://github.com/mentho7) 独立维护，基于 [halideworks/gloam](https://github.com/halideworks/gloam) fork 后持续开发，包含大量重构、代码重写和中英本地化工作。感谢上游作者与贡献者提供的基础实现。本仓库的发布、支持与变更由本项目维护者负责，不代表上游官方版本或上游背书。
+
+项目保留 [MIT 许可](LICENSE.txt)及[第三方声明](THIRD_PARTY_NOTICES.txt)。本 fork 的发布记录见 [CHANGELOG.md](CHANGELOG.md)；使用本仓库发布包遇到问题，请提交到[本仓库 Issues](https://github.com/mentho7/gloam-cn/issues)。
+
 修复 Windows HDR 模式下 SDR 内容发灰的问题。逐显示器伽马校正、感知式夜间模式，以及经色度计验证的校准。
 
 [![Build](https://github.com/mentho7/gloam-cn/actions/workflows/build.yml/badge.svg)](https://github.com/mentho7/gloam-cn/actions/workflows/build.yml)

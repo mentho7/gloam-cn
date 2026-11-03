@@ -1,5 +1,9 @@
 # Gloam
 
+This project is independently maintained by [mentho7](https://github.com/mentho7), based on a fork of [halideworks/gloam](https://github.com/halideworks/gloam). It includes substantial refactoring, rewritten code, and Chinese/English localization. We thank the upstream authors and contributors for the foundation. Releases and support here are maintained independently and do not represent an official upstream release or endorsement.
+
+The [MIT license](../LICENSE.txt) and [third-party notices](../THIRD_PARTY_NOTICES.txt) are retained. See this fork's [changelog](../CHANGELOG.md), and report problems with its releases to [this repository's issue tracker](https://github.com/mentho7/gloam-cn/issues).
+
 [中文](../README.md) · **English**
 
 Fix washed-out SDR content in Windows HDR mode. Per-monitor gamma correction, a perceptual night mode, and verified colorimeter calibration.
