@@ -192,4 +192,3 @@ Gloam 最初是 Dylan Raga 的 [win11hdr-srgb-to-gamma2.2-icm](https://github.co
 - [MHC2Gen](https://github.com/dantmnf/MHC2)，作者 dantmnf：Windows MHC2 配置文件生成的参考实现。
 
 曾用名 HDR Gamma Controller。
-

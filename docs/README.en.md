@@ -191,4 +191,3 @@ Gloam began as a fork of Dylan Raga's [win11hdr-srgb-to-gamma2.2-icm](https://gi
 - [MHC2Gen](https://github.com/dantmnf/MHC2), by dantmnf: the reference for Windows MHC2 profile generation.
 
 Formerly HDR Gamma Controller.
-
