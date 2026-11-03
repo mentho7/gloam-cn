@@ -63,7 +63,7 @@
 
 v1.13.0 发布页标明安装包**未签名**，可能显示「未知发布者」。请核对发布页的来源和 SHA-256；不要将签名流水线的配置当作本版已签名的证明。
 
-当前仓库为私有：下载需要仓库访问权限，客户端匿名自动更新尚不可用。分发限制及后续配置见 [发布手册](RELEASE.md)。
+仓库已公开，Release 可匿名访问。自动更新仍需完成旧版到新版的实际升级验证；签名状态以每个 Release 的说明为准。见 [发布手册](RELEASE.md)。
 
 ## 使用
 
@@ -192,3 +192,4 @@ Gloam 最初是 Dylan Raga 的 [win11hdr-srgb-to-gamma2.2-icm](https://github.co
 - [MHC2Gen](https://github.com/dantmnf/MHC2)，作者 dantmnf：Windows MHC2 配置文件生成的参考实现。
 
 曾用名 HDR Gamma Controller。
+

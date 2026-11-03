@@ -62,7 +62,7 @@ Release notes, checksums and older versions: https://github.com/mentho7/gloam-cn
 
 The v1.13.0 release is **unsigned** and may show an unknown publisher. Verify its source and SHA-256 against the release page. A configured signing workflow is not proof that this release was signed.
 
-This repository is currently private: downloads require repository access, and anonymous client auto-updates are not available. See the [release runbook](../RELEASE.md) for distribution prerequisites.
+This repository is public and releases are accessible without repository credentials. End-to-end updates still require validation with an older installed version. Check each release for its signing status; see the [release runbook](../RELEASE.md).
 
 ## Use
 
@@ -191,3 +191,4 @@ Gloam began as a fork of Dylan Raga's [win11hdr-srgb-to-gamma2.2-icm](https://gi
 - [MHC2Gen](https://github.com/dantmnf/MHC2), by dantmnf: the reference for Windows MHC2 profile generation.
 
 Formerly HDR Gamma Controller.
+
