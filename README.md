@@ -186,6 +186,8 @@ ArgyllCMS 为 AGPL v3。Gloam 以独立进程方式调用 ArgyllCMS 工具，不
 
 ## 致谢
 
+感谢原项目 [Gloam（halideworks/gloam）](https://github.com/halideworks/gloam) 的作者及所有贡献者。本项目从该仓库 fork，并在其基础上进行重构、代码重写和中英本地化；原项目提供了本项目持续开发的基础。
+
 Gloam 最初是 Dylan Raga 的 [win11hdr-srgb-to-gamma2.2-icm](https://github.com/dylanraga/win11hdr-srgb-to-gamma2.2-icm) 的衍生项目，并保留了他对 Windows SDR-in-HDR 下 sRGB 到伽马校正的识别——整个应用正是建立在这个洞察之上。Gloam 此后已长成一个不同的程序，但它始于此，而当初那步诊断才是最难的部分。
 
 - [ArgyllCMS](https://www.argyllcms.com/)，作者 Graeme Gill：Gloam 每次校准所驱动的测量与特征化工具。

@@ -185,6 +185,8 @@ ArgyllCMS is AGPL v3. Gloam invokes ArgyllCMS tools as separate processes and do
 
 ## Credits
 
+Thanks to the authors and contributors of the original [Gloam project (halideworks/gloam)](https://github.com/halideworks/gloam). This project was forked from that repository and builds on its foundation with refactoring, rewritten code, and Chinese/English localization.
+
 Gloam began as a fork of Dylan Raga's [win11hdr-srgb-to-gamma2.2-icm](https://github.com/dylanraga/win11hdr-srgb-to-gamma2.2-icm) and retains his identification of the Windows SDR-in-HDR sRGB-to-gamma correction, the insight the whole application is built around. Gloam has since grown into a different program, but it started there, and that diagnosis was the hard part.
 
 - [ArgyllCMS](https://www.argyllcms.com/), by Graeme Gill: the measurement and profiling tools Gloam drives for every calibration.
