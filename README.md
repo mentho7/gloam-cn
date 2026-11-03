@@ -18,6 +18,18 @@
 
 在 Windows 中开启 HDR 后，SDR 内容会变得平淡、发灰，因为 Windows 呈现它时所用的曲线，显示器本身并非为解码该曲线而设计。Gloam 为每台显示器把正确的曲线放回去。
 
+## v1.13.0 · 首个中文 fork 版本
+
+本版在原项目基础上，重点完成以下更新：
+
+- **中英即时切换**：覆盖托盘、设置、仪表盘、预检和校准报告，无需重启，修复切换后残留英文的问题。
+- **界面与布局改进**：修复夜间模式未知档位显示为空白的问题，增加布局溢出和语言切换回归检查。
+- **核心逻辑重构**：拆分显示输出策略、报告不确定度计算和位置查找逻辑，补充单元测试。
+- **状态反馈更清晰**：仪表盘展示显示输出的执行结果，校准界面增加阶段指示。
+- **安全加固**：色彩仪驱动提权安装前校验固定 SHA-256，位置查询改用 HTTPS。
+
+按本版发布说明，校准公式与实测输出算法未改变，无需因本次更新重新校准。安装包目前**未签名**。详见 [v1.13.0 完整发布说明](https://github.com/mentho7/gloam-cn/releases/tag/v1.13.0)。
+
 ## 快速开始
 
 1. 下载 [`GloamApp-win-Setup.exe`](https://github.com/mentho7/gloam-cn/releases/latest/download/GloamApp-win-Setup.exe) 并运行。按用户安装，不弹管理员提示。
@@ -177,12 +189,6 @@ dotnet run --project src/Gloam.Cli -- night 2200 --algorithm ultra --basis rec20
 - Velopack 安装根目录：`%LOCALAPPDATA%\GloamApp`
 
 报告问题时请从托盘使用 **导出诊断信息**。
-
-## 许可证
-
-Gloam 采用 MIT 许可证。
-
-ArgyllCMS 为 AGPL v3。Gloam 以独立进程方式调用 ArgyllCMS 工具，不链接 AGPL 代码。见 `THIRD_PARTY_NOTICES.txt`。
 
 ## 致谢
 

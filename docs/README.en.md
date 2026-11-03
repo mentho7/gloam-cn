@@ -18,6 +18,18 @@ Fix washed-out SDR content in Windows HDR mode. Per-monitor gamma correction, a 
 
 Turn HDR on in Windows and SDR content goes flat and milky, because Windows presents it through a curve your display was never built to decode. Gloam puts the right curve back, per monitor.
 
+## v1.13.0 · First Chinese fork release
+
+This release builds on the original project with:
+
+- **Live Chinese/English switching** across the tray, settings, dashboard, preflight checks, and calibration reports, with fixes for stale English text after switching.
+- **UI and layout improvements**, including fallback text for unknown night-mode presets and regression checks for overflow and language switching.
+- **Core refactoring** of display output policy, report uncertainty calculations, and location lookup, with unit-test coverage.
+- **Clearer status feedback** through display output results on the dashboard and calibration stage indicators.
+- **Security hardening** with a pinned SHA-256 check before elevated colorimeter driver installation and HTTPS location lookup.
+
+According to the release notes, calibration formulas and measured-output algorithms are unchanged, so this update does not require recalibration. The installer is currently **unsigned**. See the [full v1.13.0 release notes](https://github.com/mentho7/gloam-cn/releases/tag/v1.13.0).
+
 ## Quick start
 
 1. Download [`GloamApp-win-Setup.exe`](https://github.com/mentho7/gloam-cn/releases/latest/download/GloamApp-win-Setup.exe) and run it. Per-user install, no administrator prompt.
@@ -176,12 +188,6 @@ Contributions are welcome. See [CONTRIBUTING.md](../CONTRIBUTING.md).
 - Velopack install root: `%LOCALAPPDATA%\GloamApp`
 
 Use **Export Diagnostics** from the tray when reporting issues.
-
-## License
-
-Gloam is MIT licensed.
-
-ArgyllCMS is AGPL v3. Gloam invokes ArgyllCMS tools as separate processes and does not link against AGPL code. See `THIRD_PARTY_NOTICES.txt`.
 
 ## Credits
 
