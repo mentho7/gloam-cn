@@ -26,9 +26,9 @@ calibration installed as a Windows color profile containing an MHC2 transform
 
 ## Source and downloads
 
-- [GitHub repository](https://github.com/halideworks/gloam): Source, issues, release notes. MIT licensed.
-- [Installer (always latest release)](https://github.com/halideworks/gloam/releases/latest/download/GloamApp-win-Setup.exe): Per-user install, no administrator prompt, self-contained, bundles ArgyllCMS, auto-updates.
-- [Portable zip (always latest release)](https://github.com/halideworks/gloam/releases/latest/download/GloamApp-win-Portable.zip): No install; does not auto-update.
+- [GitHub repository](https://github.com/mentho7/gloam-cn): Source, issues, release notes. MIT licensed.
+- [Installer (always latest release)](https://github.com/mentho7/gloam-cn/releases/latest/download/GloamApp-win-Setup.exe): Per-user install, no administrator prompt, self-contained, bundles ArgyllCMS, auto-updates.
+- [Portable zip (always latest release)](https://github.com/mentho7/gloam-cn/releases/latest/download/GloamApp-win-Portable.zip): No install; does not auto-update.
 
 ## Notes for agents
 

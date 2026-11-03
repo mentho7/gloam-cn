@@ -19,11 +19,11 @@ Release, and installed apps auto-update from it.
    next launch.
 
 The version comes from the tag. `UpdateService.RepoUrl` and the CI upload target are both
-`github.com/halideworks/gloam` - keep them identical.
+`github.com/mentho7/gloam-cn` - keep them identical.
 
 ## One-time setup (must exist before the first tag)
 
-### GitHub repo (`halideworks/gloam`)
+### GitHub repo (`mentho7/gloam-cn`)
 - **Settings -> Environments -> New environment: `release`** (no protection rules required; add a
   required reviewer if you want a manual gate before each signed release).
 - **Settings -> Secrets and variables -> Actions -> Variables** (these are *Variables*, not Secrets):
@@ -45,8 +45,8 @@ The version comes from the tag. `UpdateService.RepoUrl` and the CI upload target
 - Entra app `gloam-github-signing` with:
   - the **Artifact Signing Certificate Profile Signer** role on the `gloam-sign` account, and
   - a **federated credential** (scenario: GitHub Actions, entity type **Environment**, org
-    `halideworks`, repo `gloam`, environment `release`) -> subject
-    `repo:halideworks/gloam:environment:release`, which the workflow's `release` environment matches.
+    `mentho7`, repo `gloam-cn`, environment `release`) -> subject
+    `repo:mentho7/gloam-cn:environment:release`, which the workflow's `release` environment matches.
 
 ## Cutting a release
 

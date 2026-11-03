@@ -6,8 +6,8 @@ have not measured, and small focused pull requests are all genuinely useful.
 ## Build
 
 ```powershell
-git clone https://github.com/halideworks/gloam.git
-cd gloam
+git clone https://github.com/mentho7/gloam-cn.git
+cd gloam-cn
 dotnet run --project src/Gloam
 ```
 
