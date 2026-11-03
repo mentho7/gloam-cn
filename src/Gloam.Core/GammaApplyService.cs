@@ -28,7 +28,9 @@ namespace Gloam.Core
         // Per-monitor coalescer: rapid slider drags collapse to one dispwin call per
         // completed invocation instead of queueing a backlog. See LatestValueCoalescer
         // for the concurrency contract and its tests for the proof.
-        private readonly LatestValueCoalescer<IntPtr, (MonitorInfo Monitor, GammaMode Mode, CalibrationSettings Calibration, double WhiteLevel)> _coalescer;
+        private readonly LatestValueCoalescer<IntPtr, (MonitorInfo Monitor, GammaMode Mode, CalibrationSettings Calibration, double WhiteLevel, long Revision)> _coalescer;
+
+        public DisplayOutputStateStore OutputStates { get; } = new();
 
         private readonly object _policyLock = new();
         private HashSet<IntPtr> _blockedMonitors = new HashSet<IntPtr>();
@@ -62,13 +64,16 @@ namespace Gloam.Core
             _nightModeService = nightModeService ?? throw new ArgumentNullException(nameof(nightModeService));
             _calibrationStatusResolver = calibrationStatusResolver ?? ResolveCalibrationStatus;
 
-            _coalescer = new LatestValueCoalescer<IntPtr, (MonitorInfo, GammaMode, CalibrationSettings, double)>(
+            _coalescer = new LatestValueCoalescer<IntPtr, (MonitorInfo, GammaMode, CalibrationSettings, double, long)>(
                 (_, item, cancellationToken) =>
                 {
                     try
                     {
                         if (cancellationToken.IsCancellationRequested)
+                        {
+                            OutputStates.Complete(item.Item1.DeviceName, item.Item5, OutputApplyStatus.Cancelled);
                             return;
+                        }
 
                         // Coalescer-time bypass re-check (TOCTOU close): RequestApply checked bypass
                         // on the caller thread, but the coalesced work runs later — a calibration may
@@ -76,6 +81,7 @@ namespace Gloam.Core
                         // hardware write so we never stomp the identity ramp the colorimeter is reading.
                         if (CalibrationStateManager.IsDeviceInBypass(item.Item1))
                         {
+                            OutputStates.Complete(item.Item1.DeviceName, item.Item5, OutputApplyStatus.Bypassed);
                             Log.Info($"GammaApplyService: skipping coalesced apply for {item.Item1.FriendlyName} (calibration bypass active)");
                             return;
                         }
@@ -83,11 +89,13 @@ namespace Gloam.Core
                         // skipIfBypassed: re-check bypass inside ApplyGamma immediately before the
                         // hardware write, closing the window between this coalesced callback and the
                         // syscall (a calibration could call EnterBypassMode during LUT generation).
-                        _dispwinRunner.ApplyGamma(item.Item1, item.Item2, item.Item4, item.Item3,
+                        var outcome = _dispwinRunner.ApplyGamma(item.Item1, item.Item2, item.Item4, item.Item3,
                             calibrationProfile: null, skipIfBypassed: true, cancellationToken: cancellationToken);
+                        OutputStates.Complete(item.Item1.DeviceName, item.Item5, outcome);
                     }
                     catch (Exception ex)
                     {
+                        OutputStates.Complete(item.Item1.DeviceName, item.Item5, OutputApplyStatus.Failed);
                         Log.Error($"GammaApplyService: apply failed ({item.Item1.FriendlyName}): {ex.Message}");
                     }
                 },
@@ -347,34 +355,24 @@ namespace Gloam.Core
             lock (_policyLock)
             {
                 _activeGamerSessions.TryGetValue(monitor.HMonitor, out gamerSession);
+                if (gamerSession != null)
+                    gamerSession = gamerSession with { Profile = gamerSession.Profile.Clone() };
                 nightModeBlocked = _blockedMonitors.Contains(monitor.HMonitor);
             }
 
-            // Explicit Settings-window previews own the wire temporarily. The persistent
-            // gamer session returns on the next normal ApplyAll; this prevents a foreground
-            // game from making monitor controls appear broken.
-            bool explicitPreview = manualCalibration != null || nightKelvinOverride.HasValue;
-            if (explicitPreview) gamerSession = null;
-
-            int currentKelvin = nightKelvinOverride ?? _nightModeService.CurrentNightKelvin;
-            if (nightModeBlocked) currentKelvin = 6500;
-
-            GammaMode effectiveMode = mode;
+            // Capture policy inputs once at the request boundary. The resolver never reads
+            // settings, timers or hardware, and preview/game/hotkey precedence is testable.
+            var policy = GammaApplyPolicy.Resolve(new GammaApplyPolicy.Input(
+                mode, manualCalibration != null, nightKelvinOverride,
+                _nightModeService.CurrentNightKelvin, nightModeBlocked, NightModeManuallyDisabled,
+                gamerSession?.Profile, gamerSession?.LockedKelvin ?? 6500));
+            if (!policy.UseGameProfile) gamerSession = null;
+            int currentKelvin = policy.Kelvin;
+            GammaMode effectiveMode = policy.Mode;
+            bool nightModeActive = policy.NightModeActive;
             NightModeSettings nightSettings = nightModeSettingsOverride ?? _settingsManager.NightMode;
-            if (gamerSession != null)
-            {
-                currentKelvin = ResolveGamerKelvin(gamerSession, currentKelvin);
-                if (gamerSession.Profile.OverrideGamma)
-                    effectiveMode = gamerSession.Profile.GammaMode;
-                if (gamerSession.Profile.NightPolicy == GamerNightPolicy.NightOps)
-                    nightSettings = BuildNightOpsSettings(nightSettings, gamerSession.Profile);
-            }
-
-            // The global hotkey is the final authority and can always recover neutral output,
-            // including from a Night Ops game profile.
-            if (NightModeManuallyDisabled) currentKelvin = 6500;
-
-            bool nightModeActive = nightKelvinOverride.HasValue || currentKelvin < 6450;
+            if (gamerSession?.Profile.NightPolicy == GamerNightPolicy.NightOps)
+                nightSettings = BuildNightOpsSettings(nightSettings, gamerSession.Profile);
 
             // Composition with a native MHC2 calibration: the profile corrects the PANEL
             // (gamut, white point, tone tracking) at the compositor, which makes the display
@@ -441,7 +439,14 @@ namespace Gloam.Core
 
             PublishSnapshot(monitor, calibration);
 
-            _coalescer.Submit(monitor.HMonitor, (monitor, effectiveMode, calibration, MonitorInfo.SanitizeSdrWhiteLevel(monitor.SdrWhiteLevel)));
+            var source = NightModeManuallyDisabled ? OutputPolicySource.ManualDaylight
+                : manualCalibration != null || nightKelvinOverride.HasValue ? OutputPolicySource.Preview
+                : gamerSession != null ? OutputPolicySource.Game
+                : nightModeBlocked ? OutputPolicySource.ApplicationExclusion
+                : nightModeActive ? OutputPolicySource.NightSchedule : OutputPolicySource.Display;
+            var request = OutputStates.Begin(monitor.DeviceName, effectiveMode, currentKelvin, source);
+            _coalescer.Submit(monitor.HMonitor, (monitor, effectiveMode, calibration,
+                MonitorInfo.SanitizeSdrWhiteLevel(monitor.SdrWhiteLevel), request.Revision));
         }
 
         /// <summary>

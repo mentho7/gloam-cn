@@ -13,6 +13,10 @@ internal static class TestProcessBootstrap
     {
         NormalizeWindir();
         RedirectAppDataAwayFromTheRealUser();
+
+        // Every test runs against the real English catalog. Migrated text otherwise resolves to
+        // its key, and assertions on user-visible copy fail for the wrong reason.
+        Gloam.Tests.TestLocalization.UseEnglish();
     }
 
     /// <summary>

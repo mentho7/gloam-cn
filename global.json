@@ -1,6 +1,8 @@
 {
   "sdk": {
-    "version": "8.0.100",
+    // Floors at .NET 10 LTS. latestFeature stays inside the 10.0 feature band, so a future SDK 11
+    // or 12 install cannot silently take over the build: it is refused rather than used.
+    "version": "10.0.100",
     "rollForward": "latestFeature",
     "allowPrerelease": false
   }

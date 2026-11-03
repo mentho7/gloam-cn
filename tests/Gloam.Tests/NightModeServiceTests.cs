@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Gloam.Core;
-using Gloam.ViewModels;
 using Xunit;
 
 namespace Gloam.Tests

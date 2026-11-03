@@ -53,6 +53,13 @@ namespace Gloam.Core
             GammaApplyService applyService,
             Func<IReadOnlyList<MonitorInfo>> monitorSnapshot,
             Func<IReadOnlyList<RunningAppObservation>>? runningAppSnapshot = null)
+            : this(settings, applyService, monitorSnapshot, runningAppSnapshot, TimeSpan.FromSeconds(2)) { }
+
+        internal GamerModeCoordinator(
+            SettingsManager settings, GammaApplyService applyService,
+            Func<IReadOnlyList<MonitorInfo>> monitorSnapshot,
+            Func<IReadOnlyList<RunningAppObservation>>? runningAppSnapshot,
+            TimeSpan pollInterval)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _applyService = applyService ?? throw new ArgumentNullException(nameof(applyService));
@@ -70,7 +77,7 @@ namespace Gloam.Core
             _settings.GamerSettingsChanged += OnGamerSettingsChanged;
             _settings.MonitorProfileChanged += OnMonitorProfileChanged;
             _runningAppTimer = new Timer(_ => RefreshRunningApps(), null,
-                TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
+                pollInterval, pollInterval);
         }
 
         public event Action<GamerPolicyChange>? PolicyChanged;

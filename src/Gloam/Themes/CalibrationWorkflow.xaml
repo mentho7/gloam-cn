@@ -1,0 +1,48 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:model="clr-namespace:Gloam.Features.Calibration"
+                    xmlns:loc="clr-namespace:Gloam.Localization.Wpf;assembly=Gloam.Localization.Wpf">
+    <Style x:Key="CalibrationWorkflowStatus" TargetType="TextBlock">
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Margin" Value="0,8,0,8"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Preparing}">
+                <Setter Property="Text" Value="{loc:Tr workflow.preparing}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Measuring}">
+                <Setter Property="Text" Value="{loc:Tr workflow.measuring}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Generating}">
+                <Setter Property="Text" Value="{loc:Tr workflow.generating}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Measured}">
+                <Setter Property="Text" Value="{loc:Tr workflow.measured}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Installing}">
+                <Setter Property="Text" Value="{loc:Tr workflow.installing}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Installed}">
+                <Setter Property="Text" Value="{loc:Tr workflow.installed}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Verifying}">
+                <Setter Property="Text" Value="{loc:Tr workflow.verifying}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Verified}">
+                <Setter Property="Text" Value="{loc:Tr workflow.verified}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Review}">
+                <Setter Property="Text" Value="{loc:Tr workflow.review}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Cancelled}">
+                <Setter Property="Text" Value="{loc:Tr workflow.cancelled}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Failed}">
+                <Setter Property="Text" Value="{loc:Tr workflow.failed}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WorkflowStage}" Value="{x:Static model:CalibrationWorkflowStage.Historical}">
+                <Setter Property="Text" Value="{loc:Tr workflow.historical}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

@@ -1,183 +1,185 @@
 # Gloam
 
-Fix washed-out SDR content in Windows HDR mode. Per-monitor gamma correction, a perceptual night mode, and verified colorimeter calibration.
+**中文** · [English](docs/README.en.md)
 
-[![Build](https://github.com/halideworks/gloam/actions/workflows/build.yml/badge.svg)](https://github.com/halideworks/gloam/actions/workflows/build.yml)
-[![Latest release](https://img.shields.io/github/v/release/halideworks/gloam?sort=semver)](https://github.com/halideworks/gloam/releases/latest)
+修复 Windows HDR 模式下 SDR 内容发灰的问题。逐显示器伽马校正、感知式夜间模式，以及经色度计验证的校准。
+
+[![Build](https://github.com/mentho7/gloam-cn/actions/workflows/build.yml/badge.svg)](https://github.com/mentho7/gloam-cn/actions/workflows/build.yml)
+[![Latest release](https://img.shields.io/github/v/release/mentho7/gloam-cn?sort=semver)](https://github.com/mentho7/gloam-cn/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 
-![Detail of a candlelit painting shown twice. Left, decoded by Windows with the sRGB curve: the dark background washes out to a flat brown-grey haze. Right, with Gloam's Gamma 2.2 correction: the background returns to a deep black the figure sits against, while the candle flames stay exactly as bright.](docs/media/hero-comparison.png)
+![烛光油画局部，同一画面并排显示两次。左图由 Windows 按 sRGB 曲线解码，暗部背景泛成一片平板的棕灰色雾状；右图为 Gloam 的伽马 2.2 校正后的效果，背景回到人物所处的深黑，烛焰亮度完全不变。](docs/media/hero-comparison.png)
 
-<sub>Rendered, not photographed: the source image is pushed through the same signal path the app implements (`TransferFunctions.cs`, `LutGenerator.cs`, and the Windows SDR-in-HDR wire model), once without Gloam and once with its Gamma 2.2 LUT, then re-encoded for an ordinary SDR screen. See [`scripts/render-comparison-images.py`](scripts/render-comparison-images.py). A screenshot cannot show this: the whole problem is that what the compositor sends to the panel differs from what gets captured.</sub>
+<sub>渲染而非拍摄：源图被推过应用所实现的同一条信号链路（`TransferFunctions.cs`、`LutGenerator.cs`，以及 Windows SDR-in-HDR 的输出模型），一次不经 Gloam、一次经其伽马 2.2 LUT，再重新编码为普通 SDR 屏幕可看的图像。见 [`scripts/render-comparison-images.py`](scripts/render-comparison-images.py)。截图无法呈现这一点：问题本身就在于合成器送往面板的信号与截图捕获到的内容并不一致。</sub>
 
-Turn HDR on in Windows and SDR content goes flat and milky, because Windows presents it through a curve your display was never built to decode. Gloam puts the right curve back, per monitor.
+在 Windows 中开启 HDR 后，SDR 内容会变得平淡、发灰，因为 Windows 呈现它时所用的曲线，显示器本身并非为解码该曲线而设计。Gloam 为每台显示器把正确的曲线放回去。
 
-## Quick start
+## 快速开始
 
-1. Download [`GloamApp-win-Setup.exe`](https://github.com/halideworks/gloam/releases/latest/download/GloamApp-win-Setup.exe) and run it. Per-user install, no administrator prompt.
-2. Right-click the Gloam icon in the system tray.
-3. Pick **Gamma 2.2** for the monitor you want to fix.
+1. 下载 [`GloamApp-win-Setup.exe`](https://github.com/mentho7/gloam-cn/releases/latest/download/GloamApp-win-Setup.exe) 并运行。按用户安装，不弹管理员提示。
+2. 右键单击系统托盘中的 Gloam 图标。
+3. 为需要修复的显示器选择 **伽马 2.2**。
 
-That is the whole fix. Everything below is optional.
+修复到此为止。下面全部是可选的。
 
-## What It Does
+## 功能
 
-- Fixes the Windows SDR-in-HDR gamma mismatch with per-monitor Gamma 2.2, Gamma 2.4, or Windows Default modes.
-- Restores corrections automatically on startup, display changes, resume, and driver or game ramp resets.
-- Provides a perceptual night mode built on CAT16 chromatic adaptation, with fixed-time or sun-position schedules, a manual override, perceptually uniform mired-space fades, and an Ultra Night profile for maximum blue suppression.
-- Adds per-game Game Lab profiles with calibrated shadow visibility, Reference, Competitive Clarity, Cinematic HDR, and spectral Night Ops intents, multi-display window targeting, and a Gameplay Lock that holds schedule-derived output steady during play.
-- Offers an opt-in "Apply while the app is running, even without focus" setting under each profile's Advanced controls. Choose "One specific display" for apps such as MPV on a second monitor. Focused profiles take priority; otherwise the first matching running profile is used. Background app starts and exits are detected within about three seconds.
-- Checks the Windows-visible game signal chain at launch, including SDR/HDR expectation, DXGI color space, output bit depth, HDR headroom, and measured-calibration status. The dashboard keeps a live receipt of the active intent and every finding.
-- Auto-disables night mode for chosen applications while they are in the foreground, either on every monitor or only on the displays the application's window covers. Gamma correction and installed calibration profiles stay active.
-- Supports SDR and HDR colorimeter calibration through ArgyllCMS, including native Windows MHC2 profile installation and verification.
-- Remembers calibration setup per monitor, including target, preset, meter correction, display type, and window position.
-- Updates silently in the background when installed with the setup package.
-- Runs locally. No accounts, no telemetry.
+- 用逐显示器的伽马 2.2、伽马 2.4 或 Windows 默认模式，修复 Windows SDR-in-HDR 的伽马失配。
+- 在启动、显示器变更、系统恢复以及驱动或游戏重置 ramp 之后自动恢复校正。
+- 提供基于 CAT16 色适应的感知式夜间模式，含固定时间或太阳位置调度、手动覆盖、感知均匀的 mired 空间渐变，以及把蓝光压制到最大的极致夜间配置。
+- 提供按游戏的游戏实验室配置，含经校准的暗部可见度，以及「参考」「竞技清晰」「影院级 HDR」与「光谱夜间作战」等画面意图、多显示器窗口定位，以及游戏进行期间锁定调度输出的游戏锁定。
+- 在每个配置的「高级」下提供可选项「应用运行期间即使没有焦点也生效」。为第二台显示器上的 MPV 之类应用选择「指定显示器」。获得焦点的配置优先，否则使用第一个匹配的运行中配置。后台应用的启动与退出约在三秒内被检测到。
+- 启动时检查 Windows 侧可见的游戏信号链路，包括 SDR/HDR 期望、DXGI 色彩空间、输出位深、HDR 余量与实测校准状态。仪表盘持续给出当前意图与每一项检查结果的实时回执。
+- 对选定应用在其位于前台时自动停用夜间模式，可作用于所有显示器，也可只作用于该应用窗口覆盖的显示器。伽马校正与已安装的校准配置文件保持生效。
+- 通过 ArgyllCMS 支持 SDR 与 HDR 色度计校准，包括原生 Windows MHC2 配置文件的安装与验证。
+- 按显示器记住校准设置，包括目标、预设、色度计校正文件、显示类型与窗口位置。
+- 使用安装包安装后，在后台静默更新。
+- 完全本地运行。无账户，无遥测。
 
-## Install
+## 安装
 
-These links always resolve to the current release:
+以下链接始终指向当前发布版本：
 
-Recommended:
+推荐方式：
 
-- [`GloamApp-win-Setup.exe`](https://github.com/halideworks/gloam/releases/latest/download/GloamApp-win-Setup.exe)
-- Per-user install, no administrator prompt.
-- Self-contained.
-- Bundles ArgyllCMS.
-- Auto-updates silently on app exit or restart.
+- [`GloamApp-win-Setup.exe`](https://github.com/mentho7/gloam-cn/releases/latest/download/GloamApp-win-Setup.exe)
+- 按用户安装，不弹管理员提示。
+- 自包含，无需另装运行时。
+- 内置 ArgyllCMS。
+- 退出或重启应用时静默自动更新。
 
-Portable:
+便携版：
 
-- [`GloamApp-win-Portable.zip`](https://github.com/halideworks/gloam/releases/latest/download/GloamApp-win-Portable.zip)
-- Extract and run `Gloam.exe`.
-- Does not auto-update. Replace it with a newer zip to upgrade.
+- [`GloamApp-win-Portable.zip`](https://github.com/mentho7/gloam-cn/releases/latest/download/GloamApp-win-Portable.zip)
+- 解压后运行 `Gloam.exe`。
+- 不自动更新。替换为更新的 zip 包即可升级。
 
-Release notes, checksums and older versions: https://github.com/halideworks/gloam/releases
+发布说明、校验和与旧版本见 https://github.com/mentho7/gloam-cn/releases
 
-If SmartScreen says "Windows protected your PC", click **More info** and confirm the verified publisher. New signed apps can still show reputation warnings until enough users have installed them.
+若 SmartScreen 提示「Windows 已保护你的电脑」，点击 **更多信息** 并确认已验证的发布者。新签名的应用在积累到足够多安装量之前，仍可能显示信誉警告。
 
-## Use
+## 使用
 
-![Gloam's tray menu, showing per-monitor gamma modes](docs/media/tray-menu.png)
+![Gloam 的托盘菜单，显示逐显示器的伽马模式](docs/media/tray-menu.png)
 
-1. Launch Gloam. It appears in the system tray.
-2. Right-click the tray icon.
-3. Pick a gamma mode per monitor:
-   - Gamma 2.2 for general PC use.
-   - Gamma 2.4 for dark-room video or BT.1886-style viewing.
-   - Windows Default to bypass correction.
-4. Enable **Start with Windows** if you want corrections restored at login.
-5. Open the dashboard for monitor status, night mode, calibration, and diagnostics.
+1. 启动 Gloam，它会出现在系统托盘。
+2. 右键单击托盘图标。
+3. 为每台显示器选择伽马模式：
+   - 伽马 2.2 适合一般 PC 使用。
+   - 伽马 2.4 适合暗房视频或 BT.1886 式观看。
+   - Windows 默认：绕过校正。
+4. 若希望在登录时恢复校正，启用 **随 Windows 启动**。
+5. 打开仪表盘查看显示器状态、夜间模式、校准与诊断。
 
-Something not behaving? See [Troubleshooting](docs/troubleshooting.md).
+出现异常？参见 [疑难解答](docs/troubleshooting.md)。
 
-![The Gloam dashboard: per-monitor status, night mode, and calibration state](docs/media/dashboard.png)
+![Gloam 仪表盘：逐显示器状态、夜间模式与校准状态](docs/media/dashboard.png)
 
-Hotkeys:
+快捷键：
 
-- `Win + Shift + F1`: Gamma 2.2 on the focused monitor.
-- `Win + Shift + F2`: Gamma 2.4 on the focused monitor.
-- `Win + Shift + F3`: Windows Default.
-- `Win + Shift + F4`: Panic mode, clears gamma ramps immediately.
-- `Win + Shift + N`: Toggle night mode.
-- `Win + Shift + G`: Open or dismiss the dedicated Game Lab window for the active game.
+- `Win + Shift + F1`：对当前焦点显示器应用伽马 2.2。
+- `Win + Shift + F2`：对当前焦点显示器应用伽马 2.4。
+- `Win + Shift + F3`：Windows 默认。
+- `Win + Shift + F4`：紧急模式（Panic），立即清除伽马 ramp。
+- `Win + Shift + N`：切换夜间模式。
+- `Win + Shift + G`：打开或关闭当前游戏的独立游戏实验室窗口。
 
-## Night mode
+## 夜间模式
 
-![Gloam's night mode schedule editor](docs/media/night-mode.png)
+![Gloam 的夜间模式时间线编辑器](docs/media/night-mode.png)
 
-Night mode warms the display on a schedule you set by fixed times or by sun position for your location. The shift is computed as a chromatic adaptation rather than a blue-channel cut, so neutrals stay neutral instead of going muddy, and transitions are paced in mired space so the change is perceptually even rather than fast at one end and slow at the other.
+夜间模式按你设定的时间表为显示器加暖，可按固定时间，也可按你所在位置的太阳位置。偏移量以色适应的方式计算，而不是直接砍掉蓝通道，因此中性色保持中性、不会发浑；渐变在 mired 空间中匀速步进，使变化在感知上均匀，而不是一端快一端慢。
 
-Ultra Night pushes further for maximum blue suppression, and can use a spectral sample of your own panel when you supply one.
+极致夜间把蓝光压制推到最大，并可在你提供面板光谱样本时使用该样本。
 
-## Game Lab
+## 游戏实验室
 
-![Game Lab: per-game picture intents and the live session receipt](docs/media/game-lab.png)
+![游戏实验室：逐游戏的画面意图与实时会话回执](docs/media/game-lab.png)
 
-1. Press `Win + Shift + G` from a game to open the compact Game Lab window. The dashboard section remains available for desktop setup.
-2. The foreground game's executable is prefilled. Running-game choices refresh while the window is open.
-3. Add the game and choose a picture intent. Competitive Clarity lifts the deepest shadows while protecting midtones; Cinematic HDR preserves PQ and checks the Windows signal; Night Ops uses Gloam's spectral renderer.
-4. Edits save and apply automatically. Toggle **Profile enabled** to compare the profile with the calibrated baseline.
-5. Leave **Gameplay Lock** enabled to hold schedule-derived color temperature steady during the session. The panic and manual night-mode hotkeys remain authoritative.
-6. The active-session receipt lists the gamma, shadow treatment, night policy, target display, and signal findings that Gloam can verify.
+1. 在游戏中按 `Win + Shift + G` 打开紧凑的游戏实验室窗口。桌面端的配置仍可在仪表盘分区中完成。
+2. 前台游戏的可执行文件会被预填。窗口打开期间，运行中游戏的候选项会持续刷新。
+3. 添加游戏并选择画面意图。竞技清晰会提亮最深的暗部，同时保护中间调；影院级 HDR 保留 PQ 并检查 Windows 信号；夜间作战使用 Gloam 的光谱渲染器。
+4. 编辑会自动保存并生效。切换 **配置已启用** 可将该配置与校准基线对比。
+5. 保持 **游戏锁定** 启用，可在本次会话期间让调度得出的色温保持稳定。紧急模式与手动夜间模式快捷键仍然拥有最高优先级。
+6. 当前会话回执会列出伽马、暗部处理、夜间策略、目标显示器，以及 Gloam 能够验证的信号检查结果。
 
-The implementation and measurement boundaries are documented in [Game Lab design](docs/gamer-mode-design.md).
+实现与测量边界见 [游戏实验室设计](docs/gamer-mode-design.md)。
 
-## Calibration
+## 校准
 
-![A Gloam calibration report: measured before/after, per-patch error, and the uncertainty budget](docs/media/calibration-report.png)
+![一份 Gloam 校准报告：实测前后对比、逐色块误差与不确定度预算](docs/media/calibration-report.png)
 
-Connect a supported colorimeter and choose **Calibrate Display** from the tray.
+连接受支持的色度计，从托盘选择 **校准显示器**。
 
-Recommended flow:
+推荐流程：
 
-1. Warm up the display for at least 30 minutes.
-2. Pick the monitor, display type, target, and calibration preset.
-3. Use a matching `.ccss` or `.ccmx` correction for QD-OLED, wide-gamut LCD, and other non-standard panels. The setup dialog can search the DisplayCAL community database and download one directly.
-4. Run calibration. Gloam bypasses existing corrections while measuring.
-5. Review the report. Gloam applies the profile and re-measures through it automatically.
+1. 显示器预热至少 30 分钟。
+2. 选择显示器、显示类型、目标与校准预设。
+3. 对 QD-OLED、广色域 LCD 及其他非标准面板，使用匹配的 `.ccss` 或 `.ccmx` 校正文件。设置对话框可搜索 DisplayCAL 社区数据库并直接下载。
+4. 运行校准。测量期间 Gloam 会绕过已有校正。
+5. 查看报告。Gloam 会应用该配置文件，并自动经它重新测量一遍。
 
-For HDR desktop calibration, use **HDR Desktop PQ (sRGB gamut)**. When a panel already measures close to target, prefer white-point-only correction over full gamut correction: correcting a panel that is already accurate reliably verifies worse, not better.
+HDR 桌面校准请使用 **HDR 桌面 PQ（sRGB 色域）**。当面板实测已接近目标时，优先只校正白点而不做全色域校正：对一块本已准确的面板做校正，验证结果往往会变差，而不是变好。
 
-Every number in the report is measured through the installed profile, not predicted. The method, and what it does not claim, is written up in the [whitepaper](https://getgloam.org/whitepaper).
+报告中的每个数字都是经已安装配置文件实测得到的，不是预测值。方法本身，以及它不宣称的内容，写在[白皮书](https://getgloam.org/whitepaper)里。
 
-### Hardware validation
+### 硬件验证
 
-Gloam's calibration model is pinned by golden fixtures: real recorded measurement sets replayed through the live pipeline on every CI run, so a modeling change that would alter what the pipeline computes from real panel data fails the build.
+Gloam 的校准模型由黄金夹具（golden fixture）固定：每次 CI 运行都会把真实记录的测量集重放进实时管线，因此任何会改变管线基于真实面板数据计算结果的建模改动都会让构建失败。
 
-- **Golden-fixture validated:** Gigabyte M27Q-P, MSI MAG271QPX28.
-- **Expected to work, seeking validation data:** OLED, QD-OLED, wide-gamut LCD, mini-LED.
+- **已由黄金夹具验证：** Gigabyte M27Q-P、MSI MAG271QPX28。
+- **预期可用、正在征集验证数据：** OLED、QD-OLED、广色域 LCD、mini-LED。
 
-The second list is honest rather than modest. The code carries panel-specific handling for those classes, but no recorded fixture pins it. If you have one of those displays and a supported colorimeter, [contributing a golden fixture](docs/golden-fixture-contribution.md) is the single most valuable thing you can send us.
+第二份清单是诚实而非谦虚。代码对这些类别带有面板专用处理，但没有已记录的夹具将其固定。如果你拥有其中一类显示器以及受支持的色度计，[贡献一份黄金夹具](docs/golden-fixture-contribution.md)是你能发给我们最有价值的东西。
 
-## Requirements
+## 环境要求
 
-- Windows 10 or 11.
-- HDR display for the main SDR-in-HDR gamma fix.
-- No .NET runtime install required for official builds.
-- Colorimeter optional. Calibration uses ArgyllCMS, which Gloam can download automatically.
+- Windows 10 或 11。
+- 主要的 SDR-in-HDR 伽马修复需要 HDR 显示器。
+- 官方构建无需另装 .NET 运行时。
+- 色度计可选。校准使用 ArgyllCMS，Gloam 可自动下载。
 
-## Build From Source
+## 从源码构建
 
 ```powershell
-git clone https://github.com/halideworks/gloam.git
+git clone https://github.com/mentho7/gloam-cn.git
 cd gloam
 dotnet run --project src/Gloam
 ```
 
-Package locally:
+本地打包：
 
 ```powershell
 .\package.ps1 -Version X.Y.Z
 ```
 
-Headless checks:
+无界面检查（headless）：
 
 ```powershell
 dotnet run --project src/Gloam.Cli -- check-lut 2.2 200 --algorithm perceptual --temp-k 2700 --json artifacts\cli-lut-check.json
 dotnet run --project src/Gloam.Cli -- night 2200 --algorithm ultra --basis rec2020 --json -
 ```
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+欢迎贡献。见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-## Files
+## 文件位置
 
-- Settings, logs, reports, corrections: `%LOCALAPPDATA%\Gloam`
-- Velopack install root: `%LOCALAPPDATA%\GloamApp`
+- 设置、日志、报告、校正文件：`%LOCALAPPDATA%\Gloam`
+- Velopack 安装根目录：`%LOCALAPPDATA%\GloamApp`
 
-Use **Export Diagnostics** from the tray when reporting issues.
+报告问题时请从托盘使用 **导出诊断信息**。
 
-## License
+## 许可证
 
-Gloam is MIT licensed.
+Gloam 采用 MIT 许可证。
 
-ArgyllCMS is AGPL v3. Gloam invokes ArgyllCMS tools as separate processes and does not link against AGPL code. See `THIRD_PARTY_NOTICES.txt`.
+ArgyllCMS 为 AGPL v3。Gloam 以独立进程方式调用 ArgyllCMS 工具，不链接 AGPL 代码。见 `THIRD_PARTY_NOTICES.txt`。
 
-## Credits
+## 致谢
 
-Gloam began as a fork of Dylan Raga's [win11hdr-srgb-to-gamma2.2-icm](https://github.com/dylanraga/win11hdr-srgb-to-gamma2.2-icm) and retains his identification of the Windows SDR-in-HDR sRGB-to-gamma correction, the insight the whole application is built around. Gloam has since grown into a different program, but it started there, and that diagnosis was the hard part.
+Gloam 最初是 Dylan Raga 的 [win11hdr-srgb-to-gamma2.2-icm](https://github.com/dylanraga/win11hdr-srgb-to-gamma2.2-icm) 的衍生项目，并保留了他对 Windows SDR-in-HDR 下 sRGB 到伽马校正的识别——整个应用正是建立在这个洞察之上。Gloam 此后已长成一个不同的程序，但它始于此，而当初那步诊断才是最难的部分。
 
-- [ArgyllCMS](https://www.argyllcms.com/), by Graeme Gill: the measurement and profiling tools Gloam drives for every calibration.
-- [MHC2Gen](https://github.com/dantmnf/MHC2), by dantmnf: the reference for Windows MHC2 profile generation.
+- [ArgyllCMS](https://www.argyllcms.com/)，作者 Graeme Gill：Gloam 每次校准所驱动的测量与特征化工具。
+- [MHC2Gen](https://github.com/dantmnf/MHC2)，作者 dantmnf：Windows MHC2 配置文件生成的参考实现。
 
-Formerly HDR Gamma Controller.
+曾用名 HDR Gamma Controller。

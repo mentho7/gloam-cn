@@ -1,0 +1,104 @@
+using System;
+using Gloam.Localization.Wpf;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Input;
+using Gloam.Core;
+using Gloam.Core.Calibration;
+
+namespace Gloam.Features.Settings
+{
+    /// <summary>
+    /// View-only concerns: window chrome (drag, close) and the hold-to-compare
+    /// mouse gesture. Everything else lives in SettingsViewModel.
+    /// </summary>
+    public partial class SettingsWindow : Window
+    {
+        private readonly SettingsViewModel _viewModel;
+
+        public SettingsWindow(
+            MonitorInfo initialMonitor,
+            List<MonitorInfo> allMonitors,
+            SettingsManager settingsManager,
+            Action<MonitorInfo, GammaMode, CalibrationSettings?, int?>? applyCallback = null)
+        {
+            InitializeComponent();
+            WindowBoundsPersistence.Attach(this, settingsManager, "MonitorSettings");
+
+            // Localization is app-scoped, not per monitor. Resolved from the composition root
+            // because this window is constructed by several callers that have no reason to know
+            // about it; the parameter stays optional so the window remains constructible in tests.
+            LanguageService? languageService = App.Services?.GetService(typeof(LanguageService)) as LanguageService;
+
+            // No container (design time, screenshot harness, or a caller that built this window
+            // directly): fall back to the published localizer so the picker still lists languages.
+            // Only the persisted preference is lost, which beats an empty combo box.
+            if (languageService is null)
+            {
+                languageService = new LanguageService(
+                    LocalizedStrings.Default.Localizer,
+                    _ => { },
+                    followSystemLabelKey: "settings.language.followSystem");
+            }
+
+            _viewModel = new SettingsViewModel(initialMonitor, allMonitors, settingsManager, applyCallback, languageService);
+            _viewModel.CloseRequested += Close;
+            DataContext = _viewModel;
+
+            // A debounced preview must not fire into a dead window. Cleanup also reverts
+            // any live-previewed but unsaved edits back to the persisted profile when the
+            // window is closed without Save & Close (X / Alt+F4).
+            Closed += (s, e) => _viewModel.Cleanup();
+        }
+
+        // Simplified constructor for single monitor (backwards compatibility)
+        public SettingsWindow(
+            MonitorInfo monitor,
+            SettingsManager settingsManager,
+            Action<MonitorInfo, GammaMode, CalibrationSettings?, int?>? applyCallback = null)
+            : this(monitor, new List<MonitorInfo> { monitor }, settingsManager, applyCallback)
+        {
+        }
+
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                DragMove();
+            }
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void Compare_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _viewModel.CompareStart();
+            e.Handled = true;
+        }
+
+        private void Compare_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            _viewModel.CompareEnd();
+            e.Handled = true;
+        }
+
+        private void FindNightSpectrum_Click(object sender, RoutedEventArgs e)
+        {
+            var browser = new CcssBrowserWindow(
+                _viewModel.CurrentMonitorFriendlyName,
+                CalibrationSetupViewModel.CorrectionsFolder,
+                typeFilter: "ccss",
+                title: Loc.Get("settings.find.display.spectrum"),
+                introText: "Search for a DisplayCAL .ccss spectral sample matching this panel. Gloam uses it only to estimate Ultra Night melanopic weights.")
+            {
+                Owner = this
+            };
+
+            if (browser.ShowDialog() == true && browser.SavedPath != null)
+                _viewModel.SelectNightSpectrumPath(browser.SavedPath);
+        }
+    }
+}

@@ -263,7 +263,7 @@ namespace Gloam.Core
         /// to the perceptual default. The enum member is kept so old settings still deserialize.
         /// </summary>
         private static NightModeAlgorithm ResolveAlgorithm(NightModeAlgorithm algorithm) =>
-            algorithm == NightModeAlgorithm.BlueReduction || !Enum.IsDefined(typeof(NightModeAlgorithm), algorithm)
+            algorithm == NightModeAlgorithm.BlueReduction || !Enum.IsDefined(algorithm)
                 ? NightModeAlgorithm.Perceptual
                 : algorithm;
 
@@ -460,6 +460,28 @@ namespace Gloam.Core
         public void SetDarkTheme(bool dark)
         {
             lock (_dataLock) { _data.DarkTheme = dark; _dataVersion++; }
+            Save();
+        }
+
+        /// <summary>
+        /// Persisted UI language tag, or <c>null</c> to follow the Windows display language.
+        /// Stored as a plain tag rather than a <see cref="System.Globalization.CultureInfo"/> so
+        /// the settings file stays portable and a tag this build cannot serve is not fatal.
+        /// </summary>
+        public string? Language
+        {
+            get { lock (_dataLock) { return _data.Language; } }
+        }
+
+        public void SetLanguage(string? tag)
+        {
+            string? normalized = string.IsNullOrWhiteSpace(tag) ? null : tag.Trim();
+            lock (_dataLock)
+            {
+                if (string.Equals(_data.Language, normalized, StringComparison.OrdinalIgnoreCase)) return;
+                _data.Language = normalized;
+                _dataVersion++;
+            }
             Save();
         }
 
@@ -1375,6 +1397,9 @@ namespace Gloam.Core
             public List<GamerProfileRule> GamerProfiles { get; set; } = new List<GamerProfileRule>();
             // Brutalist UI theme: true = dark, false = light, null = follow OS.
             public bool? DarkTheme { get; set; } = null;
+            // UI language tag; null/absent = follow the OS display language. Added after v1,
+            // so an older file simply has no value and behaves as "follow the system".
+            public string? Language { get; set; }
             public bool StartupDefaultApplied { get; set; }
             public bool LegacyInstallWarningShown { get; set; }
             public bool AllowWindowsNightLight { get; set; }

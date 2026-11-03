@@ -70,3 +70,11 @@ ROADMAP.md
 # Build-time tooling only (KaTeX, used by scripts/build-whitepaper-math.mjs).
 # The site itself ships no runtime JavaScript beyond its small inline scripts.
 node_modules/
+
+# AI process artifacts (generated analysis, not shipped code)
+.simplify/
+ai/
+docs/reviews/
+
+# Local DSH agent tooling state
+.dsh-switchman/

@@ -3,7 +3,6 @@ using System.IO;
 using System.Text.Json;
 using Gloam.Core;
 using Gloam.Interop;
-using Gloam.ViewModels;
 using Xunit;
 
 namespace Gloam.Tests
@@ -220,7 +219,7 @@ namespace Gloam.Tests
                 {
                     Interlocked.Increment(ref snapshots);
                     return new[] { new RunningAppObservation(profile.AppName, profile.ExecutablePath, null) };
-                });
+                }, TimeSpan.FromMilliseconds(50));
                 coordinator.PolicyChanged += _ => activated.Set();
                 Assert.True(activated.Wait(TimeSpan.FromSeconds(6)), "Background polling did not activate the profile.");
                 Assert.Equal("mpv.exe", Assert.Single(coordinator.ActiveSessions).AppName);

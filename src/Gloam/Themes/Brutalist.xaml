@@ -128,6 +128,35 @@
         </Setter>
     </Style>
 
+    <!-- Compact language chip for title bars: 32px tall, auto width, bordered so it reads as a
+         control next to the glyph buttons rather than as one more label. Mono face because the
+         content is a two-letter code. -->
+    <Style x:Key="BrutLanguageButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextDim}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource MonoFont}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Padding" Value="9,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="b" Background="Transparent" CornerRadius="4"
+                            BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter x:Name="cp" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource ThemeAccent}"/>
+                            <Setter TargetName="cp" Property="TextElement.Foreground" Value="{DynamicResource ThemeAccent}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="BrutIconButton" TargetType="Button">
         <Setter Property="Foreground" Value="{DynamicResource ThemeTextDim}"/>
         <Setter Property="FontFamily" Value="{DynamicResource BodyFont}"/>

@@ -1,7 +1,0 @@
-baseline*.json
-survey*.json
-jscpd/
-snapshot*.json
-trx/
-expected.json
-expected-applied-*.json

@@ -89,7 +89,7 @@ namespace Gloam.Core
         private string ComputeHash(string input)
         {
             byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(input));
-            return BitConverter.ToString(hash).Replace("-", "").Substring(0, 8);
+            return Convert.ToHexString(hash)[..8];
         }
     }
 }

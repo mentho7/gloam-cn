@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Gloam.Core;
-using Gloam.Services;
 using Xunit;
 
 namespace Gloam.Tests

@@ -1,6 +1,5 @@
 using System;
 using Gloam.Core.Calibration;
-using Gloam.Services;
 using Xunit;
 
 namespace Gloam.Tests;

@@ -1,4 +1,3 @@
-using Gloam.ViewModels;
 using Xunit;
 
 namespace Gloam.Tests

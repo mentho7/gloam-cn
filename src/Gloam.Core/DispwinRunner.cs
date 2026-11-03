@@ -276,7 +276,7 @@ namespace Gloam.Core
         /// <param name="whiteLevel">SDR white level in nits.</param>
         /// <param name="calibration">User calibration settings (brightness, temperature, etc.).</param>
         /// <param name="calibrationProfile">Optional display calibration profile for color-accurate correction.</param>
-        public void ApplyGamma(
+        public OutputApplyStatus ApplyGamma(
             MonitorInfo monitor,
             GammaMode mode,
             double whiteLevel,
@@ -288,7 +288,7 @@ namespace Gloam.Core
             if (cancellationToken.IsCancellationRequested)
             {
                 Log.Info($"DispwinRunner.ApplyGamma: cancelled before LUT generation for {monitor.DeviceName}");
-                return;
+                return OutputApplyStatus.Cancelled;
             }
 
             if (calibrationProfile != null && !LutGenerator.CanUseCalibratedLut(calibrationProfile))
@@ -329,7 +329,7 @@ namespace Gloam.Core
             if (cancellationToken.IsCancellationRequested)
             {
                 Log.Info($"DispwinRunner.ApplyGamma: cancelled before hardware write for {monitor.DeviceName}");
-                return;
+                return OutputApplyStatus.Cancelled;
             }
 
             // Skip the ramp rewrite entirely when this display already has exactly
@@ -339,7 +339,7 @@ namespace Gloam.Core
                 LutsEqual(last.R, lutR) && LutsEqual(last.G, lutG) && LutsEqual(last.B, lutB))
             {
                 Log.Info($"DispwinRunner.ApplyGamma: LUT unchanged for {applyKey}, skipping");
-                return;
+                return OutputApplyStatus.Unchanged;
             }
 
             // Live/background applies (slider, night mode, app exclusion, resume re-apply) must
@@ -351,13 +351,13 @@ namespace Gloam.Core
             if (skipIfBypassed && CalibrationStateManager.IsDeviceInBypass(monitor))
             {
                 Log.Info($"DispwinRunner.ApplyGamma: skipping apply for {monitor.DeviceName} (calibration bypass active)");
-                return;
+                return OutputApplyStatus.Bypassed;
             }
 
             if (cancellationToken.IsCancellationRequested)
             {
                 Log.Info($"DispwinRunner.ApplyGamma: cancelled after bypass check for {monitor.DeviceName}");
-                return;
+                return OutputApplyStatus.Cancelled;
             }
 
             // Fast path: set the hardware ramp directly via SetDeviceGammaRamp — the
@@ -367,7 +367,7 @@ namespace Gloam.Core
             {
                 Log.Info($"DispwinRunner.ApplyGamma: Applied via native gamma ramp for {applyKey}");
                 RecordApplied(monitor, lutR, lutG, lutB);
-                return;
+                return OutputApplyStatus.Applied;
             }
 
             // Fallback: external dispwin (requires an Argyll install).
@@ -375,7 +375,7 @@ namespace Gloam.Core
             if (!EnsureConfigured())
             {
                 Log.Info("DispwinRunner.ApplyGamma: dispwin not configured, aborting.");
-                return;
+                return OutputApplyStatus.Failed;
             }
 
             // Create .cal file content
@@ -399,12 +399,14 @@ namespace Gloam.Core
                 if (RunDispwin(cancellationToken, "-d", argIndex.ToString(CultureInfo.InvariantCulture), calFile))
                 {
                     RecordApplied(monitor, lutR, lutG, lutB);
+                    return OutputApplyStatus.Applied;
                 }
                 else
                 {
                     // Unknown ramp state — make sure the next apply isn't skipped.
                     _lastApplied.TryRemove(applyKey, out _);
                     _deviceNameToPath.TryRemove(applyKey, out _);
+                    return cancellationToken.IsCancellationRequested ? OutputApplyStatus.Cancelled : OutputApplyStatus.Failed;
                 }
             }
             catch (Exception ex)

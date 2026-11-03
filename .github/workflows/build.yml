@@ -5,6 +5,10 @@ name: Build and Release
 # and pack (unsigned, no upload) to validate the pipeline.
 on:
   push:
+    # Branch pushes run validate only, so a bad commit is caught when it lands rather than
+    # at the next tag - by which point the tag is already on the remote and the release is
+    # half-cut. Tag pushes still run the full signed release path.
+    branches: [ "main" ]
     tags:
       - 'v*'
   pull_request:
@@ -30,6 +34,12 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: read
+    env:
+      # Directory.Build.props only promotes warnings to errors when this is set, so before this
+      # the documented "warnings are red" policy was never actually enforced in CI: analyzer
+      # warnings accumulated as log noise and could only be caught by a developer who ran the
+      # strict build by hand.
+      GloamStrictBuild: 'true'
 
     steps:
       - name: Checkout
@@ -38,7 +48,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Restore
         run: dotnet restore src/Gloam.sln
@@ -53,7 +63,33 @@ jobs:
           dotnet run --project src/Gloam.Cli/Gloam.Cli.csproj --configuration Release --no-restore -- check-lut 2.2 200 --algorithm perceptual --temp-k 2700 --json artifacts/cli-lut-check.json
 
       - name: Vulnerability scan
-        run: dotnet list src/Gloam.sln package --vulnerable --include-transitive
+        shell: pwsh
+        run: |
+          # `dotnet list package` has no --fail-on-vulnerable in this SDK, so it exits 0 whether or
+          # not advisories are found and the scan was effectively a log line. Parse the JSON report
+          # and fail the job on any advisory instead.
+          $json = dotnet list src/Gloam.sln package --vulnerable --include-transitive --format json
+          if ($LASTEXITCODE -ne 0) { throw "dotnet list package exited $LASTEXITCODE." }
+
+          $findings = @(
+            foreach ($project in ($json | ConvertFrom-Json).projects) {
+              foreach ($framework in $project.frameworks) {
+                foreach ($package in @($framework.topLevelPackages) + @($framework.transitivePackages)) {
+                  if ($null -eq $package) { continue }
+                  foreach ($advisory in $package.vulnerabilities) {
+                    "$($project.path): $($package.id) $($package.resolvedVersion) " +
+                      "[$($advisory.severity)] $($advisory.advisoryurl)"
+                  }
+                }
+              }
+            }
+          )
+
+          if ($findings.Count -gt 0) {
+            $findings | ForEach-Object { Write-Host "  $_" }
+            throw "$($findings.Count) known vulnerable package(s) found."
+          }
+          Write-Host "No known vulnerable packages."
 
       - name: Update feed consistency
         shell: pwsh
@@ -86,7 +122,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Derive version
         id: ver

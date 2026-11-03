@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- The adapter is deliberately tiny: it turns the platform-neutral localizer into
+         something XAML can bind to. Anything that is not WPF plumbing belongs in
+         Gloam.Localization. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gloam.Localization\Gloam.Localization.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Gloam.Tests" />
+  </ItemGroup>
+
+</Project>

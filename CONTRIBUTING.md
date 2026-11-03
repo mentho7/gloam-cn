@@ -11,8 +11,12 @@ cd gloam
 dotnet run --project src/Gloam
 ```
 
-You need the .NET 8 SDK. `global.json` pins it, so a newer major SDK will refuse rather
-than silently building against something else.
+You need the .NET 10 SDK (LTS). `global.json` sets the floor and stays inside the 10.0 feature
+band, so a newer major SDK is refused rather than silently building against something else.
+
+Analyzer rules are pinned to the SDK version (`AnalysisLevel` in `Directory.Build.props`) rather
+than tracking `latest`. The build must not change behaviour because someone updated their SDK, so
+raising that value is a deliberate change paired with fixing whatever the new rules report.
 
 Package a local installer:
 
@@ -35,6 +39,22 @@ which is what CI enforces:
 ```powershell
 dotnet build src/Gloam.sln -c Release -p:GloamStrictBuild=true
 ```
+
+## UI text and translations
+
+User-visible text lives in JSON catalogs under `src/Gloam/Resources/i18n/`, not in XAML or code
+literals. Read [docs/localization.md](docs/localization.md) before adding UI text: the test suite
+fails a pull request that adds a hard-coded string, so the rule is enforced rather than suggested.
+
+Project layout and the composition rules are in [docs/project-structure.md](docs/project-structure.md).
+
+## Working with AI agents
+
+This repository is agent-friendly. [AGENTS.md](AGENTS.md) is the entry point: it records where
+issues live, which triage labels exist, and how domain documentation is laid out. If you use a
+coding agent, point it there first. The same conventions apply to human contributors, so keep
+them accurate when they change.
+
 
 ## Golden fixtures
 

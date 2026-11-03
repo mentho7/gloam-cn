@@ -6,8 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Gloam.Core;
-using Gloam.Services;
-using Gloam.ViewModels;
 using Velopack;
 using Xunit;
 

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <!-- Brand, project name, assembly, and namespace are all Gloam. AssemblyName and
          RootNamespace are stated explicitly anyway: Gloam.exe and the /Gloam;component/
          pack URIs are runtime identity, so they must not drift if the project file is
@@ -19,14 +19,16 @@
     <PublishTrimmed>false</PublishTrimmed>
     <!-- Default version for local builds; CI overrides via /p:Version=<tag>. Velopack
          compares the installed package version (vpk pack -v) to the release feed, so
-         keep this in sync with the tag the release is cut from. -->
-    <Version>1.10.0</Version>
+         keep this in sync with the tag the release is cut from.
+         scripts/Test-UpdateFeedConsistency.ps1 asserts this equals the highest version in
+         docs/release-notes/, so a release cannot be cut without both being updated. -->
+    <Version>1.13.0</Version>
     <AssemblyVersion>$(Version).0</AssemblyVersion>
     <FileVersion>$(Version).0</FileVersion>
     <InformationalVersion>$(Version)</InformationalVersion>
     <!-- Velopack requires its hooks to run before WPF spins up, so the entry point is a
          custom Main in Program.cs rather than the App.xaml-generated one. -->
-    <StartupObject>Gloam.Program</StartupObject>
+    <StartupObject>Gloam.Shell.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -62,9 +64,40 @@
     <None Include="..\..\srgb_to_gamma2p2_unspecified.icm" Link="srgb_to_gamma2p2_unspecified.icm" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- Module visibility policy. The UI assembly is a single module composed of vertical
+       features, so every feature namespace is importable without a per-file using. The
+       point is that reorganising a feature (moving a file between its own folders) never
+       turns into a using-directive edit spanning dozens of unrelated files. Namespaces
+       still name the owner of a type, which is what review and navigation need. -->
+  <ItemGroup>
+    <Using Include="Gloam.Shell" />
+    <Using Include="Gloam.Controls" />
+    <Using Include="Gloam.Features.Calibration" />
+    <Using Include="Gloam.Features.Dashboard" />
+    <Using Include="Gloam.Features.GameLab" />
+    <Using Include="Gloam.Features.NightMode" />
+    <Using Include="Gloam.Features.Settings" />
+    <Using Include="Gloam.Features.Tray" />
+    <Using Include="Gloam.Infrastructure.Dialogs" />
+    <Using Include="Gloam.Infrastructure.Platform" />
+    <Using Include="Gloam.Infrastructure.Theming" />
+    <Using Include="Gloam.Localization" />
+    <Using Include="Gloam.Localization.Wpf" />
+  </ItemGroup>
+
+  <!-- Translation catalogs ship inside the binary as the baseline set. The same files can also
+       be dropped into %LOCALAPPDATA%\Gloam\i18n at runtime, where they override these — see
+       LocalizationOptions.ExternalCatalogDirectory. Embedded so a fresh install is translated
+       without any post-install step. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\i18n\*.json" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Gloam.Core\Gloam.Core.csproj" />
     <ProjectReference Include="..\Gloam.Interop\Gloam.Interop.csproj" />
+    <ProjectReference Include="..\Gloam.Localization\Gloam.Localization.csproj" />
+    <ProjectReference Include="..\Gloam.Localization.Wpf\Gloam.Localization.Wpf.csproj" />
   </ItemGroup>
 
   <ItemGroup>

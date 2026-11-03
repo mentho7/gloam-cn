@@ -1,0 +1,1004 @@
+using System;
+using Gloam.Localization.Wpf;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Gloam.Core;
+
+namespace Gloam.Features.GameLab
+{
+    /// <summary>Long-lived dashboard state for Game Lab and the active session receipt.</summary>
+    public sealed class GamerModeItem : ObservableObject, IDisposable
+    {
+        private const int RecentProfileLimit = 5;
+        private readonly LanguageRefreshSubscription _languageSubscription;
+        public ObservableCollection<GamerProfileEditorItem> Profiles { get; } = new();
+        public ObservableCollection<string> RunningApps { get; } = new();
+        public ObservableCollection<GamerDisplayOption> AvailableDisplays { get; } = new();
+        public ObservableCollection<DiscoveredGameItem> DiscoveredGames { get; } = new();
+        public ObservableCollection<GamerProfileEditorItem> FilteredProfiles { get; } = new();
+        public ObservableCollection<DiscoveredGameItem> FilteredDiscoveredGames { get; } = new();
+        private readonly Dictionary<string, string> _runningAppPaths =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        private string _newAppText = string.Empty;
+        private string _activeSessionSummary;
+        private string _activeSessionDetails;
+        private bool _hasActiveSession;
+        private string _editorStatus;
+        private bool _isScanningForGames;
+        private string _discoveryStatus;
+        private string _profileSearchText = string.Empty;
+        private string _discoverySearchText = string.Empty;
+        private GamerProfileEditorItem? _selectedProfile;
+        private bool _largeAddArmed;
+        private bool _clearProfilesArmed;
+        private bool _showAllProfiles;
+        private GamerLibraryPresetOption? _selectedLibraryPreset;
+
+        public GamerModeItem()
+        {
+            // Leaf view model built by DashboardViewModel rather than the container, so it reads
+            // the published localizer instead of taking one. At runtime that is the same instance.
+            ILocalizer loc = LocalizedStrings.Default.Localizer;
+            _activeSessionSummary = loc.Get("gamelab.waitingForGame");
+            _activeSessionDetails = loc.Get("gamelab.switchToGame");
+            _editorStatus = loc.Get("gamelab.editorStatus");
+            _discoveryStatus = loc.Get("gamelab.discoveryNote");
+
+            // Re-notifying is not enough here: these values live in fields, so a stale field would
+            // be re-read and the card would keep the previous language. The placeholder fields are
+            // rewritten, then every binding is invalidated.
+            _languageSubscription = new LanguageRefreshSubscription(loc, () =>
+            {
+                if (!HasActiveSession)
+                {
+                    _activeSessionSummary = loc.Get("gamelab.waitingForGame");
+                    _activeSessionDetails = loc.Get("gamelab.switchToGame");
+                }
+
+                // Status lines are transient hints rather than user data; resetting them to the
+                // new language is better than leaving one line in the old one.
+                _editorStatus = loc.Get("gamelab.editorStatus");
+                _discoveryStatus = loc.Get("gamelab.discoveryNote");
+                foreach (var option in AvailableLibraryPresets) option.RefreshLanguage();
+                OnPropertyChanged(string.Empty);
+            });
+
+            Profiles.CollectionChanged += OnProfilesChanged;
+            DiscoveredGames.CollectionChanged += OnDiscoveredGamesChanged;
+        }
+
+        public void Dispose() => _languageSubscription.Dispose();
+
+        public bool HasProfiles => Profiles.Count > 0;
+        public string ProfileCountText => Profiles.Count == 1
+            ? LocalizedStrings.Default.Localizer.Get("gamelab.gameCount.one")
+            : LocalizedStrings.Default.Localizer.Format("gamelab.gameCount.other", ("count", Profiles.Count));
+        public bool HasDiscoveryResults => DiscoveredGames.Count > 0;
+        public bool HasFilteredProfiles => FilteredProfiles.Count > 0;
+        public string FilteredProfileCountText => !string.IsNullOrWhiteSpace(ProfileSearchText)
+            ? LocalizedStrings.Default.Localizer.Format(
+                "gamelab.filteredCount", ("count", FilteredProfiles.Count))
+            : _showAllProfiles
+                ? Loc.Format("gamelab.filterAll", ("count", Profiles.Count))
+                : Loc.Format("gamelab.filterRecent", ("count", FilteredProfiles.Count));
+        public string ShowAllProfilesLabel => _showAllProfiles
+            ? Loc.Get("gamelab.recent.only")
+            : Loc.Get("gamelab.view.all");
+        public IReadOnlyList<GamerLibraryPresetOption> AvailableLibraryPresets { get; } =
+        [
+            new("gamelab.accurate.all.games", GamerPictureIntent.Reference, false),
+            new("gamelab.competitive.all.games", GamerPictureIntent.CompetitiveClarity, false),
+            new("gamelab.night.play.all.games", GamerPictureIntent.NightOps, false),
+            new("gamelab.hdr.cinema.detected.hdr.games", GamerPictureIntent.CinematicHdr, true)
+        ];
+        public int SelectedDiscoveryCount => DiscoveredGames.Count(item => item.IsSelected && !item.AlreadyAdded);
+        public string AddDiscoveredButtonLabel => _largeAddArmed
+            ? Loc.Format("gamelab.confirmAddMany", ("count", SelectedDiscoveryCount))
+            : SelectedDiscoveryCount switch
+            {
+                0 => Loc.Get("gamelab.add.selected.games"),
+                1 => Loc.Get("gamelab.add.1.selected.game"),
+                _ => Loc.Format("gamelab.addMany", ("count", SelectedDiscoveryCount))
+            };
+        public string ClearProfilesLabel => _clearProfilesArmed
+            ? Loc.Format("gamelab.confirmRemoveAll", ("count", Profiles.Count))
+            : Loc.Get("gamelab.clear.game.library");
+
+        public GamerLibraryPresetOption? SelectedLibraryPreset
+        {
+            get => _selectedLibraryPreset;
+            set
+            {
+                if (SetProperty(ref _selectedLibraryPreset, value))
+                    OnPropertyChanged(nameof(HasSelectedLibraryPreset));
+            }
+        }
+
+        public bool HasSelectedLibraryPreset => SelectedLibraryPreset != null;
+
+        public string ProfileSearchText
+        {
+            get => _profileSearchText;
+            set
+            {
+                if (SetProperty(ref _profileSearchText, value ?? string.Empty))
+                    RefreshProfileFilter();
+            }
+        }
+
+        public string DiscoverySearchText
+        {
+            get => _discoverySearchText;
+            set
+            {
+                if (SetProperty(ref _discoverySearchText, value ?? string.Empty))
+                    RefreshDiscoveryFilter();
+            }
+        }
+
+        public GamerProfileEditorItem? SelectedProfile
+        {
+            get => _selectedProfile;
+            set => SetProperty(ref _selectedProfile, value);
+        }
+
+        /// <summary>
+        /// Keeps a freshly added or externally activated profile visible even when it is not
+        /// part of the ordinary six-item recent slice. This avoids the especially confusing
+        /// state where Add succeeds but the editor appears not to change.
+        /// </summary>
+        public void SelectAndRevealProfile(GamerProfileEditorItem profile)
+        {
+            if (!Profiles.Contains(profile)) return;
+            SelectedProfile = profile;
+            RefreshProfileFilter();
+        }
+
+        public void SetRunningAppPaths(IReadOnlyDictionary<string, string> paths)
+        {
+            _runningAppPaths.Clear();
+            foreach ((string appName, string executablePath) in paths)
+            {
+                if (string.IsNullOrWhiteSpace(appName) || string.IsNullOrWhiteSpace(executablePath))
+                    continue;
+                _runningAppPaths[appName] = executablePath;
+            }
+        }
+
+        public bool TryGetRunningAppPath(string appName, out string executablePath) =>
+            _runningAppPaths.TryGetValue(
+                AppExclusionRule.NormalizeAppName(appName), out executablePath!);
+
+        public void ToggleShowAllProfiles()
+        {
+            _showAllProfiles = !_showAllProfiles;
+            OnPropertyChanged(nameof(ShowAllProfilesLabel));
+            RefreshProfileFilter();
+        }
+
+        public void UpdateProfileRecency(string appName, DateTime usedUtc)
+        {
+            GamerProfileEditorItem? profile = Profiles.FirstOrDefault(profile =>
+                profile.AppName.Equals(appName, StringComparison.OrdinalIgnoreCase));
+            if (profile == null) return;
+            profile.SetLastUsedUtc(usedUtc);
+            SelectedProfile = profile;
+            RefreshProfileFilter();
+        }
+
+        public bool IsScanningForGames
+        {
+            get => _isScanningForGames;
+            set => SetProperty(ref _isScanningForGames, value);
+        }
+
+        public string DiscoveryStatus
+        {
+            get => _discoveryStatus;
+            set => SetProperty(ref _discoveryStatus, value);
+        }
+
+        public string NewAppText
+        {
+            get => _newAppText;
+            set => SetProperty(ref _newAppText, value);
+        }
+
+        public string ActiveSessionSummary
+        {
+            get => _activeSessionSummary;
+            private set => SetProperty(ref _activeSessionSummary, value);
+        }
+
+        public string ActiveSessionDetails
+        {
+            get => _activeSessionDetails;
+            private set => SetProperty(ref _activeSessionDetails, value);
+        }
+
+        public bool HasActiveSession
+        {
+            get => _hasActiveSession;
+            private set => SetProperty(ref _hasActiveSession, value);
+        }
+
+        public string EditorStatus
+        {
+            get => _editorStatus;
+            private set => SetProperty(ref _editorStatus, value);
+        }
+
+        public void ShowSaving() => EditorStatus = Loc.Get("gamelab.applying.changes");
+
+        public void ShowMessage(string message) => EditorStatus = message;
+
+        public void ShowSaved() =>
+            EditorStatus = Loc.Format("gamelab.appliedAt", ("time", DateTime.Now.ToString("h:mm:ss tt")));
+
+        public void ShowSaveFailed() =>
+            EditorStatus = Loc.Get("gamelab.not.saved.check.that.gloam.can.write.its.settings.file");
+
+        public void SetSessions(IReadOnlyList<GamerSessionSnapshot>? sessions)
+        {
+            sessions ??= Array.Empty<GamerSessionSnapshot>();
+            HasActiveSession = sessions.Count > 0;
+            if (sessions.Count == 0)
+            {
+                ILocalizer loc = LocalizedStrings.Default.Localizer;
+                ActiveSessionSummary = loc.Get("gamelab.waitingForGame");
+                ActiveSessionDetails = loc.Get("gamelab.switchToGame");
+                return;
+            }
+
+            GamerSessionSnapshot first = sessions[0];
+            string title = string.IsNullOrWhiteSpace(first.DisplayName) ? first.AppName : first.DisplayName;
+            ActiveSessionSummary = sessions.Count == 1
+                ? $"{title} is active"
+                : $"{title} is active on {sessions.Count} displays";
+
+            var lines = new List<string>();
+            foreach (GamerSessionSnapshot session in sessions)
+            {
+                string monitor = string.IsNullOrWhiteSpace(session.MonitorName)
+                    ? session.MonitorDevicePath : session.MonitorName;
+                string shadow = session.ShadowDetailStrength <= 0.0001
+                    ? Loc.Get("gamelab.shadows.reference")
+                    : $"shadows +{session.ShadowDetailStrength * 100:F0}% below {session.ShadowDetailPivot * 100:F0}% linear";
+                string rendering =
+                    $"{IntentLabel(session.PictureIntent)} · {GammaLabel(session.EffectiveGamma)} · {shadow} · {NightPolicyLabel(session.NightPolicy)}";
+                string findings = session.Diagnostics.Count == 0
+                    ? Loc.Get("gamelab.signal.chain.verified.from.available.windows.output")
+                    : string.Join("  ", session.Diagnostics.Select(d =>
+                        $"[{SeverityLabel(d.Severity)}] {d.Message}"));
+                lines.Add($"{monitor}: {rendering}. {findings}");
+            }
+            ActiveSessionDetails = string.Join(Environment.NewLine, lines);
+        }
+
+        public void SetDiscoveryResults(IReadOnlyList<DiscoveredGame> games, ISet<string> savedApps)
+        {
+            var selectedPaths = DiscoveredGames
+                .Where(item => item.IsSelected)
+                .Select(item => item.ExecutablePath)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            DiscoveredGames.Clear();
+            foreach (DiscoveredGame game in games)
+            {
+                bool alreadyAdded = savedApps.Contains(game.ExecutableName);
+                if (!alreadyAdded)
+                {
+                    var item = new DiscoveredGameItem(game, alreadyAdded: false)
+                    {
+                        IsSelected = selectedPaths.Contains(game.ExecutablePath)
+                    };
+                    DiscoveredGames.Add(item);
+                }
+            }
+            ResetLargeAddConfirmation();
+            RefreshDiscoveryFilter();
+        }
+
+        public void ArmLargeAddConfirmation()
+        {
+            _largeAddArmed = true;
+            OnPropertyChanged(nameof(IsLargeAddArmed));
+            OnPropertyChanged(nameof(AddDiscoveredButtonLabel));
+        }
+
+        public bool IsLargeAddArmed => _largeAddArmed;
+
+        public void ResetLargeAddConfirmation()
+        {
+            _largeAddArmed = false;
+            OnPropertyChanged(nameof(IsLargeAddArmed));
+            OnPropertyChanged(nameof(AddDiscoveredButtonLabel));
+        }
+
+        public bool ToggleClearProfilesConfirmation()
+        {
+            if (!_clearProfilesArmed)
+            {
+                _clearProfilesArmed = true;
+                OnPropertyChanged(nameof(ClearProfilesLabel));
+                return false;
+            }
+
+            _clearProfilesArmed = false;
+            OnPropertyChanged(nameof(ClearProfilesLabel));
+            return true;
+        }
+
+        public void ResetClearProfilesConfirmation()
+        {
+            _clearProfilesArmed = false;
+            OnPropertyChanged(nameof(ClearProfilesLabel));
+        }
+
+        private void OnProfilesChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (GamerProfileEditorItem profile in e.OldItems)
+                {
+                    profile.PropertyChanged -= OnProfilePropertyChanged;
+
+                    // The editor subscribes to CultureChanged, and the localizer outlives every
+                    // profile. Without this a removed profile stays alive for the process lifetime,
+                    // and each language switch keeps notifying windows that are already closed.
+                    profile.Dispose();
+                }
+            }
+            if (e.NewItems != null)
+                foreach (GamerProfileEditorItem profile in e.NewItems)
+                    profile.PropertyChanged += OnProfilePropertyChanged;
+
+            OnPropertyChanged(nameof(HasProfiles));
+            OnPropertyChanged(nameof(ProfileCountText));
+            OnPropertyChanged(nameof(ClearProfilesLabel));
+            OnPropertyChanged(nameof(ShowAllProfilesLabel));
+            RefreshProfileFilter();
+        }
+
+        private void OnProfilePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is nameof(GamerProfileEditorItem.DisplayName)
+                or nameof(GamerProfileEditorItem.GameTitle)
+                or nameof(GamerProfileEditorItem.LastUsedUtc))
+                RefreshProfileFilter();
+        }
+
+        private void RefreshProfileFilter()
+        {
+            GamerProfileEditorItem? previous = SelectedProfile;
+            string query = ProfileSearchText.Trim();
+            IEnumerable<GamerProfileEditorItem> matches;
+            if (query.Length > 0)
+            {
+                matches = Profiles.Where(profile =>
+                    profile.GameTitle.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
+                    profile.AppName.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(profile => profile.GameTitle, StringComparer.CurrentCultureIgnoreCase);
+            }
+            else if (_showAllProfiles)
+            {
+                matches = Profiles.OrderBy(
+                    profile => profile.GameTitle, StringComparer.CurrentCultureIgnoreCase);
+            }
+            else
+            {
+                matches = Profiles
+                    .OrderByDescending(profile => profile.LastUsedUtc.HasValue)
+                    .ThenByDescending(profile => profile.LastUsedUtc ?? DateTime.MinValue)
+                    .ThenBy(profile => profile.GameTitle, StringComparer.CurrentCultureIgnoreCase)
+                    .Take(RecentProfileLimit)
+                    .ToList();
+            }
+
+            List<GamerProfileEditorItem> visible = matches.ToList();
+            if (query.Length == 0 && !_showAllProfiles && previous != null &&
+                Profiles.Contains(previous) && !visible.Contains(previous))
+            {
+                visible.Insert(0, previous);
+                if (visible.Count > RecentProfileLimit) visible.RemoveAt(visible.Count - 1);
+            }
+
+            FilteredProfiles.Clear();
+            foreach (GamerProfileEditorItem profile in visible)
+                FilteredProfiles.Add(profile);
+
+            SelectedProfile = previous != null && FilteredProfiles.Contains(previous)
+                ? previous
+                : FilteredProfiles.FirstOrDefault();
+            OnPropertyChanged(nameof(HasFilteredProfiles));
+            OnPropertyChanged(nameof(FilteredProfileCountText));
+        }
+
+        private void OnDiscoveredGamesChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+                foreach (DiscoveredGameItem item in e.OldItems)
+                    item.PropertyChanged -= OnDiscoveredGamePropertyChanged;
+            if (e.NewItems != null)
+                foreach (DiscoveredGameItem item in e.NewItems)
+                    item.PropertyChanged += OnDiscoveredGamePropertyChanged;
+
+            OnPropertyChanged(nameof(HasDiscoveryResults));
+            RefreshDiscoveryFilter();
+            NotifyDiscoverySelectionChanged();
+        }
+
+        private void OnDiscoveredGamePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(DiscoveredGameItem.IsSelected))
+            {
+                ResetLargeAddConfirmation();
+                NotifyDiscoverySelectionChanged();
+            }
+        }
+
+        private void RefreshDiscoveryFilter()
+        {
+            string query = DiscoverySearchText.Trim();
+            FilteredDiscoveredGames.Clear();
+            foreach (DiscoveredGameItem item in DiscoveredGames.Where(item =>
+                query.Length == 0 ||
+                item.DisplayName.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
+                item.ExecutableName.Contains(query, StringComparison.OrdinalIgnoreCase)))
+            {
+                FilteredDiscoveredGames.Add(item);
+            }
+        }
+
+        private void NotifyDiscoverySelectionChanged()
+        {
+            OnPropertyChanged(nameof(SelectedDiscoveryCount));
+            OnPropertyChanged(nameof(AddDiscoveredButtonLabel));
+        }
+
+        private static string IntentLabel(GamerPictureIntent intent) => intent switch
+        {
+            GamerPictureIntent.CompetitiveClarity => Loc.Get("gamelab.competitive.clarity"),
+            GamerPictureIntent.CinematicHdr => Loc.Get("gamelab.cinematic.hdr"),
+            GamerPictureIntent.NightOps => Loc.Get("gamelab.night.ops"),
+            _ => intent.ToString()
+        };
+
+        private static string SeverityLabel(GamerDiagnosticSeverity severity) => severity switch
+        {
+            GamerDiagnosticSeverity.Critical => "CHECK",
+            GamerDiagnosticSeverity.Warning => "WARN",
+            _ => "INFO"
+        };
+
+        private static string GammaLabel(GammaMode gamma) => gamma switch
+        {
+            GammaMode.Gamma22 => Loc.Get("settings.gamma.v22"),
+            GammaMode.Gamma24 => Loc.Get("settings.gamma.v24"),
+            _ => Loc.Get("settings.gamma.windowsDefault")
+        };
+
+        private static string NightPolicyLabel(GamerNightPolicy policy) => policy switch
+        {
+            GamerNightPolicy.ForceDaylight => Loc.Get("gamelab.daylight.6500k"),
+            GamerNightPolicy.NightOps => Loc.Get("gamelab.spectral.night.ops"),
+            _ => Loc.Get("gamelab.schedule")
+        };
+    }
+
+    public sealed record GamerDisplayOption(string DevicePath, string Label)
+    {
+        public override string ToString() => Label;
+    }
+
+    public sealed record GamerChoice<T>(T Value, string Label, string Description = "") where T : struct, Enum
+    {
+        // The shared ComboBox template renders SelectionBoxItem directly. Keeping this
+        // fallback human-readable prevents record debug text from leaking into the UI even
+        // when WPF does not propagate DisplayMemberPath into the collapsed presenter.
+        public override string ToString() => Label;
+    }
+
+    public sealed class GamerLibraryPresetOption(string labelKey, GamerPictureIntent intent, bool hdrCapableOnly) : ObservableObject
+    {
+        public string Label => Loc.Get(labelKey);
+        public GamerPictureIntent Intent { get; } = intent;
+        public bool HdrCapableOnly { get; } = hdrCapableOnly;
+        internal void RefreshLanguage() => OnPropertyChanged(nameof(Label));
+        public override string ToString() => Label;
+    }
+
+    public sealed class DiscoveredGameItem : ObservableObject
+    {
+        private bool _isSelected;
+
+        public DiscoveredGameItem(DiscoveredGame game, bool alreadyAdded)
+        {
+            Game = game;
+            AlreadyAdded = alreadyAdded;
+        }
+
+        public DiscoveredGame Game { get; }
+        public string DisplayName => Game.DisplayName;
+        public string ExecutableName => Game.ExecutableName;
+        public string ExecutablePath => Game.ExecutablePath;
+        public string Library => Game.Library;
+        public GamerHdrCapability HdrCapability => Game.HdrCapability;
+        public bool HasDetectedHdr => Game.HdrCapability == GamerHdrCapability.Detected;
+        public string? HdrEvidence => Game.HdrEvidence;
+        public bool AlreadyAdded { get; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (!AlreadyAdded) SetProperty(ref _isSelected, value);
+            }
+        }
+    }
+
+    /// <summary>Observable editor wrapper around the Core persistence model.</summary>
+    public sealed class GamerProfileEditorItem : ObservableObject, IDisposable
+    {
+        private readonly ILocalizer _loc;
+        private GamerProfileRule _profile;
+
+        public GamerProfileEditorItem(GamerProfileRule profile)
+        {
+            _profile = (profile ?? throw new ArgumentNullException(nameof(profile))).Sanitized();
+
+            // The combo boxes on this editor are bound to SelectedProfile.<list>, so invalidating
+            // the parent's properties is not enough: WPF re-reads the bound path but the leaf object
+            // raised nothing, and the options stayed in the previous language while the labels
+            // around them changed. Subscribe on the leaf.
+            _loc = LocalizedStrings.Default.Localizer;
+            _loc.CultureChanged += OnCultureChanged;
+        }
+
+        private void OnCultureChanged(object? sender, CultureChangedEventArgs e)
+        {
+            // The option lists are rebuilt with new items on every read, so refreshing bindings
+            // replaces each ComboBox's ItemsSource. During that replace the combo has no matching
+            // item and its TwoWay binding writes the resulting null back into the view model, which
+            // loses the user's choice. Re-assert each value after the refresh: the setter early-outs
+            // when nothing changed, so the binding is re-read explicitly.
+            GamerPictureIntent intent = PictureIntent;
+            GamerDisplayScope scope = DisplayScope;
+            GamerHdrExpectation expectation = HdrExpectation;
+            GamerHdrCapability capability = HdrCapability;
+            GammaMode gamma = GammaMode;
+            GamerNightPolicy policy = NightPolicy;
+
+            OnPropertyChanged(string.Empty);
+
+            PictureIntent = intent;
+            DisplayScope = scope;
+            HdrExpectation = expectation;
+            HdrCapability = capability;
+            GammaMode = gamma;
+            NightPolicy = policy;
+
+            OnPropertyChanged(nameof(PictureIntent));
+            OnPropertyChanged(nameof(DisplayScope));
+            OnPropertyChanged(nameof(HdrExpectation));
+            OnPropertyChanged(nameof(HdrCapability));
+            OnPropertyChanged(nameof(GammaMode));
+            OnPropertyChanged(nameof(NightPolicy));
+        }
+
+        public void Dispose() => _loc.CultureChanged -= OnCultureChanged;
+
+        // Computed rather than captured once: every Label below is catalog text, so a field
+        // initializer would freeze the options in whichever language was active when this item was
+        // constructed. The studio switches language on an open window, and the combo boxes are part
+        // of that window.
+        public IReadOnlyList<GamerChoice<GamerPictureIntent>> AvailablePictureIntents =>
+        [
+            new(GamerPictureIntent.Reference, Loc.Get("gamelab.accurate"), Loc.Get("gamelab.keeps.the.game.faithful.and.uses.your.measured.display")),
+            new(GamerPictureIntent.CompetitiveClarity, Loc.Get("gamelab.competitive"), Loc.Get("gamelab.reveals.dark.movement.while.bright.areas.stay.unchanged")),
+            new(GamerPictureIntent.CinematicHdr, Loc.Get("gamelab.hdr.cinema"), Loc.Get("gamelab.protects.the.hdr.signal.and.warns.when.windows.is.set")),
+            new(GamerPictureIntent.NightOps, Loc.Get("gamelab.night.play"), Loc.Get("gamelab.warms.late.sessions.while.preserving.useful.color")),
+            new(GamerPictureIntent.Custom, Loc.Get("gamelab.custom"))
+        ];
+        public IReadOnlyList<GamerChoice<GamerPictureIntent>> AvailableQuickLooks =>
+        [
+            new(GamerPictureIntent.Reference, Loc.Get("gamelab.accurate"), Loc.Get("gamelab.faithful.color")),
+            new(GamerPictureIntent.CompetitiveClarity, Loc.Get("gamelab.competitive"), Loc.Get("gamelab.see.into.shadows")),
+            new(GamerPictureIntent.CinematicHdr, Loc.Get("gamelab.hdr.cinema"), Loc.Get("gamelab.preserve.hdr")),
+            new(GamerPictureIntent.NightOps, Loc.Get("gamelab.night.play"), Loc.Get("gamelab.easy.on.your.eyes"))
+        ];
+        public IReadOnlyList<GamerChoice<GamerNightPolicy>> AvailableNightPolicies =>
+        [
+            new(GamerNightPolicy.FollowSchedule, Loc.Get("gamelab.follow.schedule")),
+            new(GamerNightPolicy.ForceDaylight, Loc.Get("gamelab.force.daylight.6500k")),
+            new(GamerNightPolicy.NightOps, Loc.Get("gamelab.spectral.night.ops"))
+        ];
+        public IReadOnlyList<GamerChoice<GamerHdrExpectation>> AvailableHdrExpectations =>
+        [
+            new(GamerHdrExpectation.Automatic, Loc.Get("gamelab.automatic")),
+            new(GamerHdrExpectation.RequireSdr, Loc.Get("gamelab.require.sdr")),
+            new(GamerHdrExpectation.RequireHdr, Loc.Get("gamelab.require.hdr"))
+        ];
+        public IReadOnlyList<GamerChoice<GamerHdrCapability>> AvailableHdrCapabilities =>
+        [
+            new(GamerHdrCapability.Unknown, Loc.Get("gamelab.not.detected"), Loc.Get("gamelab.excluded.from.automatic.hdr.bulk.changes")),
+            new(GamerHdrCapability.Detected, Loc.Get("gamelab.detected.automatically"), Loc.Get("gamelab.a.local.game.configuration.advertises.hdr.output")),
+            new(GamerHdrCapability.UserConfirmed, Loc.Get("gamelab.yes.supports.hdr"), Loc.Get("gamelab.include.this.game.in.hdr.bulk.changes")),
+            new(GamerHdrCapability.SdrOnly, Loc.Get("gamelab.no.sdr.only"), Loc.Get("gamelab.never.include.this.game.in.hdr.bulk.changes"))
+        ];
+        public IReadOnlyList<GamerChoice<GamerDisplayScope>> AvailableDisplayScopes =>
+        [
+            new(GamerDisplayScope.WindowDisplays, Loc.Get("gamelab.game.window.display.s")),
+            new(GamerDisplayScope.AllDisplays, Loc.Get("gamelab.all.displays")),
+            new(GamerDisplayScope.SpecificDisplay, Loc.Get("gamelab.one.specific.display"))
+        ];
+        public IReadOnlyList<GamerChoice<GammaMode>> AvailableGammaModes =>
+        [
+            new(GammaMode.Gamma22, Loc.Get("settings.gamma.v22")),
+            new(GammaMode.Gamma24, Loc.Get("settings.gamma.v24")),
+            new(GammaMode.WindowsDefault, Loc.Get("settings.gamma.windowsDefault"))
+        ];
+
+        public string AppName => _profile.AppName;
+        public string? ExecutablePath => _profile.ExecutablePath;
+        public bool HasExecutablePath => !string.IsNullOrWhiteSpace(_profile.ExecutablePath);
+        public string ExecutableIdentityLabel => HasExecutablePath
+            ? Loc.Get("gamelab.verified.executable")
+            : Loc.Get("gamelab.unverified.path.profile.disabled");
+        public DateTime? LastUsedUtc => _profile.LastUsedUtc;
+
+        public bool SetExecutablePath(string? executablePath)
+        {
+            GamerProfileRule updated = _profile.Clone();
+            updated.ExecutablePath = executablePath;
+            string? sanitized = updated.Sanitized().ExecutablePath;
+            if (string.Equals(_profile.ExecutablePath, sanitized, StringComparison.OrdinalIgnoreCase))
+                return false;
+            _profile.ExecutablePath = sanitized;
+            OnPropertyChanged(nameof(ExecutablePath));
+            OnPropertyChanged(nameof(HasExecutablePath));
+            OnPropertyChanged(nameof(ExecutableIdentityLabel));
+            return true;
+        }
+
+        public bool SetHdrCapabilityFromDiscovery(GamerHdrCapability capability)
+        {
+            if (capability != GamerHdrCapability.Detected ||
+                _profile.HdrCapability != GamerHdrCapability.Unknown)
+                return false;
+            _profile.HdrCapability = capability;
+            OnPropertyChanged(nameof(HdrCapability));
+            OnPropertyChanged(nameof(IsHdrCapable));
+            OnPropertyChanged(nameof(HdrSupportLabel));
+            return true;
+        }
+
+        public void SetLastUsedUtc(DateTime usedUtc)
+        {
+            usedUtc = usedUtc.ToUniversalTime();
+            if (_profile.LastUsedUtc == usedUtc) return;
+            _profile.LastUsedUtc = usedUtc;
+            OnPropertyChanged(nameof(LastUsedUtc));
+        }
+
+        public string IntentDescription => PictureIntent switch
+        {
+            GamerPictureIntent.Reference =>
+                Loc.Get("gamelab.faithful.output.with.your.measured.display.correction"),
+            GamerPictureIntent.CompetitiveClarity =>
+                Loc.Get("gamelab.makes.dark.movement.easier.to.spot.without.washing.out"),
+            GamerPictureIntent.CinematicHdr =>
+                Loc.Get("gamelab.leaves.the.hdr.curve.intact.and.checks.that.windows.is"),
+            GamerPictureIntent.NightOps =>
+                Loc.Get("gamelab.warms.the.screen.for.late.sessions.while.keeping.teams"),
+            _ => Loc.Get("gamelab.uses.the.detailed.settings.under.advanced")
+        };
+
+        public string EffectSummary
+        {
+            get
+            {
+                string gamma = OverrideGamma ? GammaLabel(GammaMode) : Loc.Get("gamelab.monitor.gamma");
+                string shadows = ShadowDetailPercent <= 0.01
+                    ? Loc.Get("gamelab.reference.shadows")
+                    : Loc.Format("gamelab.shadowVisibility", ("value", ShadowDetailPercent.ToString("F0")));
+                string night = NightPolicy switch
+                {
+                    GamerNightPolicy.ForceDaylight => Loc.Get("gamelab.6500k.while.active"),
+                    GamerNightPolicy.NightOps => Loc.Format("gamelab.nightOpsKelvin", ("kelvin", NightOpsKelvin)),
+                    _ => Loc.Get("gamelab.follows.night.schedule")
+                };
+                return $"{gamma} · {shadows} · {night}";
+            }
+        }
+
+        public string DisplayName
+        {
+            get => _profile.DisplayName;
+            set
+            {
+                if (_profile.DisplayName == value) return;
+                _profile.DisplayName = value ?? string.Empty;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GameTitle));
+            }
+        }
+
+        public string GameTitle => string.IsNullOrWhiteSpace(DisplayName)
+            ? Path.GetFileNameWithoutExtension(AppName)
+            : DisplayName;
+
+        public bool Enabled
+        {
+            get => _profile.Enabled;
+            set { if (_profile.Enabled != value) { _profile.Enabled = value; OnPropertyChanged(); } }
+        }
+
+        public GamerPictureIntent PictureIntent
+        {
+            get => _profile.PictureIntent;
+            set
+            {
+                if (_profile.PictureIntent == value) return;
+                GamerPresetCatalog.Apply(_profile, value);
+                RaiseAllRenderingProperties();
+            }
+        }
+
+        public bool ApplyWhileRunning
+        {
+            get => _profile.ApplyWhileRunning;
+            set
+            {
+                if (_profile.ApplyWhileRunning == value) return;
+                _profile.ApplyWhileRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public GamerDisplayScope DisplayScope
+        {
+            get => _profile.DisplayScope;
+            set
+            {
+                if (_profile.DisplayScope == value) return;
+                _profile.DisplayScope = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsSpecificDisplay));
+                OnPropertyChanged(nameof(EffectSummary));
+            }
+        }
+
+        public bool IsSpecificDisplay => DisplayScope == GamerDisplayScope.SpecificDisplay;
+
+        public string? MonitorDevicePath
+        {
+            get => _profile.MonitorDevicePath;
+            set
+            {
+                if (string.Equals(_profile.MonitorDevicePath, value, StringComparison.OrdinalIgnoreCase)) return;
+                _profile.MonitorDevicePath = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public GamerHdrExpectation HdrExpectation
+        {
+            get => _profile.HdrExpectation;
+            set
+            {
+                if (_profile.HdrExpectation == value) return;
+                _profile.HdrExpectation = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsHdrCapable));
+                OnPropertyChanged(nameof(HdrSupportLabel));
+            }
+        }
+
+        public GamerHdrCapability HdrCapability
+        {
+            get => _profile.HdrCapability;
+            set
+            {
+                if (_profile.HdrCapability == value) return;
+                _profile.HdrCapability = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsHdrCapable));
+                OnPropertyChanged(nameof(HdrSupportLabel));
+            }
+        }
+
+        public bool IsHdrCapable => _profile.IsHdrCapable();
+
+        public string HdrSupportLabel => _profile.HdrCapability switch
+        {
+            GamerHdrCapability.Detected => Loc.Get("gamelab.hdr.detected"),
+            GamerHdrCapability.UserConfirmed => Loc.Get("gamelab.hdr.confirmed"),
+            GamerHdrCapability.SdrOnly => Loc.Get("gamelab.sdr.only"),
+            _ when _profile.HdrExpectation == GamerHdrExpectation.RequireHdr => Loc.Get("gamelab.hdr.profile"),
+            _ => Loc.Get("gamelab.hdr.unknown")
+        };
+
+        public bool OverrideGamma
+        {
+            get => _profile.OverrideGamma;
+            set
+            {
+                if (_profile.OverrideGamma == value) return;
+                _profile.OverrideGamma = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(EffectSummary));
+            }
+        }
+
+        public GammaMode GammaMode
+        {
+            get => _profile.GammaMode;
+            set
+            {
+                if (_profile.GammaMode == value) return;
+                _profile.GammaMode = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(EffectSummary));
+            }
+        }
+
+        public double ShadowDetailPercent
+        {
+            get => _profile.ShadowDetailStrength * 100.0;
+            set
+            {
+                double normalized = double.IsFinite(value) ? Math.Clamp(value / 100.0, 0.0, 1.0) : 0.0;
+                if (Math.Abs(_profile.ShadowDetailStrength - normalized) < 0.0001) return;
+                _profile.ShadowDetailStrength = normalized;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShadowDetailLabel));
+                OnPropertyChanged(nameof(ShadowDetailPlainLabel));
+                OnPropertyChanged(nameof(EffectSummary));
+            }
+        }
+
+        public string ShadowDetailLabel => $"{ShadowDetailPercent:F0}% · protected above {_profile.ShadowDetailPivot * 100:F0}% linear";
+
+        public string ShadowDetailPlainLabel => ShadowDetailPercent switch
+        {
+            < 5 => Loc.Get("gamelab.original.shadows"),
+            < 35 => Loc.Get("gamelab.a.little.more.detail"),
+            < 70 => Loc.Get("gamelab.clearer.dark.areas"),
+            _ => Loc.Get("gamelab.maximum.visibility")
+        };
+
+        public GamerNightPolicy NightPolicy
+        {
+            get => _profile.NightPolicy;
+            set
+            {
+                if (_profile.NightPolicy == value) return;
+                _profile.NightPolicy = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsNightOps));
+                OnPropertyChanged(nameof(EffectSummary));
+            }
+        }
+
+        public bool IsNightOps => NightPolicy == GamerNightPolicy.NightOps;
+
+        public int NightOpsKelvin
+        {
+            get => _profile.NightOpsKelvin;
+            set
+            {
+                int clamped = Math.Clamp(value, 1900, 6500);
+                if (_profile.NightOpsKelvin != clamped)
+                {
+                    _profile.NightOpsKelvin = clamped;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(EffectSummary));
+                }
+            }
+        }
+
+        public double NightOpsStrengthPercent
+        {
+            get => _profile.NightOpsStrength * 100.0;
+            set
+            {
+                double normalized = double.IsFinite(value) ? Math.Clamp(value / 100.0, 0.0, 1.0) : 0.55;
+                if (Math.Abs(_profile.NightOpsStrength - normalized) < 0.0001) return;
+                _profile.NightOpsStrength = normalized;
+                OnPropertyChanged();
+            }
+        }
+
+        public double NightOpsMelanopicCeiling
+        {
+            get => _profile.NightOpsMelanopicCeiling;
+            set
+            {
+                double clamped = double.IsFinite(value) ? Math.Clamp(value, 0.0, 1000.0) : 0.0;
+                if (Math.Abs(_profile.NightOpsMelanopicCeiling - clamped) < 0.0001) return;
+                _profile.NightOpsMelanopicCeiling = clamped;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsNightOpsMelanopicCeilingEnabled));
+            }
+        }
+
+        public bool IsNightOpsMelanopicCeilingEnabled
+        {
+            get => NightOpsMelanopicCeiling > 0.0;
+            set
+            {
+                if (value == IsNightOpsMelanopicCeilingEnabled) return;
+                NightOpsMelanopicCeiling = value ? 10.0 : 0.0;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool GameplayLock
+        {
+            get => _profile.GameplayLock;
+            set { if (_profile.GameplayLock != value) { _profile.GameplayLock = value; OnPropertyChanged(); } }
+        }
+
+        public double PaperWhiteNits
+        {
+            get => _profile.PaperWhiteNits;
+            set
+            {
+                double clamped = double.IsFinite(value) ? Math.Clamp(value, 0.0, 1000.0) : 0.0;
+                if (Math.Abs(_profile.PaperWhiteNits - clamped) < 0.0001) return;
+                _profile.PaperWhiteNits = clamped;
+                OnPropertyChanged();
+            }
+        }
+
+        public double PeakNits
+        {
+            get => _profile.PeakNits;
+            set
+            {
+                double clamped = double.IsFinite(value) ? Math.Clamp(value, 0.0, 10000.0) : 0.0;
+                if (Math.Abs(_profile.PeakNits - clamped) < 0.0001) return;
+                _profile.PeakNits = clamped;
+                OnPropertyChanged();
+            }
+        }
+
+        public GamerProfileRule ToRule() => _profile.Sanitized();
+
+        private void RaiseAllRenderingProperties()
+        {
+            OnPropertyChanged(nameof(PictureIntent));
+            OnPropertyChanged(nameof(IntentDescription));
+            OnPropertyChanged(nameof(EffectSummary));
+            OnPropertyChanged(nameof(GammaMode));
+            OnPropertyChanged(nameof(OverrideGamma));
+            OnPropertyChanged(nameof(ShadowDetailPercent));
+            OnPropertyChanged(nameof(ShadowDetailLabel));
+            OnPropertyChanged(nameof(ShadowDetailPlainLabel));
+            OnPropertyChanged(nameof(NightPolicy));
+            OnPropertyChanged(nameof(IsNightOps));
+            OnPropertyChanged(nameof(NightOpsKelvin));
+            OnPropertyChanged(nameof(NightOpsStrengthPercent));
+            OnPropertyChanged(nameof(NightOpsMelanopicCeiling));
+            OnPropertyChanged(nameof(IsNightOpsMelanopicCeilingEnabled));
+            OnPropertyChanged(nameof(HdrExpectation));
+            OnPropertyChanged(nameof(IsHdrCapable));
+            OnPropertyChanged(nameof(HdrSupportLabel));
+            OnPropertyChanged(nameof(GameplayLock));
+        }
+
+        private static string GammaLabel(GammaMode mode) => mode switch
+        {
+            GammaMode.Gamma22 => Loc.Get("settings.gamma.v22"),
+            GammaMode.Gamma24 => Loc.Get("settings.gamma.v24"),
+            _ => Loc.Get("settings.gamma.windowsDefault")
+        };
+    }
+}

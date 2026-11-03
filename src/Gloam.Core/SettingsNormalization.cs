@@ -130,7 +130,7 @@ namespace Gloam.Core
                 night.TemperatureKelvin = Math.Clamp(night.TemperatureKelvin, 1900, 6500);
                 night.FadeMinutes = Math.Clamp(night.FadeMinutes, 0, 120);
                 if (night.Algorithm == NightModeAlgorithm.BlueReduction ||
-                    !Enum.IsDefined(typeof(NightModeAlgorithm), night.Algorithm))
+                    !Enum.IsDefined(night.Algorithm))
                     night.Algorithm = NightModeAlgorithm.Perceptual;
                 night.PerceptualStrength = ClampFinite(
                     night.PerceptualStrength, 0.0, 1.0, ColorAdjustments.DefaultPerceptualStrength);
