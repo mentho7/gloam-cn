@@ -1,12 +1,12 @@
 name: Feature request
 description: Suggest something Gloam should do
-labels: ["enhancement"]
+labels: ["enhancement", "needs-triage"]
 body:
   - type: markdown
     attributes:
       value: |
         Have a look through
-        [existing issues](https://github.com/halideworks/gloam/issues?q=is%3Aissue+sort%3Aupdated-desc)
+        [existing issues](https://github.com/mentho7/gloam-cn/issues?q=is%3Aissue+sort%3Aupdated-desc)
         first, in case it is already being discussed.
 
   - type: textarea

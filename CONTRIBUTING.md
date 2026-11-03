@@ -1,13 +1,21 @@
 # Contributing to Gloam
 
+仓库协作与版本约定见 [维护规范](docs/maintenance.md)，发版见 [RELEASE.md](RELEASE.md)。
+
+Start from the latest `origin/main`, use a focused topic branch, and open a pull request
+against `main`. Use a Conventional Commit title (for example `fix: preserve language on
+restart`) and link the related issue. Explain validation and any checks not run. Default
+to squash merging after CI and review; do not push release tags as part of ordinary work.
+Update user documentation in the same PR when behavior changes.
+
 Thanks for looking. Bug reports with a diagnostics bundle, golden fixtures from panels we
 have not measured, and small focused pull requests are all genuinely useful.
 
 ## Build
 
 ```powershell
-git clone https://github.com/halideworks/gloam.git
-cd gloam
+git clone https://github.com/mentho7/gloam-cn.git
+cd gloam-cn
 dotnet run --project src/Gloam
 ```
 

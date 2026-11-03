@@ -5,7 +5,7 @@
 **Please do not open a public issue.**
 
 Report privately through GitHub:
-[Security → Report a vulnerability](https://github.com/halideworks/gloam/security/advisories/new).
+[Security → Report a vulnerability](https://github.com/mentho7/gloam-cn/security/advisories/new).
 That opens a private advisory visible only to the maintainers.
 
 Include what you would want if you were fixing it: what you did, what happened, what you
@@ -65,7 +65,7 @@ There is no Ed25519 or pinned-public-key verification code in the Velopack 1.2.0
 so `vpk pack --signParams` cannot be validated on this side, and the library exposes no hook for
 us to add our own check.
 
-Consequence, stated plainly: **whoever can publish a release to `halideworks/gloam` can push
+Consequence, stated plainly: **whoever can publish a release to `mentho7/gloam-cn` can push
 code to every installed client**, and the clients will apply it on their next update check. The
 CI side signs artifacts with Azure Trusted Signing, but server-side signing is not client-side
 verification.

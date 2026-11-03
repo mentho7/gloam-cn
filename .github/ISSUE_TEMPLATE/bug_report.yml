@@ -1,11 +1,11 @@
 name: Bug report
 description: Something is broken or behaving unexpectedly
-labels: ["bug"]
+labels: ["bug", "needs-triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Before filing, please check [docs/troubleshooting.md](https://github.com/halideworks/gloam/blob/main/docs/troubleshooting.md).
+        Before filing, please check [docs/troubleshooting.md](https://github.com/mentho7/gloam-cn/blob/main/docs/troubleshooting.md).
         SmartScreen warnings, a profile that stopped applying after a Windows update, and a
         game resetting your gamma all have known answers there.
 

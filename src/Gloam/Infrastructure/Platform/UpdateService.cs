@@ -32,7 +32,7 @@ namespace Gloam.Infrastructure.Platform
         // 'vpk upload github' target MUST point at the same repo, or CheckForUpdatesAsync
         // 404s. The repo must actually be named 'gloam' (GitHub web-redirects the old
         // name, but release assets resolve under the canonical name).
-        private const string RepoUrl = "https://github.com/halideworks/gloam";
+        private const string RepoUrl = "https://github.com/mentho7/gloam-cn";
         private const string ExpectedPackageId = "GloamApp";
 
         private readonly IUpdateManagerAdapter _manager;

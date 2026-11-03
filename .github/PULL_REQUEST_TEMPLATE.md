@@ -2,7 +2,20 @@
 
 <!-- What it does and why. If it fixes an issue, link it. -->
 
+## Validation and release impact
+
+<!-- List commands/results and checks not run with reasons. For docs-only changes,
+     mark build/test items N/A rather than claiming they passed. -->
+
+- Related issue:
+- User-visible / compatibility / calibration impact:
+- Documentation updated:
+- Validation evidence and limitations:
+
 ## Checklist
+
+- [ ] Focused change against `main`; title follows the commit conventions in `docs/maintenance.md`.
+- [ ] Version bump, if releasing, includes matching release notes and a CHANGELOG entry.
 
 - [ ] `dotnet test src/Gloam.sln -c Release` passes.
 - [ ] `dotnet build src/Gloam.sln -c Release -p:GloamStrictBuild=true` is warning-free.

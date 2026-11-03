@@ -1,5 +1,7 @@
 # Gloam Windows 打包与 GitHub 首版发布指南
 
+> **历史勘测，非当前发布手册。** 本文保留首次构建及后续补记，版本、分支、签名账户和本机日志路径不代表当前状态。日常操作以 [RELEASE.md](../RELEASE.md) 和 [维护规范](maintenance.md) 为准；v1.13.0 的实际未签名状态见 GitHub Release。下文旧示例不可直接作为新版本发布命令。
+
 勘测日期：2026-11-01。本文对应当前本地工作区；上游发布说明见 [RELEASE.md](../RELEASE.md)。
 
 ## 1. 项目现状与发布决策
@@ -10,11 +12,11 @@
 | 本机 SDK | .NET SDK 10.0.403，满足 `global.json` |
 | 主程序 | `src/Gloam/Gloam.csproj` → `Gloam.exe` |
 | 发布平台 | 现有脚本固定 Windows x64；未提供 ARM64 构建 |
-| 项目默认版本 | `1.10.0`；本地已存在更高标签，包括 `v1.12.1`，因此不能据默认版本判断下一版 |
-| 当前分支 | `codex/02-calibration-workflow` |
-| 当前 origin | `https://github.com/halideworks/gloam.git` |
+| 项目默认版本 | `1.13.0`（`src/Gloam/Gloam.csproj` 的 `<Version>`）；发布版本仍以 `v*` 标签为准 |
+| 当前分支 | `codex/zh-terminology-review` |
+| 当前 origin | `https://github.com/mentho7/gloam-cn.git` |
 | 安装器 | Velopack，包 ID `GloamApp`，显示名称 Gloam |
-| 更新来源 | `src/Gloam/Infrastructure/Platform/UpdateService.cs` 中的 `RepoUrl`，目前指向上游 |
+| 更新来源 | `src/Gloam/Infrastructure/Platform/UpdateService.cs` 中的 `RepoUrl`，必须指向本仓库 `github.com/mentho7/gloam-cn`（与 CI 上传目标一致） |
 | CI | `.github/workflows/build.yml`，PR / 手动运行验证打包；推送 `v*` 标签会签名并公开发布 |
 | 网页依赖 | 根目录 `package.json` 用于静态网站；生成桌面 exe 不需要 `npm install` |
 
@@ -64,7 +66,7 @@ dotnet test src/Gloam.sln -c Release --no-restore
 2. 向 publish 复制 README、MIT 许可及第三方说明；项目文件同时复制 6 个 ICM 模板。
 3. 下载 ArgyllCMS 3.5.0 win64 压缩包，校验固定 SHA-256 后解压并打包到程序目录。
 4. 执行 `scripts/Test-PublishOutput.ps1`，检查必需文件并以 `--smoke --data-dir <临时目录>` 运行隔离启动检查。
-5. 找到或安装 `vpk`，执行 `vpk pack` 生成安装器、便携包、完整更新包及更新索引。
+5. 找到或安装固定版本 `vpk 1.2.161`，执行 `vpk pack` 生成安装器、便携包、完整更新包及更新索引。
 
 默认输出为 `publish/` 和 `Releases/`，已被 Git 忽略。脚本会清理指定的 publish 目录，但不会清空 Releases，因此正式版本应使用专门的空输出目录，防止混入历史产物：
 
@@ -85,10 +87,10 @@ dotnet test src/Gloam.sln -c Release --no-restore
 
 ### 工具版本与下载故障
 
-当前项目使用 `Velopack` NuGet 1.2.0，但本地脚本与 CI 的 CLI 安装命令没有固定版本。为可重复构建，建议先使用并验证匹配版本，后续在独立变更中将本地与 CI 工具版本统一固定：
+当前项目使用 `Velopack` NuGet 1.2.0，CLI `vpk` 固定为 `1.2.161`：CI 安装时显式指定版本。为可重复构建，本地也用下面的命令安装同一固定版本（`package.ps1` 在缺工具时仍会以最新版安装，属待统一项）：
 
 ```powershell
-dotnet tool install vpk --version 1.2.0 --tool-path artifacts/tools
+dotnet tool install vpk --version 1.2.161 --tool-path artifacts/tools
 $env:PATH = "$(Join-Path $PWD 'artifacts/tools');$env:PATH"
 ./package.ps1 -Version 1.13.0
 ```

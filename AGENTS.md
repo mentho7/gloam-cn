@@ -2,6 +2,12 @@
 
 Guidance for agents working in this repository.
 
+## Repository maintenance
+
+Follow `docs/maintenance.md` for branches, PRs, versioning, and documentation ownership.
+Use `RELEASE.md` for release gates. Never move a published tag or describe unverified
+hardware, signing, or update checks as passing.
+
 ## Agent skills
 
 ### Issue tracker

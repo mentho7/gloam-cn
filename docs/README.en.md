@@ -1,5 +1,9 @@
 # Gloam
 
+This project is independently maintained by [mentho7](https://github.com/mentho7), based on a fork of [halideworks/gloam](https://github.com/halideworks/gloam). It includes substantial refactoring, rewritten code, and Chinese/English localization. We thank the upstream authors and contributors for the foundation. Releases and support here are maintained independently and do not represent an official upstream release or endorsement.
+
+The [MIT license](../LICENSE.txt) and [third-party notices](../THIRD_PARTY_NOTICES.txt) are retained. See this fork's [changelog](../CHANGELOG.md), and report problems with its releases to [this repository's issue tracker](https://github.com/mentho7/gloam-cn/issues).
+
 [中文](../README.md) · **English**
 
 Fix washed-out SDR content in Windows HDR mode. Per-monitor gamma correction, a perceptual night mode, and verified colorimeter calibration.
@@ -13,6 +17,18 @@ Fix washed-out SDR content in Windows HDR mode. Per-monitor gamma correction, a 
 <sub>Rendered, not photographed: the source image is pushed through the same signal path the app implements (`TransferFunctions.cs`, `LutGenerator.cs`, and the Windows SDR-in-HDR wire model), once without Gloam and once with its Gamma 2.2 LUT, then re-encoded for an ordinary SDR screen. See [`scripts/render-comparison-images.py`](../scripts/render-comparison-images.py). A screenshot cannot show this: the whole problem is that what the compositor sends to the panel differs from what gets captured.</sub>
 
 Turn HDR on in Windows and SDR content goes flat and milky, because Windows presents it through a curve your display was never built to decode. Gloam puts the right curve back, per monitor.
+
+## v1.13.0 · First Chinese fork release
+
+This release builds on the original project with:
+
+- **Live Chinese/English switching** across the tray, settings, dashboard, preflight checks, and calibration reports, with fixes for stale English text after switching.
+- **UI and layout improvements**, including fallback text for unknown night-mode presets and regression checks for overflow and language switching.
+- **Core refactoring** of display output policy, report uncertainty calculations, and location lookup, with unit-test coverage.
+- **Clearer status feedback** through display output results on the dashboard and calibration stage indicators.
+- **Security hardening** with a pinned SHA-256 check before elevated colorimeter driver installation and HTTPS location lookup.
+
+According to the release notes, calibration formulas and measured-output algorithms are unchanged, so this update does not require recalibration. The installer is currently **unsigned**. See the [full v1.13.0 release notes](https://github.com/mentho7/gloam-cn/releases/tag/v1.13.0).
 
 ## Quick start
 
@@ -56,7 +72,9 @@ Portable:
 
 Release notes, checksums and older versions: https://github.com/mentho7/gloam-cn/releases
 
-If SmartScreen says "Windows protected your PC", click **More info** and confirm the verified publisher. New signed apps can still show reputation warnings until enough users have installed them.
+The v1.13.0 release is **unsigned** and may show an unknown publisher. Verify its source and SHA-256 against the release page. A configured signing workflow is not proof that this release was signed.
+
+This repository is public and releases are accessible without repository credentials. End-to-end updates still require validation with an older installed version. Check each release for its signing status; see the [release runbook](../RELEASE.md).
 
 ## Use
 
@@ -162,6 +180,8 @@ dotnet run --project src/Gloam.Cli -- night 2200 --algorithm ultra --basis rec20
 
 Contributions are welcome. See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
+[Documentation](README.md) · [Maintenance policy](maintenance.md) · [Changelog](../CHANGELOG.md) · [Releases](../RELEASE.md)
+
 ## Files
 
 - Settings, logs, reports, corrections: `%LOCALAPPDATA%\Gloam`
@@ -169,13 +189,9 @@ Contributions are welcome. See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 Use **Export Diagnostics** from the tray when reporting issues.
 
-## License
-
-Gloam is MIT licensed.
-
-ArgyllCMS is AGPL v3. Gloam invokes ArgyllCMS tools as separate processes and does not link against AGPL code. See `THIRD_PARTY_NOTICES.txt`.
-
 ## Credits
+
+Thanks to the authors and contributors of the original [Gloam project (halideworks/gloam)](https://github.com/halideworks/gloam). This project was forked from that repository and builds on its foundation with refactoring, rewritten code, and Chinese/English localization.
 
 Gloam began as a fork of Dylan Raga's [win11hdr-srgb-to-gamma2.2-icm](https://github.com/dylanraga/win11hdr-srgb-to-gamma2.2-icm) and retains his identification of the Windows SDR-in-HDR sRGB-to-gamma correction, the insight the whole application is built around. Gloam has since grown into a different program, but it started there, and that diagnosis was the hard part.
 

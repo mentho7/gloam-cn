@@ -2,6 +2,10 @@
 
 **中文** · [English](docs/README.en.md)
 
+本项目由 [mentho7](https://github.com/mentho7) 独立维护，基于 [halideworks/gloam](https://github.com/halideworks/gloam) fork 后持续开发，包含大量重构、代码重写和中英本地化工作。感谢上游作者与贡献者提供的基础实现。本仓库的发布、支持与变更由本项目维护者负责，不代表上游官方版本或上游背书。
+
+项目保留 [MIT 许可](LICENSE.txt)及[第三方声明](THIRD_PARTY_NOTICES.txt)。本 fork 的发布记录见 [CHANGELOG.md](CHANGELOG.md)；使用本仓库发布包遇到问题，请提交到[本仓库 Issues](https://github.com/mentho7/gloam-cn/issues)。
+
 修复 Windows HDR 模式下 SDR 内容发灰的问题。逐显示器伽马校正、感知式夜间模式，以及经色度计验证的校准。
 
 [![Build](https://github.com/mentho7/gloam-cn/actions/workflows/build.yml/badge.svg)](https://github.com/mentho7/gloam-cn/actions/workflows/build.yml)
@@ -14,6 +18,18 @@
 
 在 Windows 中开启 HDR 后，SDR 内容会变得平淡、发灰，因为 Windows 呈现它时所用的曲线，显示器本身并非为解码该曲线而设计。Gloam 为每台显示器把正确的曲线放回去。
 
+## v1.13.0 · 首个中文 fork 版本
+
+本版在原项目基础上，重点完成以下更新：
+
+- **中英即时切换**：覆盖托盘、设置、仪表盘、预检和校准报告，无需重启，修复切换后残留英文的问题。
+- **界面与布局改进**：修复夜间模式未知档位显示为空白的问题，增加布局溢出和语言切换回归检查。
+- **核心逻辑重构**：拆分显示输出策略、报告不确定度计算和位置查找逻辑，补充单元测试。
+- **状态反馈更清晰**：仪表盘展示显示输出的执行结果，校准界面增加阶段指示。
+- **安全加固**：色彩仪驱动提权安装前校验固定 SHA-256，位置查询改用 HTTPS。
+
+按本版发布说明，校准公式与实测输出算法未改变，无需因本次更新重新校准。安装包目前**未签名**。详见 [v1.13.0 完整发布说明](https://github.com/mentho7/gloam-cn/releases/tag/v1.13.0)。
+
 ## 快速开始
 
 1. 下载 [`GloamApp-win-Setup.exe`](https://github.com/mentho7/gloam-cn/releases/latest/download/GloamApp-win-Setup.exe) 并运行。按用户安装，不弹管理员提示。
@@ -24,6 +40,7 @@
 
 ## 功能
 
+- 界面中英双语，运行期**原地切换**，无需重启（标题栏语言按钮）。词条收敛在 catalog（`src/Gloam/Resources/i18n/`），切换时正在进行的校准与已打开的对话框都不中断——这是本 fork 相对上游的主体特性。
 - 用逐显示器的伽马 2.2、伽马 2.4 或 Windows 默认模式，修复 Windows SDR-in-HDR 的伽马失配。
 - 在启动、显示器变更、系统恢复以及驱动或游戏重置 ramp 之后自动恢复校正。
 - 提供基于 CAT16 色适应的感知式夜间模式，含固定时间或太阳位置调度、手动覆盖、感知均匀的 mired 空间渐变，以及把蓝光压制到最大的极致夜间配置。
@@ -56,7 +73,9 @@
 
 发布说明、校验和与旧版本见 https://github.com/mentho7/gloam-cn/releases
 
-若 SmartScreen 提示「Windows 已保护你的电脑」，点击 **更多信息** 并确认已验证的发布者。新签名的应用在积累到足够多安装量之前，仍可能显示信誉警告。
+v1.13.0 发布页标明安装包**未签名**，可能显示「未知发布者」。请核对发布页的来源和 SHA-256；不要将签名流水线的配置当作本版已签名的证明。
+
+仓库已公开，Release 可匿名访问。自动更新仍需完成旧版到新版的实际升级验证；签名状态以每个 Release 的说明为准。见 [发布手册](RELEASE.md)。
 
 ## 使用
 
@@ -162,6 +181,8 @@ dotnet run --project src/Gloam.Cli -- night 2200 --algorithm ultra --basis rec20
 
 欢迎贡献。见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
+[文档导航](docs/README.md) · [仓库维护规范](docs/maintenance.md) · [版本记录](CHANGELOG.md) · [发布手册](RELEASE.md)
+
 ## 文件位置
 
 - 设置、日志、报告、校正文件：`%LOCALAPPDATA%\Gloam`
@@ -169,13 +190,9 @@ dotnet run --project src/Gloam.Cli -- night 2200 --algorithm ultra --basis rec20
 
 报告问题时请从托盘使用 **导出诊断信息**。
 
-## 许可证
-
-Gloam 采用 MIT 许可证。
-
-ArgyllCMS 为 AGPL v3。Gloam 以独立进程方式调用 ArgyllCMS 工具，不链接 AGPL 代码。见 `THIRD_PARTY_NOTICES.txt`。
-
 ## 致谢
+
+感谢原项目 [Gloam（halideworks/gloam）](https://github.com/halideworks/gloam) 的作者及所有贡献者。本项目从该仓库 fork，并在其基础上进行重构、代码重写和中英本地化；原项目提供了本项目持续开发的基础。
 
 Gloam 最初是 Dylan Raga 的 [win11hdr-srgb-to-gamma2.2-icm](https://github.com/dylanraga/win11hdr-srgb-to-gamma2.2-icm) 的衍生项目，并保留了他对 Windows SDR-in-HDR 下 sRGB 到伽马校正的识别——整个应用正是建立在这个洞察之上。Gloam 此后已长成一个不同的程序，但它始于此，而当初那步诊断才是最难的部分。
 
